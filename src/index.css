@@ -1,0 +1,119 @@
+:root {
+
+  /* COLORS PALLETE */
+  --ama-color-brand-primary: #333399;
+  --ama-color-brand-secondary: #333333;
+  --ama-color-brand-tertiary: #1ACC60;
+  
+  --ama-color-text-gray: #333333;
+  --ama-color-text-blue: #B6DCF6;
+  --ama-color-text-blue-light: #E9F6FF;
+  --ama-color-system-warning: #FFC107;
+  --ama-color-system-error: #DC3545;
+  --ama-color-system-success: #38B458;
+
+  --ama-color-background-white: #FFFFFF;
+  --ama-color-background-light-lighter: #EFEFEE;
+  --ama-color-background-light-darker: #E4E4E4;
+  --ama-color-background-dark-lighter: #2D3241;
+  --ama-color-background-dark-darker: #21242C;
+
+  --ama-color-headers-light: #EFEFEE;
+  --ama-color-headers-pre-header: #E4E4E4;
+
+  --ama-color-blue-0: #F0F0FA;
+  --ama-color-blue-50: #D2D1EF;
+  --ama-color-blue-100: #B5B3E5;
+  --ama-color-blue-200: #9793D9;
+  --ama-color-blue-300: #7974CF;
+  --ama-color-blue-400: #5D56C5;
+  --ama-color-blue-500: #3A3297;
+  --ama-color-blue-600: #2E2879;
+  --ama-color-blue-700: #231E5B;
+  --ama-color-blue-800: #16143C;
+  --ama-color-blue-900: #0B0A1F;
+
+  --ama-color-grey-0: #FFFFFF;
+  --ama-color-grey-50: #D6D6D6;
+  --ama-color-grey-100: #C2C2C2;
+  --ama-color-grey-200: #ADADAD;
+  --ama-color-grey-300: #939393;
+  --ama-color-grey-400: #858585;
+  --ama-color-grey-500: #707070;
+  --ama-color-grey-600: #5C5C5C;
+  --ama-color-grey-700: #515151;
+  --ama-color-grey-800: #1F1F1F;
+  --ama-color-grey-900: #0A0A0A;
+
+  --ama-color-green-0: #EEFDF3;
+  --ama-color-green-50: #CDF7DC;
+  --ama-color-green-100: #ACF2C5;
+  --ama-color-green-200: #8DEEAE;
+  --ama-color-green-300: #6DEB98;
+  --ama-color-green-400: #55E380;
+  --ama-color-green-500: #38B458;
+  --ama-color-green-600: #2C8F47;
+  --ama-color-green-700: #206B35;
+  --ama-color-green-800: #144724;
+  --ama-color-green-900: #092411;
+
+  --ama-color-yellow-0: #FEFAEB;
+  --ama-color-yellow-50: #FFF6D3;
+  --ama-color-yellow-100: #FCECAF;
+  --ama-color-yellow-200: #FBE189;
+  --ama-color-yellow-300: #FAD763;
+  --ama-color-yellow-400: #F9CE41;
+  --ama-color-yellow-500: #DAAA20;
+  --ama-color-yellow-600: #B38B18;
+  --ama-color-yellow-700: #8B6C10;
+  --ama-color-yellow-800: #634E09;
+  --ama-color-yellow-900: #3B2E03;
+
+  --ama-color-red-0: #FBEEEF;
+  --ama-color-red-50: #F7DDDF;
+  --ama-color-red-100: #F3CCCF;
+  --ama-color-red-200: #EBAAB0;
+  --ama-color-red-300: #E38991;
+  --ama-color-red-400: #DB6872;
+  --ama-color-red-500: #C8313B;
+  --ama-color-red-600: #A62831;
+  --ama-color-red-700: #851F27;
+  --ama-color-red-800: #64171D;
+  --ama-color-red-900: #420F13;
+
+
+  --font-lato: "Lato", sans-serif;
+  /* --font-red-hat: "Red Hat Display", sans-serif; */
+
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+.main-content {
+  display: grid;
+  grid-template-areas:
+    "header header"
+    "menu content"
+    "menu content";
+  grid-template-columns: 1fr 3fr;
+}
+
+header {
+  grid-area: header;
+  background-color: var(--ama-color-brand-primary); 
+  padding: 20px;
+}
+
+aside {
+  grid-area: menu;
+}
+
+main {
+  grid-area: content;
+  background-color: var(--ama-color-grey-50) !important;
+  padding: 40px;
+}

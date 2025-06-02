@@ -1,0 +1,18 @@
+.main-content-home{
+    display: flex;
+    flex-direction: column;
+
+}
+.cards-dashboard{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 15px;
+    align-items: flex-start;
+    padding: 30px;
+    background: white;
+}
+
+h2:not(:first-child){
+    margin-top: 20px;
+}

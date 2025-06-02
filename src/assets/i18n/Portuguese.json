@@ -1,0 +1,2610 @@
+{
+  "HEADER": {
+    "name": "Consola de administração",
+    "logout": "Sair"
+  },
+  "LOGIN": {
+    "title": "Iniciar sessão",
+    "endpoint_label": "IP da máquina a se ligar",
+    "username_label": "Utilizador",
+    "password_label": "Palavra-chave",
+    "email_error": "Introduza um email válido. <strong>Ex.: nome@serviço.com</strong>",
+    "show_password": "Carregue aqui para mostrar a palavra-chave",
+    "hide_password": "Carregue aqui para esconder a palavra-chave",
+    "submit": "Iniciar sessão",
+    "messages": {
+      "password_match": "Utilizador ou palavra-chave incorretos",
+      "no_user": "Utilizador ou palavra-chave incorretos",
+      "system_error": "Erro no sistema. Por favor tente mais tarde"
+    }
+  },
+  "ADMIN_CONSOLE": {
+    "add_button": "Adicionar conteúdo",
+    "bottom_sheet": {
+      "govUser": {
+        "title": "Utilizador Autenticação.Gov",
+        "subtitle": "Criar um novo utilizador Autenticação.Gov"
+      },
+      "user": {
+        "title": "Utilizador",
+        "subtitle": "Criar um novo utilizador"
+      },
+      "directory": {
+        "title": "Diretório",
+        "subtitle": "Criar uma nova diretório"
+      },
+      "tag": {
+        "title": "Categoria",
+        "subtitle": "Criar uma nova categoria"
+      },
+      "entity": {
+        "title": "Entidade",
+        "subtitle": "Criar uma nova entidade"
+      },
+      "website": {
+        "title": "Sítio web",
+        "subtitle": "Criar um novo sítio web"
+      },
+      "page": {
+        "title": "Páginas",
+        "subtitle": "Criar novas páginas"
+      },
+      "a11yStatement": {
+        "title": "Declarações de acessibilidade",
+        "subtitle": "Atualizar declarações de acessibilidade"
+      }
+    }
+  },
+  "MENU": {
+    "home": "Início",
+    "govUsers": "Utilizadores Gov",
+    "users": "Utilizadores",
+    "directories": "Diretórios",
+    "tags": "Categorias",
+    "entities": "Entidades",
+    "websites": "Sítios web",
+    "ay11Statements": "Declarações de acessbilidade",
+    "crawler": "Crawler",
+
+    "pages": "Páginas",
+    "settings": "Definições",
+    "devTools": "Ferramentas de programador",
+    "csv": "CSV"
+  },
+  "HOME_PAGE": {
+    "title": "Bem vindo",
+    "subtitle": "Sumário das aplicações",
+    "users_label": "Utilizadores",
+    "directories_label": "Diretórios",
+    "tags_label": "Categorias",
+    "entities_label": "Entidades",
+    "websites_label": "Sítios web",
+    "pages_label": "Páginas",
+    "sentence": "Total de {{value}}",
+    "observatory": "Observatório",
+    "monitor": "My Monitor",
+    "studies": "Study Monitor",
+    "admin_evaluations": "Avaliações do administrador",
+    "user_evaluations": "Avaliações do My Monitor/Study Monitor",
+    "evaluations_since": "Nº de pedidos de avaliação desde",
+    "pages_being_evaluated": "Nº de páginas em avaliação no momento",
+    "waiting_evaluations": "Nº de páginas à espera de avaliação",
+    "evaluations_error": "Nº de páginas sem avaliação devido a um erro",
+    "generate_observatory_title": "Sincronização de dados estatísticos globais com o Observatório",
+    "generate_observatory_description": "A informação processada no /AMS (back office) é sincronizada com o Observatório todos os dias à meia-noite, atualizando assim os dados deste. Para forçar a atualização dos dados do Observatório a qualquer momento do dia pressione no botão abaixo. A duração da sincronização depende do número de páginas, o que poderá levar até 5 minutos a ser concluída.",
+    "generate_observatory_button": "Sincronizar dados com Observatório",
+    "generate_observatory_data_message": "Os dados do Observatório estão a ser sincronizados",
+    "evaluation_state_title": "Estado das avaliações",
+    "evaluation_am_state_title": "Avaliações feitas pelo Access Monitor",
+    "evaluation_observatory_state_title": "Avaliações feitas pelo AMS/Observatório",
+    "evaluation_mm_state_title": "Avaliações feitas pelo My Monitor",
+    "evaluation_sm_state_title": "Avaliações feitas pelo Study Monitor",
+    "reset_evaluation_list": "Reiniciar",
+    "reset_evaluation_list_message": "Lista de avaliações reiniciada com sucesso",
+    "delete_evaluation_list": "Apagar",
+    "delete_evaluation_list_confirmation": "Confirme que quer apagar a lista de avaliações",
+    "delete_evaluation_list_message": "Lista de avaliações apagada com sucesso",
+    "confirm_button": "Confirmar",
+    "load_data_title": "Carregamento de dados",
+    "load_data_description": "Suporte para carregamento de dados a partir de um ficheiro. O ficheiro deve conter informação de diretoria, categoria, nome do sítio, url. Cada coluna deve estar separada por um ponto e vírgula. O ficheiro deve ser do tipo .csv",
+    "load_data_button": "Carregar dados"
+  },
+  "STATISTICS": {
+    "title": "Estatísticas",
+    "subtitle": "Metadados",
+    "gauge": {
+      "label": "Pontuação média"
+    },
+    "tags": "Nº de categorias",
+    "websites": "Nº de sítios web",
+    "pages": "Nº de páginas (avaliadas)",
+    "average_page": "Nº médio de páginas avaliadas por sítio web",
+    "score": "Pontuação",
+    "newest_page_updated": "Avaliação mais recente duma página",
+    "oldest_page_updated": "Avaliação mais antiga duma página",
+    "newest_page_updated2": "Avaliação mais recente dum sítio web",
+    "oldest_page_updated2": "Avaliação mais antiga dum sítio web",
+    "last_updated": "Última atualização das estatísticas",
+    "score_distribution": "Distribuição de pontuações",
+    "error_distribution": "Más práticas",
+    "correction_distribution": "Boas práticas",
+    "element_correction_distribution": "Distribuição de correção por elemento",
+    "pages_with_errors": "Páginas não conformes",
+    "pages_without_errors": "Páginas conformes",
+    "websites_with_errors": "Sítios web não conformes",
+    "websites_without_errors": "Sítios web conformes",
+    "pages_without_errors_a": "Conformes A: sem erros de nível A",
+    "pages_without_errors_a_aa": "Conformes AA: sem erros de nível A+AA",
+    "pages_without_errors_a_aa_aaa": "Conformes AAA: sem erros de nível A+AA+AAA",
+    "note": "Apenas as páginas com avaliações foram contabilizadas",
+    "top_5_errors": {
+      "title": "Top 5 de erros mais comuns por cada uma das 3 prioridades das WCAG 2.1 (Nº de páginas)",
+      "errorA_title": "O top dos 5 erros de prioridade \"A\" que afetam mais páginas",
+      "errorAA_title": "O top dos 5 erros de prioridade \"AA\" que afetam mais páginas",
+      "errorAAA_title": "O top dos 5 erros de prioridade \"AAA\" que afetam mais páginas",
+      "message": {
+        "s": "<strong>Existe {{value}} página com o seguinte erro - </strong>",
+        "p": "<strong>Existem {{value}} páginas com o seguinte erro - </strong>"
+      }
+    },
+    "top_5_best_practices": {
+      "title": "Top 5 melhores praticas",
+      "message": {
+        "s": "<strong>Existe {{value}} página com a seguinte boa prática - </strong>",
+        "p": "<strong>Existem {{value}} páginas com a seguinte boa prática - </strong>"
+      }
+    },
+    "accessibility_plot": {
+      "title": "Mancha de acessibilidade",
+      "label": "Distribuição de pontuações"
+    },
+    "success_criteria_counter": {
+      "title": "Contagem de práticas por critério de sucesso",
+      "good_practices": "Melhores práticas",
+      "bad_practices": "Más práticas",
+      "sc": "Critério de sucesso",
+      "pages": "página/s",
+      "websites": "sítio/s web"
+    }
+  },
+  "DIGITAL_STAMP": {
+    "messages": {
+      "generate_all_success": "Selos digitais gerados com sucesso",
+      "generate_website_success": "Selo digital do sítio web gerado com sucesso",
+      "generate_all_error": "Erro ao gerar selos digitais",
+      "generate_website_error": "Erro ao gerar o selo digital do sítio web"
+    }
+  },
+  "DIALOGS": {
+    "chart_title": "Gráfico",
+    "table_title": "Tabela",
+    "scores": {
+      "title": "Distribuição de pontuações",
+      "frequency": "Frequência (nº de páginas)",
+      "percentage": "Percentagem (nº de páginas)",
+      "frequency2": "Frequência (nº de sítios web)",
+      "percentage2": "Percentagem (nº de sítios web)",
+      "percentage_label": "Percentagem (%)",
+      "range": "Intervalo",
+      "cumulative": "Frequência cumulativa"
+    },
+    "corrections": {
+      "title": "Boas práticas",
+      "table_title": "Tabela de boas práticas",
+      "chart_title": "Gráfico de boas prácticas",
+      "n_corrections": "Nº de páginas",
+      "tests_label": "Resultados de testes passados",
+      "situations_label": "Nº de páginas"
+    },
+    "errors": {
+      "title": "10 erros mais frequentes",
+      "table_title": "Tabela de más práticas",
+      "chart_all_title": "Gráfico de más prácticas",
+      "chart_title": "10 más práticas mais frequentes",
+      "common_errors": "Nº de páginas",
+      "level": "Nível",
+      "description": "Descrição",
+      "websites": "Sítios web",
+      "pages": "Paǵinas",
+      "situations": "Ocorrências",
+      "tests_label": "Testes",
+      "situations_label": "Nº de páginas"
+    },
+    "table": {
+      "title": "Grau de correção por elemento",
+      "pages": "Páginas",
+      "pagesPercentage": "Páginas (%)",
+      "websites": "Sítios web",
+      "description": "Descrição",
+      "scs": "Critério de sucesso",
+      "elems": "Elementos",
+      "level": "Nível",
+      "element": "Elemento",
+      "n_corrections": "Nº de páginas",
+      "tests_label": "Elementos estudados nos testes passados",
+      "situations_label": "Nº de páginas",
+      "quartiles": "Ocorrências",
+      "occurrences": {
+        "single_error": "aviso em",
+        "multi_error": "avisos em",
+        "single_page_tag": "página",
+        "single_page_listTags": "sítio web",
+        "multi_page_tag": "páginas",
+        "multi_page_listTags": "sítios web",
+        "from": "De",
+        "to": "a"
+      },
+      "select": "Tipo de elemento",
+      "FPS": "Declarações de desempenho funcional",
+      "WV": "Utilização sem visão",
+      "LV": "Utilização com baixa visão",
+      "WPC": "Utilização sem percepção da cor",
+      "WH": "Utilização sem audição",
+      "LH": "Utilização com audição limitada",
+      "WVC": "Utilização sem oralidade",
+      "LMS": "Utilização com manipulação e/ou força limitada",
+      "LR": "Utilização com alcance limitado",
+      "PST": "Minimizar o potencial desencadeamento de convulsões fotossensíveis",
+      "LC": "Utilização com disfunção cognitiva"
+    },
+    "re_evaluate": {
+      "title": "Escolha que páginas quer reavaliar",
+      "all": "Todas as páginas",
+      "observatory": "Apenas as páginas do observatório",
+      "submit": "Reavaliar"
+    },
+    "crawler": {
+      "title": "Crawling da categoria",
+      "information": "Irá ser executado o processo de crawling em todos os sítios web desta categoria, e as páginas encontradas serão adicionadas automáticamente para avaliação."
+    },
+    "close": "Fechar"
+  },
+  "ITEMS_PER_PAGE_LABEL": "Itens por página",
+  "NEXT_PAGE_LABEL": "Próxima página",
+  "PREVIOUS_PAGE_LABEL": "Página anterior",
+  "FIRST_PAGE_LABEL": "Primeira página",
+  "LAST_PAGE_LABEL": "Última páginas",
+  "RANGE_PAGE_LABEL_1": "0 de {{length}}",
+  "RANGE_PAGE_LABEL_2": "{{startIndex}} - {{endIndex}} de {{length}}",
+  "GOV_USERS_PAGE": {
+    "title": "Utilizador Autenticação.Gov:",
+    "LIST": {
+      "title": "Utilizadores Autenticação.Gov",
+      "subtitle": "Lista de todos os utilizadores Autenticação.Gov",
+      "table": {
+        "id_label": "ID",
+        "username_label": "Nome",
+        "app_label": "Aplicação",
+        "cc_label": "Nº do cartão de cidadão",
+        "register_label": "Data de registo",
+        "last_login_label": "Última sessão",
+        "edit_label": "Editar",
+        "edit_tooltip": "Editar este utilizador",
+        "see_tooltip": "Ver utilizador"
+      }
+    },
+    "ADD": {
+      "title": "Criar um utilizador Autenticação.Gov:",
+      "subtitle": "Crie um utilizador para o Study Monitor ou para o My Monitor",
+      "user_data": "Dados do utilizador",
+      "ccNumber_label": "Número do cartão de cidadão",
+      "name_label": "Nome",
+      "user_label": "Utilizadores associados",
+      "reset": "Limpar",
+      "submit": "Criar",
+      "user_exists" : "Já existe um utilizador com este número do CC",
+      "messages": {
+        "success": "Utilizador criado com sucesso",
+        "error": "Erro ao criar utilizador"
+      }
+    },
+    "UPDATE": {
+      "title": "Utilizador Autenticação.Gov:",
+      "subtitle": "Editar",
+      "description": "Editar este utilizador",
+      "default": "Reverter alterações",
+      "submit": "Atualizar",
+      "delete": {
+        "title": "Apagar",
+        "description": "Apagar este utilizador",
+        "list": {
+          "title": "Importante:",
+          "item1": "O utilizador e toda a sua informação serão apagados",
+          "item2": "Se o utilizador pertencer à aplicação Study Monitor, os seus sítios web e categorias serão apagados",
+          "item3": "Esta acção não pode ser revertida"
+        },
+        "submit": "Apagar utilizador"
+      },
+      "messages": {
+        "success": "Utilizador atualizado com sucesso",
+        "error": "Erro ao atualizar utilizador"
+      }
+    },
+    "DELETE": {
+      "messages": {
+        "success": "Utilizador apagado com sucesso",
+        "error": "Erro ao apagar utilizador"
+      }
+    }
+  },
+  "USERS_PAGE": {
+    "title": "Utilizador:",
+    "LIST": {
+      "title": "Utilizadores",
+      "subtitle": "Lista de todos os utilizadores das aplicações Study Monitor e My Monitor",
+      "table": {
+        "id_label": "ID",
+        "username_label": "Utilizador",
+        "app_label": "Aplicação",
+        "websites_label": "Nº de sítios web",
+        "register_label": "Data de registo",
+        "last_login_label": "Última sessão",
+        "edit_label": "Editar",
+        "edit_tooltip": "Editar este utilizador",
+        "see_tooltip": "Ver utilizador"
+      }
+    },
+    "ADD": {
+      "title": "Criar um utilizador",
+      "subtitle": "Crie um utilizador para o Study Monitor ou para o My Monitor",
+      "user_data": "Dados do utilizador",
+      "username_label": "Utilizador",
+      "username_exists": "O utilizador inserido já existe",
+      "password_label": "Palavra-chave",
+      "password_hint": "A palavra-chave deverá ter no mínimo 8 caracteres, 1 caracter maísculo, 1 caracter mínusculo, 1 número e 1 caracter especial",
+      "password_short": "A palavra-chave tem menos de 8 caracteres",
+      "password_uppercase": "A palavra-chave não tem nenhum caracter maísculo",
+      "password_lowercase": "A palavra-chave não tem nenhum caracter mínusculo",
+      "password_number": "A palavra-chave não tem nenhum número",
+      "password_special": "A palavra-chave não tem nenhum caracter especial",
+      "confirm_password_label": "Confirmar palavra-chave",
+      "confirm_password_error": "As palavras-chave não coincidem",
+      "names_label": "Nomes de contacto",
+      "emails_label": "E-mails de contacto",
+      "emails_error": "Email é <strong>inválido</strong>",
+      "choose_app": "Aplicação a que se destina",
+      "transfer_label": "Transferir páginas do observatório",
+      "websites_label": "Associar sítios web",
+      "tags_label": "Associar categorias",
+      "reset": "Limpar",
+      "submit": "Criar",
+      "messages": {
+        "success": "Utilizador criado com sucesso",
+        "error": "Erro ao criar utilizador"
+      }
+    },
+    "UPDATE": {
+      "title": "Utilizador",
+      "subtitle": "Editar",
+      "description": "Editar este utilizador",
+      "default": "Reverter alterações",
+      "submit": "Atualizar",
+      "delete": {
+        "title": "Apagar",
+        "description": "Apagar este utilizador",
+        "list": {
+          "title": "Importante:",
+          "item1": "O utilizador e toda a sua informação serão apagados",
+          "item2": "Se o utilizador pertencer à aplicação Study Monitor, os seus sítios web e categorias serão apagados",
+          "item3": "Esta acção não pode ser revertida"
+        },
+        "submit": "Apagar utilizador"
+      },
+      "messages": {
+        "success": "Utilizador atualizado com sucesso",
+        "error": "Erro ao atualizar utilizador"
+      }
+    },
+    "DELETE": {
+      "title": "Apagar",
+      "description": "Apagar este utilizador",
+      "list": {
+        "title": "Importante:",
+        "item1": "Este utilizador vai ser apagado",
+        "item2": "Esta ação não pode ser revertida"
+      },
+      "submit": "Apagar utilizador",
+      "messages": {
+         "success": "Utilizador apagado com sucesso",
+        "error": "Erro ao apagar utilizador"
+      }
+  }},
+  "DIRECTORIES_PAGE": {
+    "title": "Diretório:",
+    "LIST": {
+      "title": "Diretórios",
+      "subtitle": "Lista de todas os diretórios",
+      "table": {
+        "id_label": "ID",
+        "name_label": "Nome",
+        "observatory_label": "Observatório",
+        "creation_label": "Data de criação",
+        "tags_label": "Nº de categorias",
+        "re_evaluate_label": "Reavaliar",
+        "re_evaluate_tooltip": "Reavaliar os sítios web do diretório",
+        "edit_label": "Editar",
+        "edit_tooltip": "Editar este diretório",
+        "see_tooltip": "Ver diretório"
+      },
+      "delete_pages": "Apagar páginas",
+      "delete_directories": "Apagar diretórios",
+      "re_evaluate_directories": "Re-avaliar"
+    },
+    "ADD": {
+      "title": "Criar um novo diretório",
+      "name_label": "Nome",
+      "name_exists": "O nome inserido já existe",
+      "observatorio_label": "Mostrar este diretório no Observatório",
+      "tags_label": "Selecione as categorias para formar o novo diretório",
+      "method_label": "Escolha como formar o diretório",
+      "method_intersection_label": "Intersecção",
+      "method_reunion_label": "Reunião",
+      "reset": "Limpar",
+      "submit": "Criar",
+      "messages": {
+        "success": "Diretório criada com sucesso",
+        "error": "Erro ao criar a diretório"
+      }
+    },
+    "UPDATE": {
+      "title": "Diretório",
+      "subtitle": "Editar",
+      "description": "Editar este diretório",
+      "tags_label": "Associar categorias",
+      "default": "Reverter alterações",
+      "submit": "Atualizar",
+      "delete": {
+        "title": "Apagar",
+        "description": "Apagar este diretório",
+        "list": {
+          "title": "Importante:",
+          "item1": "Apenas este diretório será apagado",
+          "item2": "As categorias que pertencem a este diretório ficarão sem diretório",
+          "item3": "Esta acção não pode ser revertida"
+        },
+        "submit": "Apagar diretório"
+      },
+      "messages": {
+        "success": "Diretório atualizado com sucesso",
+        "error": "Erro ao atualizar o diretório"
+      }
+    },
+    "DELETE": {
+      "messages": {
+        "directories_success": "Diretórios apagados com sucesso",
+        "directories_error": "Erro ao apagar diretórios",
+        "pages_success": "Páginas dos diretórios apagadas com sucesso",
+        "pages_error": "Erro ao apagar as páginas dos diretórios"
+      }
+    }
+  },
+  "TAGS_PAGE": {
+    "title": "Categoria:",
+    "subtitle": "Utilizador:",
+    "LIST": {
+      "title": "Categorias",
+      "subtitle": "Lista de todas as categorias",
+      "subtitle2": "Lista das categorias de ",
+      "table": {
+        "id_label": "ID",
+        "name_label": "Nome",
+        "observatorio_label": "Observatório",
+        "user_label": "Utilizador",
+        "creation_label": "Data de criação",
+        "websites_label": "Nº de sítios web",
+        "re_evaluate_label": "Reavaliar",
+        "re_evaluate_tooltip": "Reavaliar os sítios web da categoria",
+        "edit_label": "Editar",
+        "edit_tooltip": "Editar esta categoria",
+        "crawler": "Crawler",
+        "crawler_tooltip": "Clicque aqui para correr o crawler nesta categoria",
+        "see_tooltip": "Ver categoria"
+      },
+      "delete_pages": "Apagar páginas",
+      "delete_tags": "Apagar categorias",
+      "re_evaluate_tags": "Re-avaliar",
+      "crawler": "Crawler"
+    },
+    "ADD": {
+      "title": "Criar uma nova categoria",
+      "name_label": "Nome",
+      "name_exists": "O nome inserido já existe",
+      "directories_label": "Associar diretórios (opcional)",
+      "websites_label": "Associar sítios web (opcional)",
+      "reset": "Limpar",
+      "submit": "Criar",
+      "messages": {
+        "success": "Categoria criada com sucesso",
+        "error": "Erro ao criar a categoria"
+      },
+      "progress": {
+        "title": "Reavaliar categoria - progresso",
+        "total_websites": "Total sítios web:",
+        "elapsed_websites": "Sítios web decorridos:",
+        "remaining_websites": "Sítios web em falta:",
+        "success_websites": "Sítios web com sucesso:",
+        "error_websites": "Sítios web com erro:",
+        "current_website": "Sítio web atual:",
+        "total_uris": "Total uris:",
+        "elapsed_uris": "Uris decorridos:",
+        "remaining_uris": "Uris em falta:",
+        "success_uris": "Uris com sucesso:",
+        "error_uris": "Uris com erro:",
+        "current_uri": "Uri atual:",
+        "uris_with_errors": "Ver uris com erros",
+        "skip_website": "Saltar sítio web",
+        "close": "Fechar",
+        "close_dialog": {
+          "title": "Terminar processo",
+          "description": "Fechar a janela irá terminar o processo em execução. Pretende terminar o processo?",
+          "no": "Não",
+          "yes": "Sim"
+        }
+      }
+    },
+    "UPDATE": {
+      "title": "Categoria",
+      "subtitle": "Editar",
+      "description": "Editar esta categoria",
+      "directories_label": "Associar diretórios",
+      "websites_label": "Associar sítios web",
+      "default": "Reverter alterações",
+      "submit": "Atualizar",
+      "delete": {
+        "title": "Apagar",
+        "description": "Apagar esta categoria",
+        "list": {
+          "title": "Importante:",
+          "item1": "Apenas esta categoria será apagada",
+          "item2": "Os sítios web que pertencem a esta categoria ficarão sem categoria",
+          "item3": "Esta acção não pode ser revertida"
+        },
+        "submit": "Apagar categoria"
+      },
+      "messages": {
+        "success": "Categoria atualizada com sucesso",
+        "error": "Erro ao atualizar categoria"
+      },
+      "user_tag": {
+        "description": "Esta categoria pertence a um utilizador da aplicação Study Monitor. Pretende realizar uma cópia e transformá-la numa categoria oficial?",
+        "tag_name": "Novo nome da categoria oficial",
+        "submit": "Transformar",
+        "messages": {
+          "success": "Categoria copiada com sucesso",
+          "error": "Erro ao copiar categoria"
+        }
+      }
+    },
+    "DELETE": {
+      "messages": {
+        "tags_success": "Categorias apagadas com sucesso",
+        "tags_error": "Erro ao apagar categorias",
+        "pages_success": "Páginas das categorias apagadas com sucesso",
+        "pages_error": "Erro ao apagar as paginas das categorias"
+      }
+    }
+  },
+  "ENTITIES_PAGE": {
+    "title": "Entidade:",
+    "LIST": {
+      "title": "Entidades",
+      "subtitle": "Lista de todas as Entidades",
+      "table": {
+        "id_label": "ID",
+        "short_name_label": "Nome abreviado",
+        "long_name_label": "Nome completo",
+        "creation_label": "Data de criação",
+        "websites_label": "Nº sítios web",
+        "re_evaluate_label": "Reavaliar",
+        "re_evaluate_tooltip": "Reavaliar os sítios web da entidade",
+        "edit_label": "Editar",
+        "edit_tooltip": "Editar esta entidade",
+        "see_tooltip": "Ver entidade"
+      },
+      "delete_pages": "Apagar páginas",
+      "delete_entities": "Apagar entidades",
+      "re_evaluate_entities": "Re-avaliar"
+    },
+    "ADD": {
+      "title": "Criar uma nova Entidade",
+      "short_name_label": "Nome abreviado",
+      "short_name_exists": "O nome inserido já existe",
+      "long_name_label": "Nome completo",
+      "long_name_exists": "O nome inserido já existe",
+      "websites_label": "Associar sítios web (opcional)",
+      "reset": "Limpar",
+      "submit": "Criar",
+      "messages": {
+        "success": "Entidade criada com sucesso",
+        "error": "Erro ao criar a entidade"
+      },
+      "progress": {
+        "title": "Reavaliar entidade - progresso",
+        "total_websites": "Total sítios web:",
+        "elapsed_websites": "Sítios web decorridos:",
+        "remaining_websites": "Sítios web em falta:",
+        "success_websites": "Sítios web com sucesso:",
+        "error_websites": "Sítios web com erro:",
+        "current_website": "Sítio web atual:",
+        "total_uris": "Total uris:",
+        "elapsed_uris": "Uris decorridos:",
+        "remaining_uris": "Uris em falta:",
+        "success_uris": "Uris com sucesso:",
+        "error_uris": "Uris com erro:",
+        "current_uri": "Uri atual:",
+        "uris_with_errors": "Ver uris com erros",
+        "skip_website": "Saltar sítio web",
+        "close": "Fechar",
+        "close_dialog": {
+          "title": "Terminar processo",
+          "description": "Fechar a janela irá terminar o processo em execução. Pretende terminar o processo?",
+          "no": "Não",
+          "yes": "Sim"
+        }
+      }
+    },
+    "UPDATE": {
+      "title": "Entidade",
+      "subtitle": "Editar",
+      "description": "Editar esta entidade",
+      "websites_label": "Associar sítios web",
+      "default": "Reverter alterações",
+      "submit": "Atualizar",
+      "delete": {
+        "title": "Apagar",
+        "description": "Apagar esta entidade",
+        "list": {
+          "title": "Importante:",
+          "item1": "Apenas esta entidade será apagada",
+          "item2": "Os sítios web que pertencem a esta entidade ficarão sem entidade",
+          "item3": "Esta acção não pode ser revertida"
+        },
+        "submit": "Apagar entidade"
+      },
+      "messages": {
+        "success": "Entidade atualizada com sucesso",
+        "error": "Erro ao atualizar entidade"
+      }
+    },
+    "DELETE": {
+      "messages": {
+        "entities_success": "Entidades apagadas com sucesso",
+        "entities_error": "Erro ao apagar entidades",
+        "pages_success": "Páginas das entidades apagadas com sucesso",
+        "pages_error": "Erro ao apagar as páginas das entidades"
+      }
+    }
+  },
+  "WEBSITES_PAGE": {
+    "title": "Sítio web:",
+    "subtitle": "Utilizador:",
+    "download": {
+      "allPages": "Todas as páginas",
+      "observatory": "Observatório"
+    },
+    "LIST": {
+      "title": "Sítios web",
+      "subtitle": "Lista de todos os sítios web",
+      "subtitle2": "Lista dos sítios web de",
+      "generate_stamps": "Criar/atualizar selos digitais",
+      "table": {
+        "id_label": "ID",
+        "name_label": "Nome",
+        "url_label": "Url incial",
+        "entity_label": "Entidade",
+        "user_label": "Utilizador",
+        "pages_label": "Nº de páginas (avaliadas)",
+        "creation_label": "Data de criação",
+        "re_evaluate_label": "Reavaliar",
+        "re_evaluate_tooltip": "Reavaliar as páginas do sítio web",
+        "edit_label": "Editar",
+        "edit_tooltip": "Editar este sítio web",
+        "crawler_label": "Crawler",
+        "crawler_tooltip": "Clique para correr o crawler neste sítio web",
+        "see_tooltip": "Ver selo digital",
+        "stamp_label": "Selos digitais",
+        "stamp_tooltip": "Criar/atualizar selo digital"
+      },
+      "delete_pages": "Apagar páginas",
+      "delete_websites": "Apagar sítios web",
+      "re_evaluate_websites": "Re-avaliar",
+      "crawler": "Crawler",
+      "digital_stamps": "Gerar selos digitais"
+    },
+    "ADD": {
+      "title": "Criar um novo sítio web",
+      "name_label": "Nome",
+      "name_exists": "O nome inserido já existe",
+      "url_label": "Url inicial",
+      "url_hint": "Informação: ",
+      "url_hint_description": "Para mudar o url inicial, apague primeiro todas as páginas associadas.",
+      "url_exists": "O url inserido já existe",
+      "url_invalid": "Url inválido",
+      "url_missing_protocol": "O protocolo do url está em falta (http or https)",
+      "entity_label": "Entidades (opcional)",
+      "entity_invalid": "A entidade inserida é inválida",
+      "user_label": "Utilizador (opcional)",
+      "user_invalid": "O utilizador inserido é inválido",
+      "tags_label": "Associar categorias (opcional)",
+      "reset": "Limpar",
+      "submit": "Criar",
+      "messages": {
+        "success": "Sítio web criado com sucesso",
+        "error": "Erro ao criar o sítio web"
+      },
+      "progress": {
+        "title": "Reavaliar sítio web - progresso",
+        "total_uris": "Total uris:",
+        "elapsed_uris": "Uris decorridos:",
+        "remaining_uris": "Uris em falta:",
+        "success_uris": "Uris com sucesso:",
+        "error_uris": "Uris com erro:",
+        "current_uri": "Uri atual:",
+        "uris_with_errors": "Ver uris com erros",
+        "close": "Fechar",
+        "close_dialog": {
+          "title": "Terminar processo",
+          "description": "Fechar a janela irá terminar o processo em execução. Pretende terminar o processo?",
+          "no": "Não",
+          "yes": "Sim"
+        }
+      }
+    },
+    "UPDATE": {
+      "title": "Sítio web",
+      "subtitle": "Editar",
+      "description": "Editar este sítio web",
+      "declaration_label": "Declaração de acessbilidade",
+      "declaration_non_conform": "Não conforme",
+      "declaration_partial_conform": "Parcialmente conforme",
+      "declaration_conform": "Conforme",
+      "declaration_date_label": "Data da declaração",
+      "stamp_label": "Selo de usabilidade e acessibilidade",
+      "stamp_bronze": "Bronze",
+      "stamp_silver": "Prata",
+      "stamp_gold": "Ouro",
+      "stamp_date_label": "Data do selo",
+      "entity_label": "Entidade",
+      "user_label": "Utilizador",
+      "tags_label": "Associar categorias",
+      "manage": {
+        "observatory": "Escolher páginas para o observatório",
+        "delete": "Apagar páginas"
+      },
+      "default": "Reverter alterações",
+      "submit": "Atualizar",
+      "cant_edit": "Este sítio web não pode ser editado pois pertence a um utilizador da aplicação Study Monitor.",
+      "observatorio": {
+        "title": "Escolher páginas para mostrar no observatório",
+        "cancel": "Cancelar",
+        "submit": "Atualizar observatório",
+        "success": "Observatório atualizado com sucesso"
+      },
+      "delete_pages": {
+        "title": "Apagar páginas do sítio web",
+        "submit": "Apagar",
+        "cancel": "Cancelar",
+        "success": "Páginas apagadas com sucesso"
+      },
+      "delete": {
+        "title": "Apagar",
+        "description": "Apagar este sítio web",
+        "list": {
+          "title": "Importante:",
+          "item1": "Este sítio web será apagado",
+          "item2": "Todos os domínios que pertencem a este sítio web serão apagados",
+          "item3": "As páginas deste sítio web não serão apagadas",
+          "item4": "Esta acção não pode ser revertida"
+        },
+        "submit": "Apagar sítio web"
+      },
+      "messages": {
+        "success": "Sítio web atualizado com sucesso",
+        "error": "Erro ao atualizar sítio web"
+      }
+    },
+    "DELETE": {
+      "title": "Apagar sítio web",
+      "description": "Este sítio web pertence a um utilizador do My Monitor. Por favor remova o sítio web do utilizador antes de pode apagar o sítio web.",
+      "button": "Ok",
+      "messages": {
+        "websites_success": "Sítios web apagados com sucesso",
+        "websites_error": "Erro ao apagar sítios web",
+        "pages_success": "Páginas dos sítios web apagadas com sucesso",
+        "pages_error": "Erro ao apagar as paǵinas dos sítios web"
+      }
+    }
+  },
+  "PAGES_PAGE": {
+    "title": "Página:",
+    "subtitle": "Utilizador:",
+    "LIST": {
+      "title": "Páginas",
+      "subtitle": "Lista de todas as páginas",
+      "re_evaluate_pages": "Re-avaliar",
+      "re_evaluate_pages_message": "Páginas adicionadas para avaliar com sucesso",
+      "delete_pages": "Apagar",
+      "table": {
+        "id_label": "ID",
+        "uri_label": "Uri",
+        "score_label": "Pontuação",
+        "last_updated_label": "Última avaliação",
+        "elements_label": "Número Elementos",
+        "type_elements_label": "Número Tipos Elem",
+        "state": "Estado",
+        "state_evaluating": "A página está a ser avaliada",
+        "state_waiting": "A página está à espera de ser avaliada",
+        "state_error": "A avaliação da página resultou em erro",
+        "observatory_label": "Observatório",
+        "delete_label": "Apagar",
+        "delete_tooltip": "Apagar esta página",
+        "see_tooltip": "Ver página"
+      }
+    },
+    "ADD": {
+      "title": "Criar novas páginas",
+      "website_label": "Sítio web",
+      "website_invalid": "Sítio web inválido",
+      "uris_label": "Novos uris",
+      "uris_invalid": "Um dos uris inseridos é inválido",
+      "show_in_observatorio": "Mostrar páginas no observatório",
+      "choose_observatory": {
+        "title": "Escolha as páginas para o observatório",
+        "submit": "Escolher"
+      },
+      "reset": "Limpar",
+      "submit": "Criar",
+      "messages": {
+        "success": "Páginas criadas com sucesso",
+        "error": "Erro ao criar as páginas"
+      },
+      "error_dialog": {
+        "title": "Erros",
+        "message": "Ocorreram alguns erros ao tentar adicionar as seguintes páginas:"
+      },
+      "add_sitemap": "Adicionar sitemap (ficheiro .xml ou .txt)",
+      "sitemap_warning": "Os ficheiros sitemap necessitam que a sua primeira página seja igual ao domínio do sítio web",
+      "sitemap_uris_invalid": "Um dos uris no ficheiro dado é inválido",
+      "sitemap_type_invalid": "O ficheiro dado não é do tipo .xml ou .txt",
+      "sitemap_txt_example": "Exemplo em txt do mapa do sitio web",
+      "sitemap_xml_example": "Exemplo em xml do mapa do sitio web",
+      "file_input": "Escolha o ficheiro",
+      "progress": {
+        "title": "Adicionar páginas - progresso",
+        "total_uris": "Total uris:",
+        "elapsed_uris": "Uris decorridos:",
+        "remaining_uris": "Uris em falta:",
+        "success_uris": "Uris com sucesso:",
+        "error_uris": "Uris com erro:",
+        "current_uri": "Uri atual:",
+        "uris_with_errors": "Ver uris com erros",
+        "close": "Fechar",
+        "close_dialog": {
+          "title": "Terminar processo",
+          "description": "Fechar a janela irá terminar o processo em execução. Pretende terminar o processo?",
+          "no": "Não",
+          "yes": "Sim"
+        }
+      }
+    },
+    "UPDATE": {
+      "messages": {
+        "error": "Erro ao atualizar a página no observatório"
+      }
+    },
+    "DELETE": {
+      "title": "Apagar páginas",
+      "list": {
+        "title": "Importante:",
+        "item1": "As páginas selecionadas irão ser apagadas",
+        "item2": "O sítio web e domínio da página não irão ser apagados",
+        "item3": "Todo o histórico de avaliações da página irá ser apagado",
+        "item4": "A remoção poderá afetar os dados das aplicações Observatório, My Monitor e Study Monitor",
+        "item5": "Esta acção não pode ser revertida"
+      },
+      "submit": "Apagar páginas",
+      "messages": {
+        "success": "Páginas apagadas com sucesso",
+        "error": "Erro ao apagar páginas"
+      }
+    }
+  },
+  "EVALUATIONS_PAGE": {
+    "NEWERCARD": {
+      "title": "Elementos e Roles",
+      "entitle": "Número de Elementos",
+      "etitle": "Tipos de Tags Presentes",
+      "rtitle": "Roles Presentes"
+    },
+    "LIST": {
+      "title": "Avaliações",
+      "subtitle": "Lista de todas as avaliações da página",
+      "table": {
+        "id_label": "ID",
+        "score_label": "Pontuação",
+        "a_label": "Nº erros A",
+        "aa_label": "Nº erros AA",
+        "aaa_label": "Nº erros AAA",
+        "evaluation_date_label": "Data de avaliação",
+        "delete_label": "Apagar",
+        "delete_tooltip": "Apagar avaliação",
+        "see_tooltip": "Ver avaliação"
+      }
+    },
+    "DELETE": {
+      "title": "Apagar esta avaliação",
+      "list": {
+        "title": "Importante:",
+        "item1": "A avaliação selecionada será apagada",
+        "item2": "Se esta for a única avaliação da página, poderão ocorrer erros durante o cálculo de alguns dados",
+        "item3": "Esta acção não pode ser revertida"
+      },
+      "submit": "Apagar avaliação",
+      "messages": {
+        "success": "Avaliação apagada com sucesso",
+        "error": "Erro ao apagar avaliação"
+      }
+    },
+    "ERROR": {
+      "DIALOG": {
+        "title": "Erro na avaliação",
+        "message": "A avalição desta página resultou em erro. Por favor verifique que:",
+        "item1": "o URL existe",
+        "item2": "o URL é igual ao URL final depois de todos os redirecionamentos",
+        "item3": "o certificado é válido, caso esteja a usar https",
+        "message2": "Se tudo estiver correto, por favor contacte a equipa de suporte para ajudar a identificar o problema.",
+        "message3": "Caso queira tentar avaliar novamente, carregue no botão abaixo.",
+        "try_again": "Tentar novamente",
+        "close": "Fechar",
+        "error": "Ocorreu um erro ao tentar atualizar a lista de espera de avaliações."
+      }
+    },
+    "DIALOG": {
+      "title": "Informação",
+      "message": "As páginas irão ser avaliadas em segundo plano, e a sua informação estará disponível assim que possível.",
+      "close": "Fechar"
+    }
+  },
+  "EVALUATIONS_LIST_PAGE": {
+    "LIST": {
+      "title": "Avaliações com erro",
+      "subtitle": "Lista de todas as páginas que falharam a avaliação",
+      "table": {
+        "uri_label": "Uri",
+        "error_label": "Descrição do erro",
+        "creation_label": "Adicionada para avaliação",
+        "delete_label": "Apagar",
+        "delete_tooltip": "Apagar página"
+      },
+      "re_evaluate_pages": "Re-avaliar",
+      "remove_pages": "Remover da lista",
+      "delete_pages": "Apagar"
+    }
+  },
+  "RESULTS": {
+    "title": "Relatório de práticas de acessibilidade Web (WCAG 2.1 do W3C)",
+    "actions": {
+      "back": "Voltar",
+      "re_evaluate": "Reavaliar a página",
+      "download": "Descarregar resultados da avaliação",
+      "pagecode": "Ver código da página",
+      "open_webpage": "Abrir página web",
+      "add_odf_file": "Adicionar avaliação em Open Format"
+    },
+    "summary": {
+      "title": "Sumário",
+      "subtitle": "Metadados",
+      "score": "Pontuação",
+      "metadata": {
+        "title_label": "Título",
+        "n_elements_label": "Nº de elementos (x)HTML",
+        "page_size_label": "Tamanho da página",
+        "last_update_label": "Última actualização",
+        "validator": "Não se conseguiu contactar o validador de html do W3C"
+      },
+      "table": {
+        "title": "Nº práticas encontradas",
+        "labels": {
+          "p": "P",
+          "ok": "Aceitáveis",
+          "err": "Não aceitáveis",
+          "warn": "Para ver manualmente"
+        }
+      }
+    },
+    "results": {
+      "title": "Avaliação",
+      "subtitle": "práticas detectadas, que se podem classificar por:",
+      "grade": "Nota",
+      "tabs": {
+        "A": "Excelente",
+        "B": "Muito boa",
+        "C": "Boa",
+        "D": "Mediana",
+        "E": "Má",
+        "F": "Muito Má",
+        "score_table": "Quadro de pontuações"
+      },
+      "sc": "Critério de sucesso",
+      "practice": "Prática encontrada",
+      "lvl": "Nível",
+      "details": "Detalhes",
+      "understanding": "Noções sobre o CS",
+      "alt_rowerr": "Não aceitável:",
+      "alt_rowwar": "Para ver manualmente:",
+      "alt_rowok": "Aceitável:",
+      "alt_see": "Ver resultados da prática:"
+    },
+    "scoreboard": {
+      "level": "Nível",
+      "sc": "Critérios de sucesso",
+      "description": "Descrição"
+    }
+  },
+  "ELEMENT_RESULTS": {
+    "subtitle": "Teste:",
+    "elements_tab": "Elementos",
+    "page_tab": "Página",
+    "total_elements": "Número de elementos:",
+    "inline_css_tab": "Estilos em linha",
+    "embedded_css_tab": "Estilos embutidos",
+    "result": {
+      "element": "Elemento:",
+      "attributes": "Atributos:",
+      "content": "Conteúdo/texto:",
+      "code": "Código:",
+      "location": "Localização:"
+    }
+  },
+  "CODE": {
+    "subtitle": "Código da página",
+    "actions": {
+      "download_code": "Descarregar código da página",
+      "open_webpage": "Abrir página web"
+    }
+  },
+  "CRAWLER": {
+    "title": "Procura automática de páginas",
+    "error1": "Apenas permitido zero e números inteiros positivos",
+    "error2": "Apenas permitido zero e números inteiros positivos",
+    "PARAMETERS": {
+      "depth": "Profundidade máxima",
+      "pages": "Número máximo de páginas",
+      "waitJS": "Esperar que o JavaScript carregue antes de começar o processo de crawling"
+    },
+    "TOOLTIP": {
+      "depth": "Escreva 0 para procurar páginas diretamente ligadas à página inicial (ou sub-domínio desejado)",
+      "pages": "Escreva 0 para procurar todas as páginas"
+    },
+    "MESSAGE": {
+      "success": "Páginas adicionadas com sucesso!",
+      "no_pages": "Não foram encontradas páginas!",
+      "failed": "Aconteceu um erro!"
+    },
+    "RESULT_LIST": {
+      "title": "Escolha as páginas a importar",
+      "uri_label": "Páginas",
+      "import": "Importar",
+      "observ": "Observatório",
+      "cancel": "Cancelar",
+      "submit": "Adicionar",
+      "submitting": "A adicionar...",
+      "total": "Total:",
+      "selected": "Selecionadas:"
+    },
+    "reset": "Limpar",
+    "submit": "Procurar",
+    "close": "Fechar",
+    "executing": "A procura automática de páginas pode demorar algum tempo a terminar!",
+    "executing2": "Por favor, visite periodicamente a lista de procuras executadas, para verificar os seus resultados.",
+    "crawlerList": "Ir para lista de procuras"
+  },
+  "CRAWLER_PAGE": {
+    "title": "Procuras automáticas de páginas",
+    "subtitle": "Lista de todas as procuras de páginas a executar e terminadas",
+    "change_config": "Alterar configurações",
+    "go_to_website": "Lista de sitios web",
+    "LIST": {
+      "url": "Url inicial",
+      "date": "Data de início",
+      "status": "Estado",
+      "delete": "Apagar",
+      "result": "Resultados",
+      "delete_crawlers": "Apagar crawls"
+    },
+    "TOOLTIP": {
+      "show_result": "Mostrar páginas encontradas",
+      "delete_result": "Apagar resultados"
+    },
+    "DELETE": {
+      "error": "Não foi possível apagar o resultado da pesquisa!"
+    },
+    "EMPTY": {
+      "part1": "A lista encontra-se vazia!",
+      "part2": "Para usar a procura automática de páginas, dirija-se à lista de domínios e carregue no "
+    }
+  },
+  "A11_STATEMENT_PAGE": {
+    "AUTOMATIC_EVALUATION_TABLE": {
+      "title_label": "Análise",
+      "date_label": "Data",
+      "sample_label": "Nº páginas(Amostra)",
+      "tool_label": "Ferrramentas",
+      "summary_label": "Principais resultados",
+      "url_label": "Mais detalhe"
+    },
+    "CONTACT_TABLE": {
+      "contactType_label": "Meio",
+      "contact_label": "Contacto"
+    },
+    "MANUAL_EVALUATION_TABLE": {
+      "title_label": "Análise",
+      "date_label": "Data",
+      "sample_label": "Nº páginas(Amostra)",
+      "heuristicsPassed_label": "Heurísticas passadas",
+      "heuristicsTotal_label": "Heurísticas aplicáveis",
+      "url_label": "Mais detalhe"
+    },
+    "USER_EVALUATION_TABLE": {
+      "title_label": "Análise",
+      "date_label": "Data",
+      "participants_label": "Participantes",
+      "process_label": "Tarefas/Processos",
+      "summary_label": "Principais resultados",
+      "url_label": "Mais detalhe"
+    }
+  },
+  "A11_STATEMENTS_PAGE": {
+    "caption":"Listagem das Declarações de Acessibilidade (última recolha efetuada a:",
+    "export":"Exportar",
+    "update":"Atualizar",
+    "CONFORMANCE_DIRECTORY_TABLE": {
+      "caption":"Conformidade declarada por Diretório (%)",
+      "name_label": "Nome",
+      "plenamenteConforme_label": "Plenamente conforme",
+      "parcialmenteConforme_label": "Parcialmente conforme",
+      "naoConforme_label": "Não conforme"
+    },
+    "CONFORMANCE_TABLE": {
+      "caption":"Conformidade declarada",
+      "state_label": "Estado",
+      "number_label": "Número de declarações"
+    },
+    "EVALUATIONS_TABLE": {
+      "caption": "Balanceamento das avaliações efetuadas",
+      "type_label": "Tipo",
+      "numberOfEvaluations_label": "Número de avaliações"
+    },
+    "OPAW_TABLE": {
+      "caption": "Peso da Conformidade declarada no total sítios Web registados no OPAW, por Diretório",
+      "name_label": "Nome",
+      "a11yStatements_label": "Número de declarações",
+      "total_label": "Total de websites"
+    },
+    "SEAL_DIRECTORY_TABLE": {
+      "caption":"Distribuição do Selo de Usabilidade e Acessibilidade por nível e por Diretório",
+      "name_label": "Nome",
+      "ouro_label": "Número de selos de ouro",
+      "prata_label": "Número de selos de prata",
+      "bronze_label": "Número de selos de bronze"
+    },
+    "SEAL_TABLE": {
+      "caption":"Distribuição do Selo de Usabilidade e Acessibilidade por nível",
+      "seal_label": "Selo",
+      "number_label": "Número de websites"
+    },
+    "STATE_DIRECTORY_TABLE": {
+      "caption":"Distribuição do estado das Declarações de Acessibilidade por Diretório",
+      "name_label": "Nome do diretório",
+      "completeStatement_label": "Complete statement",
+      "incompleteStatement_label": "Incomplete statement",
+      "possibleStatement_label": "Possible statement"
+    },
+    "STATE_TABLE": {
+      "caption": "Distribuição do estado das Declarações de Acessibilidade",
+      "state_label": "Estado",
+      "number_label": "Número de declarações"
+    },
+    "YEAR_TABLE": {
+      "caption":"Distribuição da idade das Declarações de Acessibilidade",
+      "year_label": "Ano",
+      "number_label": "Número de declarações"
+    },
+    "LIST": {
+      "title": "Declarações de acessibilidade",
+      "subtitle": "Lista de todas as declarações de acessibilidade",
+      "table": {
+        "nome_label": "Nome",
+        "date_label": "Data de criação",
+        "date_update_label": "Data da recolha",
+        "state_label": "Estado",
+        "conformity_label": "Conformidade",
+        "seal_label": "Selo",
+        "automatic_label": "Avaliações automáticas",
+        "manual_label": "Avaliações manuais",
+        "user_label": "Avaliações com utilizadores"
+      }
+    }
+  },
+  "CRAWLER_CONFIG": {
+    "title": "Configuração dos valores pré-definidos na procura automática de páginas",
+    "reset": "Limpar",
+    "submit": "Atualizar dados",
+    "PARAMETERS": {
+      "depth": "Profundidade máxima desejada",
+      "pages": "Número máximo de páginas desejado"
+    },
+    "TOOLTIP": {
+      "depth": "Escreva 0 para procurar páginas diretamente ligadas à página inicial",
+      "pages": "Escreva 0 para procurar todas as páginas"
+    }
+  },
+  "IMPORT": {
+    "import": "Importar",
+    "title": "Atenção!",
+    "WEBSITE": {
+      "title": "Importar o sítio web",
+      "success": "Sítio web importado com sucesso",
+      "list": {
+        "item1": "Esta operação irá importar o sítio web e o seu domínio (",
+        "item2": ") associado, bem como todas as suas páginas.",
+        "item3": "Se pretender importar este domínio para outro sítio web existente, crie primeiro esse domínio no respetivo sítio web.",
+        "item4": "Esta operação irá importar o domínio (",
+        "item5": ") associado a este sítio web para o sítio web ",
+        "item6": ", bem como todas as suas páginas.",
+        "item7": "Esta ação não pode ser revertida!"
+      },
+      "warning": {
+        "item1": "Já existe um sítio web com este nome!",
+        "item2": "Por favor, insira um novo nome para o sítio web a importar:",
+        "item3": "Novo nome"
+      }
+    },
+    "categoria": {
+      "title": "Importar a categoria",
+      "list": {
+        "item1": "Esta operação irá importar todos os sítios web e os seus domínios associados, bem como todas as suas páginas.",
+        "item2": "Se pretender importar algum domínio para um sítio web existente, crie primeiro esse domínio no respetivo sítio web.",
+        "item3": "Esta ação não pode ser revertida!"
+      },
+      "warning": {
+        "item1": "Já existe uma categoria com este nome!",
+        "item2": "Por favor, insira um novo nome para a categoria a importar:",
+        "item3": "Novo nome"
+      },
+      "errors": {
+        "page": "Erro ao importar página",
+        "website": "Erro ao importar sítio web",
+        "tag": "Erro ao importar categoria"
+      }
+    }
+  },
+  "FOOTER": {
+    "language": "Língua",
+    "link": "Agência para a Modernização Administrativa",
+    "rights": "Todos os Direitos Reservados."
+  },
+  "LANGUAGES": {
+    "Portuguese": "Português",
+    "English": "English"
+  },
+  "MISC": {
+    "filter": "Filtro",
+    "skip_to_main": "Saltar para o conteúdo principal",
+    "loading": "A carregar...",
+    "required_field": "Este campo é <strong>obrigatório</strong>",
+    "at_least_one_required": "<strong>Obrigatório</strong> preencher, pelo menos, um dos campos",
+    "message_close": "Fechar",
+    "success": "Sucesso",
+    "unexpected_error": "Ocorreu um erro inesperado. Por favor tente aceder mais tarde.",
+    "error_contact": "Se o problema persistir, contacte-nos...",
+    "go_to_top": "Ir para o topo",
+    "_404": {
+      "title": "Erro 404",
+      "description": "A página que tentou aceder não existe.",
+      "homepage": "Voltar para a página inicial"
+    },
+    "auth_dialog": {
+      "title": "Autenticação",
+      "description": "A sua sessão expirou. Por favor volte a iniciar sessão",
+      "button": "Fechar"
+    },
+    "messages": {
+      "data_error": "Ocorreu um erro ao obter os dados",
+      "data_table_error": "Ocorreu um erro ao tentar carregar a tabela de dados"
+    }
+  },
+  "ELEMS": {
+    "imgAlt": "Imagens com texto alternativo preenchido",
+    "imgAltNo": "Imagens sem equivalente alternativo em texto",
+    "imgAltNull": "Imagens decorativas",
+    "imgAltNot": "Imagens com um texto alternativo incorrecto",
+    "imgAltLong": "Imagens com um atributo <code>alt</code> longo",
+    "areaAltYes": "Áreas de mapas de imagem com <code>alt</code>",
+    "areaAltNo": "Áreas de mapas de imagem sem <code>alt</code>",
+    "inpImgAltYes": "Botões gráficos com <code>alt</code>",
+    "inpImgAltNo": "Botões gráficos sem <code>alt</code>",
+    "a": "Página sem links",
+    "aImgAltNo": "Links em que o único conteúdo é uma imagem com <code>alt</code> vazio ou sem legenda",
+    "aTitleMatch": "Links com o mesmo texto afixado no conteúdo e no atributo <code>title</code>",
+    "aSameText": "Grupos de links com o mesmo texto que apontam destinos diferentes",
+    "aAdjacentSame": "Links adjacentes que nos conduzem a um mesmo destino",
+    "aSkipFirst": "Link para saltar para o conteúdo principal",
+    "aSkipFirstNo": "Link que não salta para o conteúdo principal",
+    "aSkipNo": "Sem links para contornar blocos de conteúdo",
+    "aSkip": "Links para contornar blocos de conteúdo",
+    "hxNone": "Sem cabeçalhos (<code>h1</code> - <code>h6</code>)",
+    "hx": "Cabeçalhos (<code>h1</code> - <code>h6</code>)",
+    "h1": "Sem cabeçalho principal da página (<code>h1</code>)",
+    "hxSkip": "Cabeçalhos com salto(s) de nivel hierárquico incorrectos",
+    "hxNo": "Cabeçalhos (<code>h1</code> ~ <code>h6</code>) sem conteúdo descritivo",
+    "liNoList": "Itens de lista utilizados fora das listas",
+    "brSec": "Sequência de elementos <code>br</code>",
+    "fieldNoForm": "Elementos <code>fieldset</code> usados fora de um formulário",
+    "fieldLegNo": "Elementos <code>fieldset</code> sem descrição",
+    "labelPosNo": "Elementos <code>label</code> que não estão visíveis ou estão posicionados incorretamente",
+    "inputLabel": "Controlos de formulário com nome acessível",
+    "inputLabelNo": "Controlos de formulário sem um nome acessível",
+    "inputIdTitleNo": "Controlos de formulário sem etiquetas (label) associadas e sem atributo <code>title</code>",
+    "focusBlur": "Scripts para remover o foco",
+    "inputAltNo": "Elementos <code>input</code> com atributo <code>alt</code>",
+    "formSubmit": "Formulários com botão de envio",
+    "formSubmitNo": "Formulários sem o botão de envio",
+    "tableDataCaption": "Tabelas de dados sem o elemento <code>caption</code>",
+    "tableCaptionSummary": "Tabelas com o mesmo texto no elemento <code>caption</code> e no atributo <code>summary</code>",
+    "tableLayoutCaption": "Tabelas sem células de cabeçalhos, mas com o elemento <code>caption</code>",
+    "tableComplexError": "Tabelas de dados complexas sem o atributo <code>headers</code> nas células de dados",
+    "scopeNo": "Valores inválidos para o atributo <code>scope</code>",
+    "tableLayout": "Tabelas sem células de cabeçalhos (i.e. elementos <code>th</code>)",
+    "tableNested": "Tabelas encadeadas",
+    "iframeTitleNo": "Elementos <code>iframe</code> sem <code>title</code>",
+    "frameTitleNo": "Elementos <code>frame</code> sem <code>títle</code>",
+    "newWinOnLoad": "Nova janela assim que a página é carregada",
+    "abbrNo": "Elementos <code>abbr</code> ou <code>acronym</code> sem definição",
+    "lineHeightNo": "Espaçamento entre linhas incorrecto",
+    "justifiedTxt": "Texto justificado com atributos (X)HTML",
+    "justifiedCss": "Texto justificado com CSS",
+    "fontAbsVal": "Tamanhos de letra definidos em unidades de medida absolutos",
+    "layoutFixed": "Elementos com valores absolutos na propriedade \"width\" da CSS",
+    "valueAbsCss": "Unidades de medida absolutas nas CSS",
+    "valueRelCss": "Unidades de medida relativas em CSS",
+    "valueAbsHtml": "Unidades de medida absolutas em (X)HTML",
+    "valueRelHtml": "Unidades de medida relativas em (X)HTML",
+    "colorContrast": "Combinações de cor com um rácio de contraste inferior a 4.5:1 para texto normal ou 3:1 para texto grande",
+    "colorFgBgNo": "Regras de CSS em que não se especifica simultaneamente a cor de fundo e cor da letra",
+    "cssBlink": "Propriedade de CSS <code>text-decoration</code> com valor <code>blink</code>",
+    "ehandBoth": "Manipuladores de eventos redundantes",
+    "ehandBothNo": "Manipuladores de eventos não redundantes",
+    "ehandTagNo": "Eventos associados a elementos não interactivos",
+    "w3cValidatorErrorsNo": "Sem erros de validação (X)HTML",
+    "w3cValidatorErrors": "Erros de validação (X)HTML",
+    "fontHtml": "Elementos e Atributos (X)HTML para formatar o Texto das páginas (p.e. <code>basefont</code>, <code>font</code>, <code>link</code> e <code>alink</code>)",
+    "layoutElemNo": "Sem elementos (x)HTML para formatar o Layout das páginas (p.e. <code>blink</code> e <code>center</code>)",
+    "layoutElem": "Elementos (x)HTML para formatar o Layout das páginas (p.e. <code>blink</code> e <code>center</code>)",
+    "lang": "Idioma principal da página",
+    "langNo": "Idioma principal não referenciado",
+    "langCodeNo": "Código de idioma incorrecto",
+    "langMatchNo": "Indicações de idioma não coincidentes",
+    "titleNo": "Elemento <code>title</code> inexistente",
+    "titleNull": "Elemento <code>title</code> sem conteúdo textual",
+    "titleOk": "Título da página",
+    "titleLong": "Quantidade de caracteres no elemento <code>title</code>",
+    "titleChars": "Título com cadeia de caracteres não textuais (provavelmente arte ASCII)",
+    "titleVrs": "Elementos <code>title</code>",
+    "linkRel": "Elementos <code>link</code> para navegação",
+    "metaRefresh": "Elemento <code>meta</code> não reinicia a página",
+    "metaRedir": "Elemento <code>meta</code> para redireccionar os utilizadores",
+    "hxHasAName": "Cabeçalhos com nome acessível",
+    "hxWithoutAName": "Cabeçalhos sem nome acessível",
+    "ariaCntxRole": "Elementos dentro do contexto obrigatório",
+    "ariaReqElem": "Elementos com os filhos obrigatórios",
+    "ariaStValid": "Valores de estados e propriedades ARIA de tipo válido",
+    "ariaStNotValid": "Valores de estados e propriedades ARIA de tipo inválido",
+    "ariaStPermitted": "Valores de estados e propriedades ARIA permitidos",
+    "ariaStNotPermitted": "Valores de estados e propriedades ARIA não permitidos",
+    "ariaAtribDefined": "Atributos aria-* definidos",
+    "ariaAtribNotDefined": "Atributos aria-* mal definidos",
+    "ariaControlsIdNotFound": "Atributo <code>aria-controls</code> com valor que não corresponde a um <code>id</code> de um elemento",
+    "ariaControlsIdFound": "Atributo <code>aria-controls</code> com valor que corresponde a um <code>id</code> de um elemento",
+    "audioAvoidsAutoPlay": "Elementos <code>audio</code> e <code>video</code> não tocam automaticamente",
+    "audioAutoPlay": "Elementos <code>audio</code> e <code>video</code> tocam automaticamente",
+    "autoCmpltValid": "Atributos autocomplete válidos",
+    "autoCmpltNotValid": "Atributos autocomplete inválidos",
+    "buttonAname": "<code>button</code> tem nome acessível não vazio",
+    "buttonNotAname": "<code>button</code> sem nome acessível não vazio",
+    "seqFocus": "Elementos na ordem de foco sequencial",
+    "elementDec": "Elementos com o atributo aria-hidden sem conteúdo tocável",
+    "elementNotDec": "Elementos com o atributo aria-hidden com conteúdo focável",
+    "elementHiddenFocus": "Elementos marcados como decorativos",
+    "elementNotHiddenFocus": "Elementos marcados como decorativos e expostos a tecnologias de apoio",
+    "elementLang": "Elementos com atributo lang válido",
+    "elementNotLang": "Elementos com atributo lang inválido",
+    "elementPresentChildrenNoFocus": "Elementos com descendentes decorativos",
+    "elementPresentChildrenFocus": "Elementos com descendentes decorativos focáveis",
+    "elementRole": "Elementos com papel semântico explícito",
+    "headerAtt": "Atributos <code>headers</code> identificam células na mesma tabela",
+    "headerAttNot": "Atributos <code>headers</code> identificam células noutra tabela",
+    "idAtt": "Atributos <code>id</code>",
+    "idAttNot": "Atributos <code>id</code> repetidos",
+    "iframeSameAName": "Elementos <code>iframe</code> com o mesmo nome acessível que apresentam o mesmo recurso",
+    "iframeSameANameDiferent": "Elementos <code>iframe</code> com o mesmo nome acessível",
+    "iframeNegTabIndex": "Elementos <code>iframe</code> com <code>tabindex</code> negativo, sem elementos interativos",
+    "iframeNegTabIndexNot": "Elementos <code>iframe</code> com <code>tabindex</code> negativo, com elementos interativos",
+    "letterSpacing": "Propriedade de CSS <code>letter-spacing</code>",
+    "letterSpacingNot": "Propriedade de CSS <code>letter-spacing</code> com espaçamento incorreto",
+    "linkAName": "Hiperligações com nome acessível não vazio",
+    "linkNotAName": "Hiperligações sem conteúdo acessível ('nome acessível')",
+    "linkIdentAName": "Links com o mesmo nome acessível e contexto",
+    "linkIdentANameNot": "Links com o mesmo nome acessível e contexto mas destinos diferentes",
+    "menuItemAName": "Elementos com o papel semântico <code>menuitem</code>",
+    "menuItemANameNot": "Elementos com o papel semântico <code>menuitem</code> sem nome acessível",
+    "metaRefreshNot": "Elemento <code>meta</code> reinicia a página",
+    "metaViewport": "Elemento <code>meta</code> com atributo <code>viewport</code>",
+    "objectAName": "Elemento <code>object</code> com equivalente textual alternativo",
+    "objectANameNot": "Elemento <code>object</code> sem equivalente textual alternativo",
+    "orientationCSS": "Elemento com propriedade CSS <code>transform</code>",
+    "orientationCSSNot": "Elemento com propriedade CSS <code>transform</code> restringe a orientação da página",
+    "roleValid": "Elementos com atributo role válido",
+    "roleValidNot": "Elementos com atributo role inválido",
+    "scrollableAccess": "Elementos com varrimento podem ser usados com teclado",
+    "scrollableAccessNot": "Elementos com varrimento não podem ser usados com teclado",
+    "svgAName": "Elemento <code>svg</code> com papel semântico explícito e nome acessível",
+    "svgNotAName": "Elemento <code>svg</code> com papel semântico explícito sem nome acessível",
+    "tableHdr": "Células cabeçalho em tabelas",
+    "tableHdrNot": "Células cabeçalho em tabelas sem células de dados",
+    "textContrastH": "Combinações de cor com um rácio de contraste superior a 7:1 para texto normal ou 4.5:1 para texto grande",
+    "textContrastHNot": "Combinações de cor com um rácio de contraste inferior a 7:1 para texto normal ou 4.5:1 para texto grande",
+    "videoAudit": "Video com conteúdo áudio",
+    "videoVisual": "Video com conteúdo visual",
+    "labelAName": "Elementos interativos com conteúdo textual",
+    "labelANameNot": "Elementos interativos com conteúdo textual que não está presente no seu nome acessível",
+    "wordSpacing": "Propriedade de CSS <code>word-spacing</code>",
+    "wordSpacingNot": "Propriedade de CSS <code>word-spacing</code> impede aumentar espaçamento",
+    "overflow": "Propriedade de CSS <code>overflow</code>",
+    "bannerTopLevel": "Elemento com semântica <code>banner</code>",
+    "bannerNotTopLevel": "Elemento com semântica <code>banner</code> dentro de elementos com semântica",
+    "complementaryTopLevel": "Elemento com semântica <code>complementary</code>",
+    "complementaryNotTopLevel": "Elemento com semântica <code>complementary</code> dentro de elementos com outra semântica",
+    "contentinfoTopLevel": "Elemento com semântica <code>contentinfo</code>",
+    "contentinfoNotTopLevel": "Elemento com semântica <code>contentinfo</code> dentro de elementos com outra semântica",
+    "mainTopLevel": "Elemento com semântica <code>main</code>",
+    "mainNotTopLevel": "Elemento com semântica <code>main</code> dentro de elementos com outra semântica",
+    "noDuplicateBanner": "Elemento com semântica <code>banner</code>",
+    "duplicateBanner": "Elementos com semântica <code>banner</code>",
+    "noDuplicateContentinfo": "Elemento com semântica <code>contentinfo</code>",
+    "duplicateContentinfo": "Elementos com semântica <code>contentinfo</code>",
+    "noDuplicateMain": "Elemento com semântica <code>main</code>",
+    "duplicateMain": "Elementos com semântica <code>main</code>",
+    "liSemantically": "Itens de lista utilizados dentro de listas",
+    "liNotSemantically": "Itens de lista utilizados fora de listas",
+    "listCorrectly": "Listas só com itens de lista",
+    "listNotCorrectly": "Listas com elementos que não são itens de lista",
+    "descListElement": "Itens de lista utilizados dentro de listas de descrição",
+    "notDescListElement": "Itens de lista utilizados fora de listas de descrição",
+    "descList": "Listas de descrição só com itens de lista ordenados corretamente",
+    "notDescList": "Listas de descrição com elementos que não são itens de lista ou não estão ordenados corretamente"
+  },
+  "TEST_RESULTS": {
+    "a_01a": "Primeiro link permite saltar para o conteúdo principal",
+    "a_01b": "Primeiro link não permite saltar para o conteúdo principal",
+    "a_02a": "Não existem links para saltar blocos de texto",
+    "a_02b": "Links para contornar blocos de conteúdo",
+    "a_03": "Links sem nome acessível",
+    "a_04": "Sem links",
+    "a_05": "Atributo title de elemento <link> repete texto",
+    "a_06": "Links adjacentes apontam para mesmo destino",
+    "a_09": "Links com mesmo texto apontam para destinos diferentes",
+    "a_10": "Links com nome acessível",
+    "a_11": "Links sem nome acessível",
+    "a_12": "Links com o mesmo nome acessível e contexto com o mesmo destino",
+    "a_13": "Links com o mesmo nome acessível e contexto com destinos diferentes",
+    "abbr_01": "Abreviaturas sem extensões",
+    "akey_01": "Valores repetidos nos atributos accesskey",
+    "applet_01": "Elementos <applet> sem equivalente textual alternativo",
+    "area_01a": "Todos os <area> ativos usam o atributo alt",
+    "area_01b": "Elementos <area> sem atributo alt ou atributo alt vazio",
+    "aria_01": "Elementos semânticos dentro do contexto obrigatório",
+    "aria_02": "Elementos com os filhos obrigatórios",
+    "aria_03": "Valores de estados e propriedades ARIA de tipo válido",
+    "aria_04": "Valores de estados e propriedades ARIA de tipo inválido",
+    "aria_05": "Valores de estados e propriedades ARIA permitidos",
+    "aria_06": "Valores de estados e propriedades ARIA não permitidos",
+    "aria_07": "Atributos aria-* respeitam a especificação",
+    "aria_08": "Atributos aria-* mal definidos",
+    "aria_09": "Atributo aria-controls com valor que não corresponde a um id de um elemento",
+    "aria_10": "Atributo aria-controls com valor que corresponde a um id de um elemento",
+    "audio_video_01": "Elementos <audio> e <video> não tocam automaticamente",
+    "audio_video_02": "Elementos <audio> e <video> tocam automaticamente",
+    "autocomplete_01": "Atributos autocomplete válidos",
+    "autocomplete_02": "Atributos autocomplete inválidos",
+    "blink_01": "Elementos <blink> provocam cintilar de partes do conteúdo",
+    "blink_02": "Valores <blink> no CSS causam cintilar de partes do conteúdo",
+    "br_01": "Sequências de 3 ou mais elementos <br>",
+    "button_01": "Elementos <button> com nome acessível",
+    "button_02": "Elementos <button> sem nome acessível",
+    "color_01": "Regras CSS que não especifica cor da letra ou do fundo",
+    "color_02": "Combinações de cor com um rácio de contraste inferior a 4.5:1 para texto normal ou 3:1 para texto grande",
+    "css_01": "CSS especifica um espaçamento entre linhas inferior a 1.5",
+    "css_02": "Overflow pode impedir a visualização de conteúdo",
+    "dtd_01": "Document Type Definition (DTD) não existe",
+    "ehandler_01": "Manipuladores de eventos rato-dependentes",
+    "ehandler_02": "Não são usados manipuladores de evento redundantes",
+    "ehandler_03": "São usados manipuladores de evento redundantes",
+    "ehandler_04": "Manipuladores de evento associados a elementos não interativos",
+    "element_01": "Elementos na ordem de foco sequencial",
+    "element_02": "Não há elementos com o atributo aria-hidden com conteúdo focável",
+    "element_03": "Elementos com o atributo aria-hidden com conteúdo focável",
+    "element_04": "Não há elementos marcados como decorativos expostos a tecnologias de apoio",
+    "element_05": "Elementos marcados como decorativos expostos a tecnologias de apoio",
+    "element_06": "Elementos com atributo lang válido",
+    "element_07": "Elementos com atributo lang inválido",
+    "element_08": "Elementos com descendentes decorativos não têm descendentes focáveis",
+    "element_09": "Elementos com descendentes decorativos têm descendentes focáveis",
+    "element_10": "Elementos com papel semântico explícito têm estados e propriedades necessários",
+    "embed_01": "Elementos <embed> sem conteúdo equivalente alternativo",
+    "field_01": "Elementos <fieldset> sem descrição",
+    "field_02": "Elementos <fieldset> fora de elemento <form>",
+    "focus_01": "Javascript é usado para remover o foco do campo",
+    "font_01": "Elementos ou atributos HTML usados para controlo da apresentação visual do texto",
+    "font_02": "Tamanho de letra está expresso em unidades de medida absolutas",
+    "form_01a": "Todos os formulários têm um botão para submeter os dados",
+    "form_01b": "Formulários sem botão para submeter os dados",
+    "frame_01": "Elementos frame sem ou vazio atributo title",
+    "frame_02": "Webpage assente numa estrutura de molduras mas com a declaração DTD incorreta",
+    "headers_01": "Atributos headers identificam células na mesma tabela",
+    "headers_02": "Atributos headers identificam células fora da tabela",
+    "heading_01": "Cabeçalhos com nome acessível",
+    "heading_02": "Cabeçalhos sem nome acessível",
+    "heading_03": "Cabeçalho de nível 1",
+    "hx_01a": "Sem cabeçalhos",
+    "hx_01b": "Cabeçalhos na página",
+    "hx_01c": "Sem cabeçalho principal (h1)",
+    "hx_02": "Cabeçalhos cujo conteúdo é apenas uma imagem sem atributo alt",
+    "hx_03": "Sequência hierárquica dos níveis de cabeçalho é violada",
+    "id_01": "Não há atributos id repetidos",
+    "id_02": "Atributos id repetidos",
+    "iframe_01": "Elementos <iframe> elements sem title",
+    "iframe_02": "Elementos <iframe> com mesmo nome acessível apontam para o mesmo recurso",
+    "iframe_03": "Elementos <iframe> com mesmo nome acessível",
+    "iframe_04": "Elementos <iframe> com tabindex negativo sem elementos interativos",
+    "iframe_05": "Elementos <iframe> com tabindex negativo com elementos interativos",
+    "img_01a": "Todas as imagens têm atributo alt",
+    "img_01b": "Imagens sem atributo alt",
+    "img_02": "Imagens decorativas",
+    "img_03": "Imagens com alt que não serve de equivalente alternativo",
+    "img_04": "Imagens com mais de 100 characters no atributo alt",
+    "inp_img_01a": "Todos os botões gráficos fazem uso do atributo alt",
+    "inp_img_01b": "Botões gráficos sem atributo alt",
+    "input_01": "Controlos de formulário sem <label> associado e sem o atributo title associado",
+    "input_02": "Controlos de formulário sem nome acessível",
+    "input_02b": "Todos os controlos de formulário têm um nome acessível",
+    "input_03": "Elementos <input> que não são botões gráficos com o atributo alt",
+    "justif_txt_01": "Texto justificado via HTML",
+    "justif_txt_02": "Texto justificado via CSS",
+    "label_01": "Elementos interativos com o texto visível no nome acessível",
+    "label_02": "Elementos <label> que não estão visiveis ou estão incorretamente posicionados",
+    "label_03": "Elementos interativos com conteúdo textual que não está presente no seu nome acessível",
+    "landmark_01": "Elemento com semântica banner corretamente posicionado",
+    "landmark_02": "Elemento com semântica banner dentro de elementos com outra semântica",
+    "landmark_03": "Elemento com semântica complementary corretamente posicionado",
+    "landmark_04": "Elemento com semântica complementary dentro de elementos com outra semântica",
+    "landmark_05": "Elemento com semântica contentinfo corretamente posicionado",
+    "landmark_06": "Elemento com semântica contentinfo dentro de elementos com outra semântica",
+    "landmark_07": "Elemento com semântica main corretamente posicionado",
+    "landmark_08": "Elemento com semântica main dentro de elementos com outra semântica",
+    "landmark_09": "Elemento com semântica banner",
+    "landmark_10": "Elementos com semântica banner",
+    "landmark_11": "Elemento com semântica contentinfo",
+    "landmark_12": "Elementos com semântica contentinfo",
+    "landmark_13": "Elemento com semântica main",
+    "landmark_14": "Elementos com semântica main",
+    "lang_01": "O idioma principal da página está corretamente marcado",
+    "lang_02": "O idioma principal da página está incorretamente marcado",
+    "lang_03": "Atributos lang ou xml:lang attribute em falta",
+    "lang_04": "Os atributos lang e/ou xml:lang estão a ser utilizados de forma incorreta",
+    "lang_05": "Constatei que o tipo de documento <mark>não permite</mark> o uso do atributo <code>{{value}}</code>.",
+    "layout_01a": "Não há elementos obsoletos usados para controlar a apresentação visual",
+    "layout_01b": "Elementos obsoletos usados para controlar a apresentação visual",
+    "layout_02a": "Não há atributos obsoletos usados para controlar a apresentação visual",
+    "layout_02b": "Atributos obsoletos usados para controlar a apresentação visual",
+    "layout_03": "Unidade de medida px é usado em CSS",
+    "letter_01": "Não se impede o aumento do espaçamento entre letras",
+    "letter_02": "Propriedade de CSS letter-spacing com espaçamento incorreto",
+    "link_01": "Elementos <link> poderão servir para construir um sistema de navegação",
+    "listitem_01": "Itens de lista dentro de listas",
+    "listitem_02": "Itens de lista fora de listas",
+    "list_01": "Item da lista <li> marcado fora da lista",
+    "list_02": "Listas só com itens de lista",
+    "list_03": "Listas com elementos que não são itens de lista",
+    "list_04": "Listas de descrição só com itens de lista",
+    "list_05": "Listas de descrição com elementos que não são itens de lista",
+    "list_06": "Listas de descrição com itens correctamente ordenados",
+    "list_07": "Listas de descrição com itens fora de ordem",
+    "long_01": "Atributo longdesc nas imagens com conteúdo incorreto",
+    "marquee_01": "Conteúdo em movimento com o elemento <marquee>",
+    "menuItem_01": "Elementos com o papel semântico menuitem têm nome acessível",
+    "menuItem_02": "Elementos com o papel semântico menuitem sem nome acessível",
+    "meta_01": "Página reinicia-se automaticamente através do elemento <meta http-equiv=\"refresh\"> element",
+    "meta_02": "Página é redireccionada automaticamente através do elemento <meta http-equiv=\"redirect\">",
+    "meta_03": "<meta> refresh não reinicia a página",
+    "meta_04": "<meta> refresh reinicia a página",
+    "meta_05": "Elemento <meta> não impede zoom",
+    "object_01": "Elementos <object> com equivalente textual alternativo",
+    "object_02": "Elementos <object> sem equivalente textual alternativo",
+    "orientation_01": "Orientação dos elmentos não é restringida",
+    "orientation_02": "Orientação dos elementos é restringida",
+    "role_01": "Atributos role válidos",
+    "role_02": "Atributos role inválidos",
+    "scope_01": "Atributo scope da tabela de dados é inválido",
+    "scrollable_01": "Elementos com varrimento podem ser usados com teclado",
+    "scrollable_02": "Elementos com varrimento não podem ser usados com teclado",
+    "svg_01": "Elementos <svg> com papel semântico explícito têm nome acessível",
+    "svg_02": "Elementos <svg> com papel semântico explícito sem nome acessível",
+    "table_01": "Tabelas sem cabeçalhos identificas mas com elemento <caption>",
+    "table_02": "Tabelas de dados sem elemento <caption>",
+    "table_03": "Tabelas com <caption> e summary iguais",
+    "table_04": "Tabelas dentro de outras tabelas",
+    "table_05a": "Tabelas sem cabeçalhos",
+    "table_06": "Tabelas de dados complexos com células de dados sem o atributo headers",
+    "table_07": "Cabeçalhos com células de dados associadas",
+    "table_08": "Cabeçalhos sem células de dados associadas",
+    "textC_01": "Combinações de cor com um rácio de contraste superior a 7:1 para texto normal ou 4.5:1 para texto grande",
+    "textC_02": "Combinações de cor com um rácio de contraste inferior a 7:1 para texto normal ou 4.5:1 para texto grande",
+    "title_01": "Multíplos elementos <title>",
+    "title_02": "Não existe elemento <title>",
+    "title_03": "Elemento <title> é vazio",
+    "title_04": "Título da página é demasiado grande",
+    "title_05": "Título da página aparenta ser arte-ASCII",
+    "title_06": "<title> correto",
+    "title_07": "<title> igual a outras páginas do mesmo sítio Web",
+    "values_01a": "Unidades de medida absoluta no HTML",
+    "values_01b": "Unidades de medida relativa no HTML",
+    "values_02a": "Unidades de medida absoluta no CSS",
+    "values_02b": "Unidades de medida relativa no CSS",
+    "video_01": "Elementos <video> com conteúdo áudio",
+    "video_02": "Elementos <video> com conteúdo visual",
+    "w3c_validator_01a": "Sem erros no validador HTML de W3C",
+    "w3c_validator_01b": "Erros no validador HTML de W3C",
+    "win_01": "Pop-up windows",
+    "word_01": "Não se impede o aumento do espaçamento entre palavras",
+    "word_02": "Propriedade de CSS word-spacing com espaçamento incorreto"
+  },
+  "CSV": {
+    "tag": "Diretório",
+    "entity": "Entidade",
+    "website": "Sitio web",
+    "scorerror": "Erro",
+    "scorewar": "Aviso",
+    "scoreok": "Sucesso",
+    "errorType": "Tipo de erro",
+    "level": "Nivel de Conformidade",
+    "criteria": "Critério",
+    "desc": "Descrição",
+    "count": "Número de ocorrências",
+    "value": "Valor",
+    "date": "Data"
+  },
+  "TESTS_RESULTS": {
+    "img_01a": {
+      "s": "Constatei que <mark>todas</mark> as imagens da página têm o necessário equivalente alternativo em texto.",
+      "p": "Constatei que <mark>todas</mark> as imagens da página têm o necessário equivalente alternativo em texto."
+    },
+    "img_01b": {
+      "s": "Encontrei <mark>{{value}}</mark> imagem na página que não tem o necessário equivalente alternativo em texto.",
+      "p": "Encontrei <mark>{{value}}</mark> imagens na página que não têm o necessário equivalente alternativo em texto."
+    },
+    "img_02": {
+      "s": "Encontrei <mark>{{value}}</mark> imagem decorativa na página (com <code>alt=\"\"</code> (alt vazio) ou com <code>role=\"presentation\"</code> ou <code>role=\"none\"</code>.",
+      "p": "Encontrei <mark>{{value}}</mark> imagens decorativas na página (com <code>alt=\"\"</code> (alt vazio) ou com <code>role=\"presentation\"</code> ou <code>role=\"none\"</code>."
+    },
+    "img_03": {
+      "s": "Encontrei <mark>{{value}}</mark> imagem na página com <code>alt</code> que não serve de equivalente alternativo.",
+      "p": "Encontrei <mark>{{value}}</mark> imagens na página com <code>alt</code> que não serve de equivalente alternativo."
+    },
+    "img_04": {
+      "s": "Encontrei <mark>{{value}}</mark> imagem na página em que o <code>alt</code> tem mais de 100 carateres.",
+      "p": "Encontrei <mark>{{value}}</mark> imagens na página em que o <code>alt</code> tem mais de 100 carateres ."
+    },
+    "area_01a": {
+      "s": "Constatei que <mark>todas</mark> as <code>&lt;area&gt;</code> ativas dos mapas de imagem da página fazem uso do atributo <code>alt</code>.",
+      "p": "Constatei que <mark>todas</mark> as <code>&lt;area&gt;</code> ativas dos mapas de imagem da página fazem uso do atributo <code>alt</code>."
+    },
+    "area_01b": {
+      "s": "Encontrei <mark>{{value}}</mark> elemento <code>&lt;area&gt;</code> sem atributo <code>alt</code> ou com <code>alt=\"\"</code>.",
+      "p": "Encontrei <mark>{{value}}</mark> elementos <code>&lt;area&gt;</code> sem atributo <code>alt</code> ou com <code>alt=\"\"</code>."
+    },
+    "inp_img_01a": {
+      "s": "Constatei que <mark>todos</mark> os botões gráficos da página fazem uso do atributo <code>alt</code>.",
+      "p": "Constatei que <mark>todos</mark> os botões gráficos da página fazem uso do atributo <code>alt</code>."
+    },
+    "inp_img_01b": {
+      "s": "Localizei <mark>{{value}}</mark> botão gráfico na página que não tem o atributo <code>alt</code>.",
+      "p": "Localizei <mark>{{value}}</mark> botões gráficos na página que não têm o atributo <code>alt</code>."
+    },
+    "a_04": {
+      "s": "Constatei que esta página <mark>não tem</mark> links.",
+      "p": "Constatei que esta página <mark>não tem</mark> links."
+    },
+    "a_03": {
+      "s": "Encontrei <mark>{{value}}</mark> link cujo conteúdo está vazio. Ou melhor, é composto apenas por uma imagem e a imagem tem um equivalente textual alternativo vazio (i.e. <code>alt=\"\"</code>).",
+      "p": "Encontrei <mark>{{value}}</mark> links cujo conteúdo está vazio. Ou melhor, são compostos apenas por uma imagem e a imagem tem um equivalente textual alternativo vazio (i.e. <code>alt=\"\"</code>)."
+    },
+    "a_05": {
+      "s": "Identifiquei <mark>{{value}}</mark> caso em que o atributo <code>title</code> do elemento link se limita a repetir o texto existente no link.",
+      "p": "Identifiquei <mark>{{value}}</mark> casos em que o atributo <code>title</code> do elemento link se limita a repetir o texto existente no link."
+    },
+    "a_09": {
+      "s": "Encontrei <mark>{{value}}</mark> grupo de links com o mesmo texto mas cujo destino é diferente.",
+      "p": "Encontrei <mark>{{value}}</mark> grupos de links com o mesmo texto mas cujo destino é diferente."
+    },
+    "a_06": {
+      "s": "Encontrei <mark>{{value}}</mark> caso de links adjacentes a apontar para o mesmo destino.",
+      "p": "Encontrei <mark>{{value}}</mark> casos de links adjacentes a apontar para o mesmo destino."
+    },
+    "a_01a": {
+      "s": "Constatei que o primeiro link da página nos <mark>permite saltar</mark> para o conteúdo principal.",
+      "p": "Constatei que o primeiro link da página nos <mark>permite saltar</mark> para o conteúdo principal."
+    },
+    "a_01b": {
+      "s": "Constatei que a primeira hiperligação da página <mark>não permite saltar</mark> diretamente para a área do conteúdo principal.",
+      "p": "Constatei que a primeira hiperligação da página <mark>não permite saltar</mark> diretamente para a área do conteúdo principal."
+    },
+    "a_02a": {
+      "s": "<mark>Não encontrei</mark> links para saltar blocos de texto.",
+      "p": "<mark>Não encontrei</mark> links para saltar blocos de texto."
+    },
+    "a_02b": {
+      "s": "Encontrei <mark>{{value}}</mark> link para contornar blocos de conteúdo.",
+      "p": "Encontrei <mark>{{value}}</mark> links para contornar blocos de conteúdo."
+    },
+    "hx_01a": {
+      "s": "Constatei que esta página <mark>não tem</mark> cabeçalhos",
+      "p": "Constatei que esta página <mark>não tem</mark> cabeçalhos"
+    },
+    "hx_01b": {
+      "s": "Encontrei <mark>{{value}}</mark> cabeçalho na página.",
+      "p": "Encontrei <mark>{{value}}</mark> cabeçalhos na página."
+    },
+    "hx_01c": {
+      "s": "<mark>Não encontrei</mark> nesta página um cabeçalho principal <code>&lt;H1&gt;</code> marcado.",
+      "p": "<mark>Não encontrei</mark> nesta página um cabeçalho principal <code>&lt;H1&gt;</code> marcado."
+    },
+    "hx_03": {
+      "s": "Encontrei <mark>{{value}}</mark> caso em que se viola a sequência hierárquica dos níveis de cabeçalho.",
+      "p": "Encontrei <mark>{{value}}</mark> casos em que se viola a sequência hierárquica dos níveis de cabeçalho."
+    },
+    "hx_02": {
+      "s": "Encontrei <mark>{{value}}</mark> cabeçalho cujo conteúdo é apenas composto por uma imagem sem atributo <code>alt</code>, ou seja sem qualquer equivalente textual alternativo.",
+      "p": "Encontrei <mark>{{value}}</mark> cabeçalhos cujo conteúdo é apenas composto por uma imagem sem atributo <code>alt</code>, ou seja sem qualquer equivalente textual alternativo."
+    },
+    "list_01": {
+      "s": "Localizei <mark>{{value}}</mark> ocorrência de lista vazia ou com <code>&lt;li&gt;</code> fora da lista.",
+      "p": "Localizei <mark>{{value}}</mark> ocorrências de listas vazias ou com <code>&lt;li&gt;</code> fora das listas."
+    },
+    "br_01": {
+      "s": "Encontrei <mark>{{value}}</mark> sequência composta por 3 ou mais elementos <code>&lt;br&gt;</code> - desconfio que está a usá-los para representar os itens de uma lista.",
+      "p": "Encontrei <mark>{{value}}</mark> sequências compostas por 3 ou mais elementos <code>&lt;br&gt;</code> - desconfio que está a usá-los para representar os itens de uma lista."
+    },
+    "field_02": {
+      "s": "Encontrei <mark>{{value}}</mark> elemento <code>&lt;fieldset&gt;</code> fora do formulário.",
+      "p": "Encontrei <mark>{{value}}</mark> elementos <code>&lt;fieldset&gt;</code> fora do formulário."
+    },
+    "field_01": {
+      "s": "Encontrei <mark>{{value}}</mark> elemento <code>&lt;fieldset&gt;</code> sem descrição.",
+      "p": "Encontrei <mark>{{value}}</mark> elementos <code>&lt;fieldset&gt;</code> sem descrição."
+    },
+    "label_02": {
+      "s": "Localizei <mark>{{value}}</mark> elemento <code>&lt;label&gt;</code> que não está visível ou está incorretamente posicionado.",
+      "p": "Localizei <mark>{{value}}</mark> elementos <code>&lt;label&gt;</code> que não estão visíveis ou estão incorretamente posicionados."
+    },
+    "input_02b": {
+      "s": "Constatei que <mark>todos</mark> os controlos de formulário têm um nome acessível.",
+      "p": "Constatei que <mark>todos</mark> os controlos de formulário têm um nome acessível."
+    },
+    "input_02": {
+      "s": "Encontrei <mark>{{value}}</mark> controlo de formulário sem nome acessível.",
+      "p": "Encontrei <mark>{{value}}</mark> controlos de formulário sem nome acessível."
+    },
+    "input_01": {
+      "s": "Identifiquei <mark>{{value}}</mark> controlo de formulário sem o elemento <code>&lt;label&gt;</code> associado e sem o atributo <code>title</code>.",
+      "p": "Identifiquei <mark>{{value}}</mark> controlos de formulário sem o elemento <code>&lt;label&gt;</code> associado e sem o atributo <code>title</code>."
+    },
+    "focus_01": {
+      "s": "Encontrei <mark>{{value}}</mark> caso em que se usa javascript para remover o foco do campo, sempre que o campo recebe o foco.",
+      "p": "Encontrei <mark>{{value}}</mark> casos em que se usa javascript para remover o foco do campo, sempre que o campo recebe o foco."
+    },
+    "input_03": {
+      "s": "Encontrei <mark>{{value}}</mark> elemento <code>&lt;input&gt;</code> com o atributo <code>alt</code> que não é botão gráfico.",
+      "p": "Encontrei <mark>{{value}}</mark> elementos <code>&lt;input&gt;</code> com o atributo <code>alt</code> que não são botões gráficos."
+    },
+    "form_01a": {
+      "s": "Constatei que <mark>todos</mark> os formulários têm um botão para submeter os dados ao servidor.",
+      "p": "Constatei que <mark>todos</mark> os formulários têm um botão para submeter os dados ao servidor."
+    },
+    "form_01b": {
+      "s": "Identifiquei <mark>{{value}}</mark> formulário sem o botão para submeter os dados ao servidor.",
+      "p": "Identifiquei <mark>{{value}}</mark> formulários sem o botão para submeter os dados ao servidor."
+    },
+    "table_02": {
+      "s": "Localizei <mark>{{value}}</mark> tabela de dados sem o elemento <code>&lt;caption&gt;</code>.",
+      "p": "Localizei <mark>{{value}}</mark> tabelas de dados sem o elemento <code>&lt;caption&gt;</code>."
+    },
+    "table_03": {
+      "s": "Localizei <mark>{{value}}</mark> tabela em que o texto afixado em <code>&lt;caption&gt;</code> e <code>summary</code> é o mesmo.",
+      "p": "Localizei <mark>{{value}}</mark> tabelas em que o texto afixado em <code>&lt;caption&gt;</code> e <code>summary</code> é o mesmo."
+    },
+    "table_01": {
+      "s": "Encontrei <mark>{{value}}</mark> tabela sem cabeçalhos identificados mas que usa o elemento <code>&lt;caption&gt;</code>.",
+      "p": "Encontrei <mark>{{value}}</mark> tabelas sem cabeçalhos identificados mas que usam o elemento <code>&lt;caption&gt;</code>."
+    },
+    "table_06": {
+      "s": "Encontrei <mark>{{value}}</mark> tabela de dados complexos - em que múltiplas linhas configuram as células cabeçalho -, nas quais se constatou existirem células de dados sem o atributo <code>&lt;headers&gt;</code>.",
+      "p": "Encontrei <mark>{{value}}</mark> tabelas de dados complexos - em que múltiplas linhas configuram as células cabeçalho -, nas quais se constatou existirem células de dados sem o atributo <code>&lt;headers&gt;</code>."
+    },
+    "scope_01": {
+      "s": "Verifiquei que há <mark>{{value}}</mark> caso em que o atributo <code>scope</code> da tabela de dados é inválido.",
+      "p": "Verifiquei que há <mark>{{value}}</mark> casos em que o atributo <code>scope</code> da tabela de dados é inválido."
+    },
+    "table_05a": {
+      "s": "Encontrei <mark>{{value}}</mark> tabela sem cabeçalhos marcados.",
+      "p": "Encontrei <mark>{{value}}</mark> tabelas sem cabeçalhos marcados."
+    },
+    "table_04": {
+      "s": "Verifiquei que há <mark>{{value}}</mark> tabela que está dentro de outra.",
+      "p": "Verifiquei que há <mark>{{value}}</mark> tabelas que estão umas dentro de outras."
+    },
+    "iframe_01": {
+      "s": "Encontrei <mark>{{value}}</mark> elemento <code>&lt;iframe&gt;</code> sem <code>title</code>.",
+      "p": "Encontrei <mark>{{value}}</mark> elementos <code>&lt;iframe&gt;</code> sem <code>title</code>."
+    },
+    "frame_01": {
+      "s": "Identifiquei <mark>{{value}}</mark> elemento frame sem o atributo <code>title</code> ou em que o mesmo é nulo.",
+      "p": "Identifiquei <mark>{{value}}</mark> elementos frame sem o atributo <code>title</code> ou em que o mesmo é nulo."
+    },
+    "win_01": {
+      "s": "Constatei que esta página tem janelas pop-up.",
+      "p": "Constatei que esta página tem janelas pop-up."
+    },
+    "abbr_01": {
+      "s": "Encontrei <mark>{{value}}</mark> abreviatura em que se esqueceu de colocar o valor por extenso.",
+      "p": "Encontrei <mark>{{value}}</mark> abreviaturas em que se esqueceu de colocar o valor por extenso."
+    },
+    "css_01": {
+      "s": "Identifiquei <mark>{{value}}</mark> caso em que nas CSS se especifica um espaçamento entre linhas inferior a 1.5.",
+      "p": "Identifiquei <mark>{{value}}</mark> casos em que nas CSS se especifica um espaçamento entre linhas inferior a 1.5."
+    },
+    "justif_txt_01": {
+      "s": "Encontrei <mark>{{value}}</mark> caso em que se usa texto justificado via HTML.",
+      "p": "Encontrei <mark>{{value}}</mark> casos em que se usa texto justificado via HTML."
+    },
+    "justif_txt_02": {
+      "s": "Identifiquei <mark>{{value}}</mark> caso em que se usa texto justificado via CSS.",
+      "p": "Identifiquei <mark>{{value}}</mark> casos em que se usa texto justificado via CSS."
+    },
+    "font_02": {
+      "s": "Identifiquei <mark>{{value}}</mark> caso em que o tamanho de letra está expresso em unidades de medida absolutas.",
+      "p": "Identifiquei <mark>{{value}}</mark> casos em que o tamanho de letra está expresso em unidades de medida absolutas."
+    },
+    "layout_03": {
+      "s": "Identifiquei <mark>{{value}}</mark> caso na CSS em que se utiliza unidade de medida <code>px</code> para definir a largura das caixas de texto.",
+      "p": "Identifiquei <mark>{{value}}</mark> casos na CSS em que se utilizam unidades de medida <code>px</code> para definir a largura das caixas de texto."
+    },
+    "values_02a": {
+      "s": "Identifiquei <mark>{{value}}</mark> caso na CSS em que se utiliza unidade de medida absoluta para definir a largura das caixas de conteúdo.",
+      "p": "Identifiquei <mark>{{value}}</mark> casos na CSS em que se utilizam unidades de medida absolutas para definir a largura das caixas de conteúdo."
+    },
+    "values_02b": {
+      "s": "Identifiquei <mark>{{value}}</mark> caso na CSS em que se utiliza unidade de medida relativa para definir a largura das caixas de conteúdo.",
+      "p": "Identifiquei <mark>{{value}}</mark> casos na CSS em que se utilizam unidades de medida relativas para definir a largura das caixas de conteúdo."
+    },
+    "values_01a": {
+      "s": "Verifiquei que há <mark>{{value}}</mark> caso em que as unidades de medida que definem a largura dos elementos de conteúdo existentes no HTML estão expressas em valores absolutos.",
+      "p": "Verifiquei que há <mark>{{value}}</mark> casos em que as unidades de medida que definem a largura dos elementos de conteúdo existentes no HTML estão expressas em valores absolutos."
+    },
+    "values_01b": {
+      "s": "Verifiquei que há <mark>{{value}}</mark> caso em que as unidades de medida que definem a largura dos elementos de conteúdo existentes no HTML estão expressas em valores relativos.",
+      "p": "Verifiquei que há <mark>{{value}}</mark> casos em que as unidades de medida que definem a largura dos elementos de conteúdo existentes no HTML estão expressas em valores relativos."
+    },
+    "color_02": {
+      "s": "Localizei <mark>{{value}}</mark> combinação de cor cuja relação de contraste é inferior ao rácio mínimo de contraste permitido pelas WCAG, ou seja 3 para 1 para texto com letra grande e 4,5 para 1 para texto com letra normal.",
+      "p": "Localizei <mark>{{value}}</mark> combinações de cor cuja relação de contraste é inferior ao rácio mínimo de contraste permitido pelas WCAG, ou seja 3 para 1 para texto com letra grande e 4,5 para 1 para texto com letra normal."
+    },
+    "color_01": {
+      "s": "Identifiquei <mark>{{value}}</mark> regra de CSS em que não se especifica a cor da letra ou a cor do fundo.",
+      "p": "Identifiquei <mark>{{value}}</mark> regras de CSS em que não se especifica a cor da letra ou a cor do fundo."
+    },
+    "blink_02": {
+      "s": "Encontrei <mark>{{value}}</mark> valor <code>&lt;blink&gt;</code> nas CSS que provoca o cintilar de partes do conteúdo.",
+      "p": "Localizei <mark>{{value}}</mark> valores <code>&lt;blink&gt;</code> nas CSS que provocam o cintilar de partes do conteúdo."
+    },
+    "ehandler_03": {
+      "s": "Identifiquei <mark>{{value}}</mark> caso em que se faz uso de manipuladores de eventos redundantes.",
+      "p": "Identifiquei <mark>{{value}}</mark> casos em que se faz uso de manipuladores de eventos redundantes."
+    },
+    "ehandler_02": {
+      "s": "Identifiquei <mark>{{value}}</mark> caso em que não se faz uso de manipuladores de eventos redundantes.",
+      "p": "Identifiquei <mark>{{value}}</mark> casos em que não se faz uso de manipuladores de eventos redundantes."
+    },
+    "ehandler_04": {
+      "s": "Identifiquei <mark>{{value}}</mark> caso em que se associam manipuladores de eventos a elementos não interativos.",
+      "p": "Identifiquei <mark>{{value}}</mark> casos em que se associam manipuladores de eventos a elementos não interativos."
+    },
+    "w3c_validator_01a": {
+      "s": "Perguntei ao validador de HTML do W3C e constatei que <mark>não existem erros</mark> de HTML.",
+      "p": "Perguntei ao validador de HTML do W3C e constatei que <mark>não existem erros</mark> de HTML."
+    },
+    "w3c_validator_01b": {
+      "s": "Perguntei ao validador de HTML do W3C e constatei que há <mark>{{value}} erro</mark> de HTML.",
+      "p": "Perguntei ao validador de HTML do W3C e constatei que há <mark>{{value}} erros</mark> de HTML."
+    },
+    "font_01": {
+      "s": "Localizei <mark>{{value}}</mark> elemento ou atributo de HTML que está a ser usado para controlo da apresentação visual do texto.",
+      "p": "Localizei <mark>{{value}}</mark> elementos ou atributos de HTML que estão a ser usados para controlo da apresentação visual do texto."
+    },
+    "layout_01a": {
+      "s": "Constatei que <mark>não há</mark> elementos obsoletos usados para controlo visual da apresentação.",
+      "p": "Constatei que <mark>não há</mark> elementos obsoletos usados para controlo visual da apresentação."
+    },
+    "layout_01b": {
+      "s": "Encontrei <mark>{{value}}</mark> elemento obsoleto usado para controlar a apresentação visual.",
+      "p": "Encontrei <mark>{{value}}</mark> elementos obsoletos usados para controlar a apresentação visual."
+    },
+    "lang_01": {
+      "s": "Verifiquei que o idioma principal da página <mark>está marcado</mark> como <mark>\"{{value}}\"</mark>.",
+      "p": "Verifiquei que o idioma principal da página <mark>está marcado</mark> como <mark>\"{{value}}\"</mark>."
+    },
+    "lang_03": {
+      "s": "Constatei que o atributo <mark>{{value}} se encontra em falta</mark>.",
+      "p": "Constatei que o atributo <mark>{{value}} se encontra em falta</mark>."
+    },
+    "lang_02": {
+      "s": "Verifiquei que o idioma principal da página está <mark>incorretamente marcado</mark>. <mark>\"{{value}}\" existe?",
+      "p": "Verifiquei que o idioma principal da página está <mark>incorretamente marcado</mark>. <mark>\"{{value}}\" existe?"
+    },
+    "lang_04": {
+      "s": "Constatei que os atributos <code>lang</code> e/ou <code>xml:lang</code> estão a ser utilizados <mark>de forma incorreta</mark>.",
+      "p": "Constatei que os atributos <code>lang</code> e/ou <code>xml:lang</code> estão a ser utilizados <mark>de forma incorreta</mark>."
+    },
+    "title_02": {
+      "s": "Verifiquei que esta página <mark>não tem</mark> título - falta-lhe o elemento <code>&lt;title&gt;</code>.",
+      "p": "Verifiquei que esta página <mark>não tem</mark> título - falta-lhe o elemento <code>&lt;title&gt;</code>."
+    },
+    "title_03": {
+      "s": "Verifiquei que esta página não tem título - o elemento <code>&lt;title&gt;</code> <mark>está vazio</mark>.",
+      "p": "Verifiquei que esta página não tem título - o elemento <code>&lt;title&gt;</code> <mark>está vazio</mark>."
+    },
+    "title_06": {
+      "s": "Encontrei <mark>um título</mark> na página e ele parece-me correto.",
+      "p": "Encontrei <mark>um título</mark> na página e ele parece-me correto."
+    },
+    "title_04": {
+      "s": "Parece-me que o título da página é demasiado grande - ele contém <mark>{{value}}</mark> carateres.",
+      "p": "Parece-me que o título da página é demasiado grande - ele contém <mark>{{value}}</mark> carateres."
+    },
+    "title_05": {
+      "s": "Verifiquei que o título da página tem <mark>{{value}}</mark> carateres seguidos que me parecem ser Arte-ASCII.",
+      "p": "Verifiquei que o título da página tem <mark>{{value}}</mark> carateres seguidos que me parecem ser Arte-ASCII."
+    },
+    "title_01": {
+      "s": "Verifiquei que esta página não tem apenas um elemento <code>&lt;title&gt;</code>, como era suposto, mas <mark>{{value}}</mark>.",
+      "p": "Verifiquei que esta página não tem apenas um elemento <code>&lt;title&gt;</code>, como era suposto, mas <mark>{{value}}</mark>."
+    },
+    "link_01": {
+      "s": "Localizei nos metadados da página <mark>{{value}}</mark> elemento <code>&lt;link&gt;</code> que poderá servir para construir um sistema de navegação.",
+      "p": "Localizei nos metadados da página <mark>{{value}}</mark> elementos <code>&lt;link&gt;</code> que poderão servir para construir um sistema de navegação.."
+    },
+    "meta_01": {
+      "s": "Constatei que a página <mark>reinicia-se automaticamente</mark> através do elemento <code>&lt;meta http-equiv=\"refresh\"&gt;</code>.",
+      "p": "Constatei que a página <mark>reinicia-se automaticamente</mark> através do elemento <code>&lt;meta http-equiv=\"refresh\"&gt;</code>."
+    },
+    "meta_02": {
+      "s": "Constatei que a página é <mark>redireccionada automaticamente</mark> através do elemento <code>&lt;meta http-equiv=\"redirect\"&gt;</code>.",
+      "p": "Constatei que a página é <mark>redireccionada automaticamente</mark> através do elemento <code>&lt;meta http-equiv=\"redirect\"&gt;</code>."
+    },
+    "heading_01": {
+      "s": "Constatei que todos os cabeçalhos desta página <mark>têm</mark> nome acessível",
+      "p": "Constatei que todos os cabeçalhos desta página <mark>têm</mark> nome acessível"
+    },
+    "heading_02": {
+      "s": "Identifiquei <mark>{{value}}</mark> cabeçalho sem nome acessível.",
+      "p": "Identifiquei <mark>{{value}}</mark> cabeçalhos sem nome acessível."
+    },
+    "heading_03": {
+      "s": "Identifiquei exatamente um cabeçalho de nível 1.",
+      "p": "Identifiquei exatamente um cabeçalho de nível 1."
+    },
+    "heading_04": {
+      "s": "Identifiquei <mark>{{value}}</mark> cabeçalhos de nível 1. Devia haver um.",
+      "p": "Identifiquei <mark>{{value}}</mark> cabeçalhos de nível 1. Devia haver um."
+    },
+    "aria_01": {
+      "s": "Verifiquei que <mark>todos os elementos</mark> com papel semântico definido explicitamente estão dentro dos contextos obrigatórios.",
+      "p": "Verifiquei que <mark>todos os elementos</mark> com papel semântico definido explicitamente estão dentro dos contextos obrigatórios."
+    },
+    "aria_02": {
+      "s": "Constatei que <mark>todos os elementos</mark> com papel semântico definido explicitamente têm pelo menos um dos elementos filho obrigatórios.",
+      "p": "Constatei que <mark>todos os elementos</mark> com papel semântico definido explicitamente têm pelo menos um dos elementos filho obrigatórios."
+    },
+    "aria_03": {
+      "s": "Verifiquei que <mark>todos</mark> os estados e todas as propriedades ARIA têm um tipo de valor válido.",
+      "p": "Verifiquei que <mark>todos</mark> os estados e todas as propriedades ARIA têm um tipo de valor válido."
+    },
+    "aria_04": {
+      "s": "Encontrei <mark>{{value}}</mark> estado ou propriedade ARIA com um valor de tipo incorreto.",
+      "p": "Encontrei <mark>{{value}}</mark> estados ou propriedades ARIA com tipos de valor incorretos."
+    },
+    "aria_05": {
+      "s": "Verifiquei que <mark>todos</mark> os estados e todas as propriedades ARIA são permitidos.",
+      "p": "Verifiquei que <mark>todos</mark> os estados e todas as propriedades ARIA são permitidos."
+    },
+    "aria_06": {
+      "s": "Encontrei <mark>{{value}}</mark> estado ou propriedade ARIA que não é permitido.",
+      "p": "Encontrei <mark>{{value}}</mark> estados ou propriedades ARIA que não são permitido."
+    },
+    "aria_07": {
+      "s": "Verifiquei que <mark>todos</mark> os atributos aria-* estão de acordo com a especificação ARIA.",
+      "p": "Verifiquei que <mark>todos</mark> os atributos aria-* estão de acordo com a especificação ARIA."
+    },
+    "aria_08": {
+      "s": "Encontrei <mark>{{value}}</mark> atributo aria-* que não está na especificação ARIA.",
+      "p": "Encontrei <mark>{{value}}</mark> atributos aria-* que não estão na especificação ARIA."
+    },
+    "aria_09": {
+      "s": "Encontrei <mark>{{value}}</mark> referência de um atributo aria-controls que não existe na página.",
+      "p": "Encontrei <mark>{{value}}</mark> referências de atributos aria-controls que não existem na página."
+    },
+    "aria_10": {
+      "s": "Constatei que <mark>a referência</mark> de um atributo aria-controls existe na página.",
+      "p": "Constatei que <mark>todas as referências</mark> de atributos aria-controls existem na página."
+    },
+    "audio_video_01": {
+      "s": "Não encontrei <mark>nenhum</mark> elemento <code>&lt;audio&gt;</code> ou <code>&lt;video&gt;</code> que iniciasse automaticamente.",
+      "p": "Não encontrei <mark>nenhum</mark> elemento <code>&lt;audio&gt;</code> ou <code>&lt;video&gt;</code> que iniciasse automaticamente."
+    },
+    "audio_video_02": {
+      "s": "Encontrei <mark>{{value}}</mark> elemento <code>&lt;audio&gt;</code> ou <code>&lt;video&gt;</code> que inicia automaticamente.",
+      "p": "Encontrei <mark>{{value}}</mark> elementos <code>&lt;audio&gt;</code> ou <code>&lt;video&gt;</code> que iniciam automaticamente."
+    },
+    "autocomplete_01": {
+      "s": "Constatei que <mark>todos</mark> os atributos autocomplete têm um valor válido.",
+      "p": "Constatei que <mark>todos</mark> os atributos autocomplete têm um valor válido."
+    },
+    "autocomplete_02": {
+      "s": "Identifiquei <mark>{{value}}</mark> atributo autocomplete com um valor inválido.",
+      "p": "Identifiquei <mark>{{value}}</mark> atributos autocomplete com valores inválidos."
+    },
+    "button_01": {
+      "s": "Verifiquei que <mark>todos</mark> os elementos <code>&lt;button&gt;</code> têm nome acessível.",
+      "p": "Verifiquei que <mark>todos</mark> os elementos <code>&lt;button&gt;</code> têm nome acessível."
+    },
+    "button_02": {
+      "s": "Encontrei <mark>{{value}}</mark> elemento <code>&lt;button&gt;</code> sem nome acessível.",
+      "p": "Encontrei <mark>{{value}}</mark> elementos <code>&lt;button&gt;</code> sem nome acessível."
+    },
+    "element_01": {
+      "s": "Encontrei <mark>{{value}}</mark> elemento na ordem de foco sequencial.",
+      "p": "Encontrei <mark>{{value}}</mark> elementos na ordem de foco sequencial."
+    },
+    "element_02": {
+      "s": "Não encontrei <mark>nenhum elemento</mark> com o atributo aria-hidden que tenha conteúdo focável",
+      "p": "Não encontrei <mark>nenhum elemento</mark> marcado com aria-hidden que tenha conteúdo focável"
+    },
+    "element_03": {
+      "s": "Encontrei <mark>{{value}}</mark> elemento com o atributo aria-hidden que tem conteúdo focável",
+      "p": "Encontrei <mark>{{value}}</mark> elementos com o atributo aria-hidden que têm conteúdo focável"
+    },
+    "element_04": {
+      "s": "Não encontrei elementos marcados como decorativos que tenham sido expostos a Tecnologias de Apoio",
+      "p": "Não encontrei elementos marcados como decorativos que tenham sido expostos a Tecnologias de Apoio"
+    },
+    "element_05": {
+      "s": "Identifiquei <mark>{{value}}</mark> elemento marcado como decorativo que está exposto a Tecnologias de Apoio",
+      "p": "Identifiquei <mark>{{value}}</mark> elementos marcados como decorativos que estão expostos a Tecnologias de Apoio"
+    },
+    "element_06": {
+      "s": "Verifiquei que <mark>todos</mark> os elementos com atributo lang têm uma etiqueta de linguagem válida",
+      "p": "Verifiquei que <mark>todos</mark> os elementos com atributo lang têm uma etiqueta de linguagem válida"
+    },
+    "element_07": {
+      "s": "Encontrei <mark>{{value}}</mark> elemento com atributo lang que tem uma etiqueta de linguagem inválida",
+      "p": "Encontrei <mark>{{value}}</mark> elementos com atributo lang que têm etiquetas de linguagem inválidas"
+    },
+    "element_08": {
+      "s": "Constatei que todos os elementos com um papel semântico que confere aos seus descendentes um papel decorativo, não têm descendentes focáveis",
+      "p": "Constatei que todos os elementos com um papel semântico que confere aos seus descendentes um papel decorativo, não têm descendentes focáveis"
+    },
+    "element_09": {
+      "s": "Identifiquei <mark>{{value}}</mark> elemento com um papel semântico que confere aos seus descendentes um papel decorativo, que tem descendentes focáveis",
+      "p": "Identifiquei <mark>{{value}}</mark> elementos com papel semântico que confere aos seus descendentes um papel decorativo, que têm descendentes focáveis"
+    },
+    "element_10": {
+      "s": "Constatei que <mark>todos</mark> os elementos com papel semântico explícito têm os necessários estados e propriedades.",
+      "p": "Constatei que <mark>todos</mark> os elementos com papel semântico explícito têm os necessários estados e propriedades."
+    },
+    "headers_01": {
+      "s": "Verifiquei que <mark>todos</mark> os atributos <code>headers</code> apontam para células da mesma tabela.",
+      "p": "Verifiquei que <mark>todos</mark> os atributos <code>headers</code> apontam para células da mesma tabela."
+    },
+    "headers_02": {
+      "s": "Localizei <mark>{{value}}</mark> atributo <code>headers</code> que aponta para células fora da tabela.",
+      "p": "Localizei <mark>{{value}}</mark> atributos <code>headers</code> que apontam para células fora das suas tabelas."
+    },
+    "id_01": {
+      "s": "Constatei que nesta página <mark>não há</marks> atributos <code>id</code> repetidos.",
+      "p": "Constatei que nesta página <mark>não há</marks> atributos <code>id</code> repetidos."
+    },
+    "id_02": {
+      "s": "Encontrei nesta página <mark>{{value}}</mark> atributo <code>id</code> repetido.",
+      "p": "Encontrei nesta página <mark>{{value}}</mark> atributos <code>ids</code> repetidos."
+    },
+    "iframe_02": {
+      "s": "Encontrei <mark>{{value}}</mark> par de elementos <code>&lt;iframe&gt;</code> com o mesmo nome acessível que apontam para o mesmo conteúdo",
+      "p": "Encontrei <mark>{{value}}</mark> elementos <code>&lt;iframe&gt;</code> com o mesmo nome acessível que apontam para o mesmo conteúdo"
+    },
+    "iframe_03": {
+      "s": "Encontrei <mark>{{value}}</mark> par de elementos <code>&lt;iframe&gt;</code> com o mesmo nome acessível",
+      "p": "Encontrei <mark>{{value}}</mark> elementos <code>&lt;iframe&gt;</code> com o mesmo nome acessível"
+    },
+    "iframe_04": {
+      "s": "Verifiquei que não existem elementos interativos dentro de elementos <code>&lt;iframe&gt;</code> com um atributo <code>tabindex</code> negativo",
+      "p": "Verifiquei que não existem elementos interativos dentro de elementos <code>&lt;iframe&gt;</code> com um atributo <code>tabindex</code> negativo"
+    },
+    "iframe_05": {
+      "s": "Encontrei <mark>{{value}}</mark> elemento <code>&lt;iframe&gt;</code> com um atributo <code>tabindex</code> com valor negativo que contém elementos interativos",
+      "p": "Encontrei <mark>{{value}}</mark> elementos <code>&lt;iframe&gt;</code> com um atributo <code>tabindex</code> com valor negativo que contêm elementos interativos"
+    },
+    "letter_01": {
+      "s": "Constatei que não se usam estilos para impedir aumentar o espaçamento entre letras",
+      "p": "Constatei que não se usam estilos para impedir aumentar o espaçamento entre letras"
+    },
+    "letter_02": {
+      "s": "Identifiquei <mark>{{value}}</mark> elemento cujos estilos impedem o aumento do espaçamento entre letras para um valor que seja pelo menos 0,12 vezes o tamanho da fonte",
+      "p": "Identifiquei <mark>{{value}}</mark> elementos cujos estilos impedem o aumento do espaçamento entre letras para um valor que seja pelo menos 0,12 vezes o tamanho da fonte"
+    },
+    "a_10": {
+      "s": "Verifiquei que <mark>todas</mark> as ligações têm nome acessível.",
+      "p": "Verifiquei que <mark>todas</mark> as ligações têm nome acessível."
+    },
+    "a_11": {
+      "s": "Encontrei <mark>{{value}}</mark> ligação sem nome acessível.",
+      "p": "Encontrei <mark>{{value}}</mark> ligações sem nome acessível."
+    },
+    "a_12": {
+      "s": "Verifiquei que <mark>todos os grupos</mark> de links com o mesmo nome acessível e contexto têm o mesmo destino.",
+      "p": "Verifiquei que <mark>todos os grupos</mark> de links com o mesmo nome acessível e contexto têm o mesmo destino."
+    },
+    "a_13": {
+      "s": "Encontrei <mark>{{value}}</mark> grupo de links com o mesmo nome acessível e contexto mas cujo destino é diferente.",
+      "p": "Encontrei <mark>{{value}}</mark> grupos de links com o mesmo nome acessível e contexto mas cujos destinos são diferentes."
+    },
+    "menuItem_01": {
+      "s": "Verifiquei que <mark>todos</mark> os elementos com papel semântico <code>menuitem</code> têm nome acessível.",
+      "p": "Verifiquei que <mark>todos</mark> os elementos com papel semântico <code>menuitem</code> têm nome acessível."
+    },
+    "menuItem_02": {
+      "s": "Encontrei <mark>{{value}}</mark> elemento com papel semântico <code>menuitem</code> sem nome acessível.",
+      "p": "Encontrei <mark>{{value}}</mark> elementos com papel semântico <code>menuitem</code> sem nome acessível."
+    },
+    "meta_03": {
+      "s": "Constatei que <mark>nenhum</mark> elemento <code>meta</code> refresh causa um refrescamento não imediato da página",
+      "p": "Constatei que <mark>nenhum</mark> elemento <code>meta</code> refresh causa um refrescamento não imediato da página"
+    },
+    "meta_04": {
+      "s": "Localizei <mark>{{value}}</mark> elemento <code>meta</code> refresh que causa um refrescamento não imediato da página",
+      "p": "Localizei <mark>{{value}}</mark> elementos <code>meta</code> refresh que causam refrescamento não imediato da página"
+    },
+    "meta_05": {
+      "s": "Constatei que o elemento <code>meta</code> <mark>não impede</mark> o utilizador de fazer zoom.",
+      "p": "Constatei que o elemento <code>meta</code> <mark>não impede</mark> o utilizador de fazer zoom."
+    },
+    "object_01": {
+      "s": "Verifiquei que <mark>todos</mark> os elementos <code>&lt;object&gt;</code> têm equivalente textual alternativo.",
+      "p": "Verifiquei que <mark>todos</mark> os elementos <code>&lt;object&gt;</code> têm equivalente textual alternativo."
+    },
+    "object_02": {
+      "s": "Localizei <mark>{{value}}</mark> elemento <code>&lt;object&gt;</code> sem equivalente textual alternativo.",
+      "p": "Localizei <mark>{{value}}</mark> elementos <code>&lt;object&gt;</code> sem equivalente textual alternativo."
+    },
+    "orientation_01": {
+      "s": "Constatei a orientação dos elementos desta página <mark>não</mark> é restringida através de propriedades CSS",
+      "p": "Constatei a orientação dos elementos desta página <mark>não</mark> é restringida através de propriedades CSS"
+    },
+    "orientation_02": {
+      "s": "Encontrei <mark>{{value}}</mark> elemento cuja orientação é restringida através de propriedades CSS",
+      "p": "Encontrei <mark>{{value}}</mark> elementos cuja orientações são restringidas através de propriedades CSS"
+    },
+    "role_01": {
+      "s": "Verifiquei que <mark>todos</mark> os atributos <code>role</code> têm um valor válido",
+      "p": "Verifiquei que <mark>todos</mark> os atributos <code>role</code> têm um valor válido"
+    },
+    "role_02": {
+      "s": "Identifiquei <mark>{{value}}</mark> atributo <code>role</code> com valor inválido",
+      "p": "Identifiquei <mark>{{value}}</mark> atributos <code>role</code> com valores inválidos"
+    },
+    "scrollable_01": {
+      "s": "Constatei que <mark>todos</mark> os elementos com varrimento podem ser usados com o teclado",
+      "p": "Constatei que <mark>todos</mark> os elementos com varrimento podem ser usados com o teclado"
+    },
+    "scrollable_02": {
+      "s": "Encontrei <mark>{{value}}</mark> elemento com varrimento que não pode ser usado com o teclado",
+      "p": "Encontrei <mark>{{value}}</mark> elementos com varrimento que não podem ser usados com o teclado"
+    },
+    "svg_01": {
+      "s": "Verifiquei que <mark>todos</mark> os elementos <code>&lt;svg&gt;</code> com papel semântico explícito têm um nome acessível",
+      "p": "Verifiquei que <mark>todos</mark> os elementos <code>&lt;svg&gt;</code> com papel semântico explícito têm um nome acessível"
+    },
+    "svg_02": {
+      "s": "Localizei <mark>{{value}}</mark> elemento <code>&lt;svg&gt;</code> com papel semântico explícito sem nome acessível",
+      "p": "Localizei <mark>{{value}}</mark> elementos <code>&lt;svg&gt;</code> com papel semântico explícito sem nome acessível"
+    },
+    "table_07": {
+      "s": "Observei que <mark>todas</mark> os cabeçalhos das tabelas têm células de dados correspondentes",
+      "p": "Observei que <mark>todas</mark> os cabeçalhos das tabelas têm células de dados correspondentes"
+    },
+    "table_08": {
+      "s": "Identifiquei <mark>{{value}}</mark> célula cabeçalho de tabela que não tem nenhuma célula de dados associada",
+      "p": "Identifiquei <mark>{{value}}</mark> células cabeçalho de tabela que não têm nenhuma célula de dados associada"
+    },
+    "textC_01": {
+      "s": "Verifiquei que <mark>todas</mark> as combinações de cor têm uma relação de contraste superior ao rácio de contraste otimizado sugerido pelas WCAG, ou seja 4,5 para 1 para texto com letra grande e 7 para 1 para texto com letra normal.",
+      "p": "Verifiquei que <mark>todas</mark> as combinações de cor têm uma relação de contraste superior ao rácio de contraste otimizado sugerido pelas WCAG, ou seja 4,5 para 1 para texto com letra grande e 7 para 1 para texto com letra normal."
+    },
+    "textC_02": {
+      "s": "Localizei <mark>{{value}}</mark> combinação de cor cuja relação de contraste é inferior ao rácio de contraste otimizado sugerido pelas WCAG, ou seja 4,5 para 1 para texto com letra grande e 7 para 1 para texto com letra normal.",
+      "p": "Localizei <mark>{{value}}</mark> combinações de cor cujas relações de contraste são inferiores ao rácio de contraste otimizado sugerido pelas WCAG, ou seja 4,5 para 1 para texto com letra grande e 7 para 1 para texto com letra normal."
+    },
+    "video_01": {
+      "s": "Observei que existe {{value}} elemento <code>&lt;video&gt;</code> com conteúdo áudio que deve ter uma alternativa acessível",
+      "p": "Observei que existem {{value}} elementos <code>&lt;video&gt;</code> com conteúdo áudio que devem ter alternativas acessíveis"
+    },
+    "video_02": {
+      "s": "Observei que existe {{value}} elemento <code>&lt;video&gt;</code> com conteúdo visual que deve ter uma alternativa acessível",
+      "p": "Observei que existem {{value}} elementos <code>&lt;video&gt;</code> com conteúdo visual que devem ter alternativas acessíveis"
+    },
+    "label_01": {
+      "s": "Constatei que <mark>todos</mark> os elementos interativos têm no seu nome acessível o texto visível das etiquetas",
+      "p": "Constatei que <mark>todos</mark> os elementos interativos têm no seu nome acessível o texto visível das etiquetas"
+    },
+    "label_03": {
+      "s": "Encontrei <mark>{{value}}</mark> elemento interativo que tem texto visível da sua etiqueta que não faz parte do seu nome acessível",
+      "p": "Encontrei <mark>{{value}}</mark> elementos interativos que têm texto visível das suas etiquetas que não faz parte dos seus nomes acessíveis"
+    },
+    "word_01": {
+      "s": "Constatei que não se usam estilos para impedir aumentar o espaçamento entre palavras",
+      "p": "Constatei que não se usam estilos para impedir aumentar o espaçamento entre palavras"
+    },
+    "word_02": {
+      "s": "Identifiquei <mark>{{value}}</mark> elemento cujos estilos impedem o aumento do espaçamento entre palavras para um valor que seja pelo menos 0,16 vezes o tamanho da fonte",
+      "p": "Identifiquei <mark>{{value}}</mark> elementos cujos estilos impedem o aumento do espaçamento entre palavras para um valor que seja pelo menos 0,16 vezes o tamanho da fonte"
+    },
+    "css_02": {
+      "s": "Verifiquei que existe <mark>{{value}}</mark> nó de texto com propriedade CSS <code>overflow</code> que pode impedir um utilizador de ver o texto quando faz zoom",
+      "p": "Verifiquei que existem <mark>{{value}}</mark> nós de texto com propriedade CSS <code>overflow</code> que podem impedir um utilizador de ver o texto quando faz zoom"
+    },
+    "landmark_01": {
+      "s": "Constatei que o elemento com a semântica de <code>banner</code> <mark>não está</mark> contido dentro de nenhum elemento com outra semântica",
+      "p": "Constatei que os elementos com a semântica de <code>banner</code> <mark>não estão</mark> contidos dentro de nenhum elemento com outra semântica"
+    },
+    "landmark_02": {
+      "s": "Constatei que o elemento com a semântica de <code>banner</code> <mark>está</mark> contido dentro de um elemento com outra semântica",
+      "p": "Constatei que os elementos com a semântica de <code>banner</code> <mark>estão</mark> contidos dentro de elementos com outra semântica"
+    },
+    "landmark_03": {
+      "s": "Constatei que o elemento com a semântica de <code>complementary</code> <mark>não está</mark> contido dentro de nenhum elemento com outra semântica",
+      "p": "Constatei que os elementos com a semântica de <code>complementary</code> <mark>não estão</mark> contidos dentro de nenhum elemento com outra semântica"
+    },
+    "landmark_04": {
+      "s": "Constatei que o elemento com a semântica de <code>complementary</code> <mark>está</mark> contido dentro de um elemento com outra semântica",
+      "p": "Constatei que os elementos com a semântica de <code>complementary</code> <mark>estão</mark> contidos dentro de elementos com outra semântica"
+    },
+    "landmark_05": {
+      "s": "Constatei que o elemento com a semântica de <code>contentinfo</code> <mark>não está</mark> contido dentro de nenhum elemento com outra semântica",
+      "p": "Constatei que os elementos com a semântica de <code>contentinfo</code> <mark>não estão</mark> contidos dentro de nenhum elemento com outra semântica"
+    },
+    "landmark_06": {
+      "s": "Constatei que o elemento com a semântica de <code>contentinfo</code> <mark>está</mark> contido dentro de um elemento com outra semântica",
+      "p": "Constatei que os elementos com a semântica de <code>contentinfo</code> <mark>estão</mark> contidos dentro de elementos com outra semântica"
+    },
+    "landmark_07": {
+      "s": "Constatei que o elemento com a semântica de <code>main</code> <mark>não está</mark> contido dentro de nenhum elemento com outra semântica",
+      "p": "Constatei que os elementos com a semântica de <code>main</code> <mark>não estão</mark> contidos dentro de nenhum elemento com outra semântica"
+    },
+    "landmark_08": {
+      "s": "Constatei que o elemento com a semântica de <code>main</code> <mark>está</mark> contido dentro de um elemento com outra semântica",
+      "p": "Constatei que os elementos com a semântica de <code>main</code> <mark>estão</mark> contidos dentro de elementos com outra semântica"
+    },
+    "landmark_09": {
+      "s": "Encontrei <mark>um</mark> elemento com a semântica de <code>banner</code>.",
+      "p": "Encontrei <mark>um</mark> elemento com a semântica de <code>banner</code>."
+    },
+    "landmark_10": {
+      "s": "Encontrei <mark>{{value}}</mark> elementos com a semântica de <code>banner</code>.",
+      "p": "Encontrei <mark>{{value}}</mark> elementos com a semântica de <code>banner</code>."
+    },
+    "landmark_11": {
+      "s": "Encontrei <mark>um</mark> elemento com a semântica de <code>contentinfo</code>.",
+      "p": "Encontrei <mark>um</mark> elemento com a semântica de <code>contentinfo</code>."
+    },
+    "landmark_12": {
+      "s": "Encontrei <mark>{{value}}</mark> elementos com a semântica de <code>contentinfo</code>.",
+      "p": "Encontrei <mark>{{value}}</mark> elementos com a semântica de <code>contentinfo</code>."
+    },
+    "landmark_13": {
+      "s": "Encontrei <mark>um</mark> elemento com a semântica de <code>main</code>.",
+      "p": "Encontrei <mark>um</mark> elemento com a semântica de <code>main</code>."
+    },
+    "landmark_14": {
+      "s": "Encontrei <mark>{{value}}</mark> elementos com a semântica de <code>main</code>.",
+      "p": "Encontrei <mark>{{value}}</mark> elementos com a semântica de <code>main</code>."
+    },
+    "listitem_01": {
+      "s": "Verifiquei que <mark>todos</mark> os elementos <code>&lt;li&gt;</code> estão contidos dentro de uma lista.",
+      "p": "Verifiquei que <mark>todos</mark> os elementos <code>&lt;li&gt;</code> estão contidos dentro de uma lista."
+    },
+    "listitem_02": {
+      "s": "Localizei <mark>{{value}}</mark> elemento <code>&lt;li&gt;</code> que não está contido dentro de uma lista.",
+      "p": "Localizei <mark>{{value}}</mark> elementos <code>&lt;li&gt;</code> que não estão contidos dentro de listas."
+    },
+    "list_02": {
+      "s": "Verifiquei que <mark>todas</mark> as listas só contêm itens de lista.",
+      "p": "Verifiquei que <mark>todas</mark> as listas só contêm itens de lista."
+    },
+    "list_03": {
+      "s": "Localizei <mark>{{value}}</mark> lista que contém elementos que não são itens de lista.",
+      "p": "Localizei <mark>{{value}}</mark> listas que contêm elementos que não são itens de lista."
+    },
+    "list_04": {
+      "s": "Verifiquei que <mark>todos</mark> os elementos <code>&lt;dd&gt;</code> e <code>&lt;dt&gt;</code> estão contidos dentro de uma lista.",
+      "p": "Verifiquei que <mark>todos</mark> os elementos <code>&lt;dd&gt;</code> e <code>&lt;dt&gt;</code> estão contidos dentro de uma lista."
+    },
+    "list_05": {
+      "s": "Localizei <mark>{{value}}</mark> elemento <code>&lt;dd&gt;</code> ou <code>&lt;dt&gt;</code> que não está contido dentro de uma lista.",
+      "p": "Localizei <mark>{{value}}</mark> elementos <code>&lt;dd&gt;</code> ou <code>&lt;dt&gt;</code> que não estão contidos dentro de lista."
+    },
+    "list_06": {
+      "s": "Verifiquei que <mark>todas</mark> as listas de descrição só contêm itens de lista corretamente ordenados.",
+      "p": "Verifiquei que <mark>todas</mark> as listas de descrição só contêm itens de lista corretamente ordenados."
+    },
+    "list_07": {
+      "s": "Localizei <mark>{{value}}</mark> lista de descrição que contém elementos que não são itens de lista ou que não estão corretamente ordenados.",
+      "p": "Localizei <mark>{{value}}</mark> listas de descrição que contêm elementos que não são itens de lista ou que não estão corretamente ordenados."
+    }
+  },
+  "TECHS": {
+    "H37": "Utilizar atributos alt em elementos img",
+    "F65": "Falha do Critério de Sucesso 1.1.1 devido à omissão do atributo alt em elementos img, elementos area e elementos input do tipo \"imagem\"",
+    "C9": "Utilizar CSS para incluir imagens decorativas",
+    "F30": "Falha dos Critérios de Sucesso 1.1.1 e 1.2.1 devido à utilização de alternativas em texto que não são alternativas (por ex., nomes de ficheiros ou texto genérico)",
+    "H45": "Utilizar longdesc",
+    "H24": "Fornecer alternativas em texto para os elementos area de mapas de imagens",
+    "H36": "Utilizar atributos alt em imagens utilizadas como botões Submit",
+    "G125": "Fornecer links para navegar para páginas Web relacionadas",
+    "F89": "Falha dos Critérios de Sucesso 2.4.4, 2.4.9 e 4.1.2 devido à utilização de alt vazio numa imagem em que a imagem é o único conteúdo de um link",
+    "H33": "Suplementar o texto do link com o atributo title",
+    "F84": "Falha do Critério de Sucesso 2.4.9 devido à utilização de um link não específico, tal como \"clique aqui\" ou \"mais\" sem um mecanismo para alterar o texto do link para texto específico",
+    "H2": "Combinar a imagem adjacente e os links de texto para o mesmo recurso",
+    "G1": "Adicionar um link no topo de cada página para aceder directamente à área do conteúdo principal",
+    "G123": "Adicionar um link no início de um bloco de conteúdo repetido para aceder directamente ao fim do bloco",
+    "H42": "Utilizar h1-h6 para identificar cabeçalhos",
+    "G141": "Organizar uma página utilizando cabeçalhos",
+    "G130": "Fornecer cabeçalhos descritivos",
+    "H48": "Utilizar ol, ul e dl para listas",
+    "H71": "Fornecer uma descrição para grupos de controlos de formulário utilizando elementos fieldset e legend",
+    "G162": "Colocar etiquetas para aumentar a previsibilidade das relações",
+    "H44": "Utilizar elementos label para associar etiquetas de texto a controlos de formulário",
+    "H65": "Utilizar o atributo title para identificar controlos de formulário quando o elemento label não puder ser utilizado",
+    "F55": "Falha dos Critérios de Sucesso 2.1.1, 2.4.7 e 3.2.1 devido à utilização de script para remover o foco quando o foco é recebido",
+    "H32": "Fornecer botões Submit",
+    "H39": "Utilizar elementos caption para associar títulos às tabelas de dados",
+    "H73": "Utilizar o atributo summary do elemento table para fornecer uma descrição geral das tabelas de dados",
+    "F46": "Falha do Critério de Sucesso 1.3.1 devido à utilização de elementos th, elementos caption ou atributos summary não vazios em tabelas de esquema",
+    "H43": "Utilizar os atributos id e headers para associar células de dados a células de cabeçalho em tabelas de dados",
+    "H63": "Utilizar o atributo scope para associar células de cabeçalho a células de dados em tabelas de dados",
+    "H51": "Utilizar a marcação da tabela para apresentar informações dispostas em tabelas",
+    "F49": "Falha do Critério de Sucesso 1.3.2 devido à utilização de uma tabela de esquema HTML que não faz sentido quando linearizada",
+    "H64": "Utilizar o atributo title dos elementos frame e iframe",
+    "F52": "Falha do Critério de Sucesso 3.2.1 devido à apresentação de uma nova janela assim que uma página nova é carregada",
+    "G102": "Fornecer a definição por extenso ou explicação de uma abreviatura",
+    "C21": "Especificar o espaçamento entre linhas em CSS",
+    "F88": "Falha do Critério de Sucesso 1.4.8 devido à utilização de texto justificado (alinhado às margens esquerda e direita)",
+    "C19": "Especificar o alinhamento à esquerda OU à direita em CSS",
+    "C12": "Utilizar percentagem para tamanhos de letra",
+    "G146": "Utilizar disposições líquidas",
+    "C24": "Utilizar valores de percentagem em CSS para os tamanhos das caixas",
+    "G145": "Garantir uma relação de contraste de, no mínimo, 3 para 1",
+    "F24": "Falha dos Critérios de Sucesso 1.4.3, 1.4.6 e 1.4.8 devido à especificação de cores de primeiro plano sem especificar as cores de fundo e vice-versa",
+    "F4": "Falha do Critério de Sucesso 2.2.2 devido à utilização de text-decoration:blink sem um mecanismo para o desligar em menos de cinco segundos",
+    "G90": "Fornecer manipuladores de eventos accionados por teclado",
+    "SCR20": "Utilizar o teclado e outras funções específicas do dispositivo",
+    "F59": "Falha do Critério de Sucesso 4.1.2 devido à utilização de script para tornar um div ou um span num controlo da interface de utilizador em HTML",
+    "G134": "Validar páginas Web",
+    "C22": "Utilizar CSS para controlar a apresentação visual do texto",
+    "G115": "Utilizar elementos semanticos para marcar a estrutura",
+    "H57": "Utilizar atributo language no elemento html",
+    "H25": "Fornecer um título utilizando o elemento title",
+    "F25": "Falha do Critério de Sucesso 2.4.2 devido ao título de uma página Web não identificar os conteúdos",
+    "G88": "Fornecer títulos descritivos para páginas Web",
+    "H59": "Utilizar o elemento link e as ferramentas de navegação",
+    "F41": "Falha dos Critérios de Sucesso 2.2.1, 2.2.4 e 3.2.5 devido à utilização de um meta refresh com um tempo limite excedido",
+    "F40": "Falha dos Critérios de Sucesso 2.2.1 e 2.2.4 devido à utilização de um meta redirect com um limite de tempo",
+    "ff89c9": "Contexto ARIA obrigatório",
+    "bc4a75": "Elementos necessários pele especificação ARIA",
+    "6a7281": "Estados e propriedades ARIA com valores do tipo válido",
+    "5c01ea": "Estados e propriedades ARIA permitidos",
+    "5f99a7": "Atributos aria-* definidos na especificação ARIA",
+    "80f0bf": "Elementos audio e video evitam tocar automaticamente",
+    "73f2c2": "Atributos autocomplete têm valores válidos",
+    "97a4e1": "O nome acessível do elemento <code>button</code> não está vazio",
+    "oj04fd": "Elementos na ordem de foco sequencial devem ter foco visível",
+    "6cfa84": "Elementos com aria-hidden não devem ter conteúdo focável",
+    "46ca7f": "Elementos decorativos não devem ser expostos a Tecnologias de Apoio",
+    "H58": "Usar o atributo lang para identificar mudanças na linguagem",
+    "307n5z": "Elementos com descendentes decorativos não têm conteúdo focável",
+    "4e8ab6": "Elementos com atributo role definem os estados e propriedades necessários",
+    "H93": "Garantir que os atributos id são únicos na página",
+    "4b1c6c": "Elementos iframe com o mesmo nome acessível servem o mesmo propósito",
+    "G202": "Elemento <code>svg</code> com papel semântico explícito tem nome acessível não vazio",
+    "24afc2": "Espaçamento de letras nos atributos de estilo não é !important",
+    "G91": "Fornecer texto da ligação que descreva o seu propósito",
+    "fd3a94": "Links com o mesmo nome acessível e contexto têm o mesmo propósito",
+    "m6b1q3": "<code>menuitem</code> tem nome acessível não vazio",
+    "G110": "Usar redirecionamento instantâneo do cliente",
+    "b4f0c3": "<code>meta viewport</code> permite zoom",
+    "8fc3b6": "Element <code>object</code> com conteúdo não textual tem nome acessível não vazio",
+    "b33eff": "Orientação da página não é restringida através da propriedade CSS <code>transform</code>",
+    "674b10": "Atributo <code>role</code> com valor válido",
+    "d0f69e": "Células cabeçalho de tabelas têm células de dados atribuídas",
+    "G17": "Garantir uma relação de contraste de, no mínimo, 4.5 para 1",
+    "G87": "Conteúdo audio de um elemento vídeo tem alternativa acessível",
+    "G8": "Conteúdo visual de um elemento vídeo tem alternativa acessível",
+    "G208": "Incluir o texto da etiqueta visível no nome acessível",
+    "9e45ec": "Espaçamento de palavras nos atributos de estilo não é !important",
+    "59br37": "Nó de texto ampliado não é cortado por CSS <code>overflow</code>",
+    "ARIA11": "Usar landmarks ARIA para identificar regiões da página",
+    "H40": "Usar listas de descrição",
+    "in6db8": "Referências ARIA existem"
+  },
+  "TXT_TECHNIQUES": {
+    "H37": "<p>Verifique se o equivalente alternativo em texto existente nas imagens serve informação ou função igual à desempenhada pela imagem na página.</p>",
+    "F65": "<p>Verifique se o equivalente textual alternativo existente nos botões gráficos serve informação ou função igual à desempenhada pelo botão gráfico na página.</p>",
+    "C9": "<p>O uso de textos alternativos vazios em HTML é uma prática comum para imagens classificadas como sendo decorativas. Todavia, todas as imagens classificadas como decorativas devem ser afixadas via CSS e não via HTML.</p>",
+    "F30": "<p>No atributo <code>&lt;alt&gt;</code> do elemento <code>&lt;img&gt;</code> encontrei o nome do ficheiro imagem ou um dos seguintes valores: \"img\", \"image\", \"spacer\", \"space\", \"picture\", \"alt\", \"alttext\", \"imagen\", \"imagem\", \"foto\", \"photo\", ou uma das seguintes extensões de imagem .jpg, .jpeg, .gif, .png. Nenhum dos valores referidos acima serve de equivalente textual alternativo.</p>",
+    "H45": "<p>O atributo longdesc tem de ser composto por um URI que aponte a localização onde se encontra a descrição longa - pode ser outra página ou uma âncora na mesma página.</p>",
+    "H24": "<p>Verifique se o equivalente textual alternativo existente nas áreas ativas dos mapas de imagem serve informação ou função igual à desempenhada pelo mapa de imagem na página.</p>",
+    "H36": "<p>O elemento <code>&lt;input&gt;</code> é utilizado para criar muitos tipos de controlos de formulário. Apesar das DTDs de HTML e XHTML permitirem o uso do atributo alt em todos os seus elementos, o atributo alt deve ser usado, no caso do elemento <code>&lt;input&gt;</code>, apenas nos botões gráficos.</p>",
+    "G125": "<p>A natureza da WWW é disponibilizar nas páginas links para outras páginas relacionadas. É isso que permite aos utilizadores navegar pela informação. Uma página Web sem links é, à priori, estranho!</p>",
+    "F89": "<p>Esta falha ocorre sempre que um link é composto por uma imagem e a imagem tem um equivalente textual alternativo vazio - desconfio que os utilizadores de Tecnologias de Apoio não saibam qual é o seu destino ou para que serve, ou que possam mesmo nem sequer dar conta que o link existe.</p>",
+    "H33": "<p>O atributo title é utilizado para proporcionar informação complementar à existente no texto do link. O atributo title e o texto do link devem ser suficientes para compreender o propósito do link.</p>",
+    "F84": "<p>É importante que os utilizadores consigam determinar o propósito e o destino do link sem recorrer ao contexto em que ele se encontra. Há utilizadores cujas Tecnologias de Apoio lhes fornecem todos os links da página em forma de listagem, sem qualquer contexto.</p>",
+    "H2": "<p>No caso de links adjacentes que apontam exatamente para o mesmo recurso é sinal que os podemos agregar num só link. Geralmente, nestes casos, temos a sensação visual de estar perante um único link mas no caso de alguns utilizadores de Tecnologias de Apoio surgem duplicados, podendo resultar confuso.</p>",
+    "G1": "<p>Disponibilize no topo da página um link que permita saltar diretamente para o conteúdo principal da mesma. Este link facilita a navegação a muitos utilizadores, nomeadamente os que usam software de seleção por varrimento. Estes utilizadores usam a visão para ler a informação pelo que o link tem de estar sempre visível ou ficar visível ao receber o foco.</p>",
+    "G123": "<p>Verifique se de facto os links que encontrei proporcionam os saltos de conteúdo mais adequados; se os mesmos estão sempre visíveis ou se ficam visíveis ao receberem o foco via teclado.</p>",
+    "H42": "<p>As páginas Web devem ser marcadas com uma estrutura hierarquizada de títulos e subtítulos. Cada página deve ter, no mínimo, um título de nível 1. O nível 2 deve marcar as secções e o nível 3 as subsecções destas. Esta mesma lógica deve ser aplicada até às subsecções de nível 6.</p>",
+    "G141": "<p>As páginas Web devem ser marcadas com uma estrutura hierarquizada de títulos e subtítulos. Cada página deve ter, no mínimo, um título de nível 1. O nível 2 deve marcar as secções e o nível 3 as subsecções destas. Esta mesma lógica deve ser aplicada até às subsecções de nível 6.</p>",
+    "G130": "<p>Os cabeçalhos devem ser descritivos mas ao mesmo tempo sucintos. O seu conteúdo nunca, em caso algum, deve ser nulo - é o que está a acontecer neste caso.</p>",
+    "H48": "<p>Se o conteúdo que identifiquei é, na verdade, uma lista de opções então use a marcação estrutural correta (i.e. <code>&lt;ul&gt;</code>, <code>&lt;ol&gt;</code>).</p>",
+    "H71": "<p>Os controlos de formulário podem ser agrupados, de acordo com a sua afinidade, através do elemento <code>&lt;fieldset&gt;</code>. O primeiro elemento dentro do <code>&lt;fieldset&gt;</code> deve ser o <code>&lt;legend&gt;</code>, o qual serve de etiqueta ou descrição para o agrupamento.</p>",
+    "G162": "<p>As etiquetas devem ser posicionadas imediatamente antes dos campos. As etiquetas para os campos do tipo listas de verificação (checkbox) e do tipo botões de rádio (radio) devem ser posicionadas logo após os campos.</p>",
+    "H44": "<p>Os elementos <code>&lt;label&gt;</code> associados aos elementos <code>&lt;input&gt;</code> permitem aos utilizadores de Tecnologias de Apoio identificar a etiqueta que contextualiza um campo de edição. A associação explicita é feita pelo par de atributos id e for, respetivamente, dos elementos <code>&lt;input&gt;</code> e <code>&lt;label&gt;</code>.</p>",
+    "H65": "<p>Para preencher os campos de edição, os utilizadores precisam que os mesmos estejam identificados. Pode ser uma identificação explicita (marcada no código) ou implícita (geralmente derivada da posição relativa). Explicitamente pode ser feita pelo elemento <code>&lt;label&gt;</code> ou pelo atributo title do elemento <code>&lt;input&gt;</code>.</p>",
+    "F55": "<p>Percorra os campos de edição e verifique se o foco é inibido por técnicas de programação. Ao retirar o foco do conteúdo, este deixa de ser operável por quem usa apenas teclado para navegar.</p>",
+    "H32": "<p>Depois de preenchido, é necessário submeter os dados do formulário ao servidor. Essa é a função do botão submeter ou submit button.</p>",
+    "H39": "<p>Desconfio que possa ter encontrado tabelas de dados sem a identificação do título (<code>&lt;caption&gt;</code>).</p>",
+    "H73": "<p>Desconfio que possa ter encontrado tabelas de dados em que o conteúdo que se encontra no elemento <code>&lt;caption&gt;</code> é o mesmo que está no atributo summary.</p>",
+    "F46": "<p>Desconfio que possa ter encontrado tabelas de dados sem a identificação dos cabeçalhos. Caso contrário, poderão ser tabelas layout e neste caso têm título, que deve ser retirado.</p>",
+    "H43": "<p>Em tabelas de dados complexas (com cabeçalhos em várias linhas) é importante associar explicitamente as células de dados aos vários cabeçalhos que lhe dão contexto. Essa associação é feita com o atributo headers.</p>",
+    "H63": "<p>O atributo scope identifica se uma célula constitui um cabeçalho de uma linha, de uma coluna, de um grupo de linhas ou de um grupo de colunas. Os valores row, col, rowgroup e colgroup identificam respectivamente os valores que o scope pode assumir.</p>",
+    "H51": "<p>Apesar das WCAG não proibirem o uso de tabelas layout é recomendável não as usar. Se as tabelas em causa forem de dados então marque as células de cabeçalho convenientemente.</p>",
+    "F49": "<p>Ao linearizar as tabelas verifique se o conteúdo é percetível.</p>",
+    "H64": "<p>As molduras (frame) são janelas onde é possível visualizar conteúdo proveniente de outro servidor. É importante identificar convenientemente essas molduras. Use o atributo title para o efeito!</p>",
+    "F52": "<p>Alguns sítios Web abrem uma nova janela assim que a página carrega, para publicitar um produto ou serviço. Assegure-se que isto não desorienta os utilizadores.</p>",
+    "G102": "<p>Marque as abreviaturas e/ou acrónimos com a respetiva extensão. No caso de HTML5 usa-se o elemento <code>&lt;abbr&gt;</code> quer para marcar abreviaturas quer para marcar acrónimos. Por exemplo: <code>&lt;abbr title=\"Fundação para a Ciência e a Tecnologia\"&gt;</code>FCT<code>&lt;/abbr&gt;</code></p>",
+    "C21": "<p>Muitas pessoas com incapacidades cognitivas têm dificuldade em acompanhar as linhas do texto quando o texto se apresenta com um espaçamento simples. Usar um espaçamento entre 1,5 e 2, facilita-lhes a passagem entre linhas.</p>",
+    "F88": "<p>Algumas pessoas com baixa visão e algumas pessoas com incapacidades cognitivas têm grande dificuldade em lidar com blocos de texto que se encontram justificados.</p>",
+    "C19": "<p>Algumas pessoas com baixa visão e algumas pessoas com incapacidades cognitivas têm grande dificuldade em lidar com blocos de texto que se encontram justificados.</p>",
+    "C12": "<p>Quando o tamanho do texto está expresso em unidades absolutas há browsers que terão dificuldade em ampliar o texto.</p>",
+    "G146": "<p>Amplie 200% o ecrã e verifique que todo o conteúdo é visível sem necessidade de efetuar varrimentos horizontais.</p>",
+    "C24": "<p>Amplie 200% o ecrã e verifique que todo o conteúdo é visível sem necessidade de efetuar varrimentos horizontais.</p>",
+    "G145": "<p>De acordo com o critério de sucesso 1.4.3, o rácio 3 para 1 corresponde ao contraste mínimo para texto \"em tamanho grande\" (18 pt ou 14 pt negrito, ou maior). Recordo que para tamanho de letra normal o rácio mínimo é de 4,5 para 1.</p>",
+    "F24": "<p>Não é necessário que a cor da letra e a cor do fundo estejam definidos na mesma regra de CSS mas é recomendável que assim seja. Esta é a única forma de garantir ao utilizador a obtenção do contraste desejado.</p>",
+    "F4": "<p>Alguns grupos de utilizadores, particularmente os que têm perturbações que causam défices de atenção, encontram no conteúdo cintilante elementos de distracção, dificultando-lhes a capacidade de concentração nas restantes partes do conteúdo da página Web.</p>",
+    "G90": "<p>Deve assegurar que os eventos de javascript são ativados não só através do rato mas também do teclado. Verifique os pares de manipuladores: mousedown/keydown, mouseup/keyup, mouseover/focus, mouseout/blur. Nota: O AccessMonitor não verifica o par onclick / onkeypress porque considera que os browsers suportam o onclick também quando se usa apenas o teclado. Este teste só é classificado correto quando não existem erros nos outros testes de manipulares verificados.</p>",
+    "SCR20": "<p>Deve assegurar que os eventos de javascript são ativados não só através do rato mas também do teclado. Verifique os pares de manipuladores: mousedown/keydown, mouseup/keyup, mouseover/focus, mouseout/blur. Nota: O AccessMonitor não verifica o par onclick / onkeypress porque considera que os browsers suportam o onclick também quando se usa apenas o teclado.</p>",
+    "F59": "<p>Os elementos genéricos como <code>&lt;div&gt;</code> e <code>&lt;span&gt;</code> não têm um papel pré-definido. Quando se faz uso destes elementos genéricos para criar controlos de interface de utilizador em HTML, as tecnologias de apoio não dispõem de informação suficiente para descrever e interagir com os controlos, nomeadamente se não se definir um \"role\" (papel) com técnicas de ARIA.</p>",
+    "G134": "<p>Os erros de HTML são uma das causas para as páginas Web se apresentarem de forma inconsistente nos vários browsers. Seguir uma especificação e validar a sintaxe de acordo com essa especificação potencia a consistência e correta interpretação por parte das tecnologias, nomeadamente as Tecnologias de Apoio.</p>",
+    "C22": "<p>Esta prática está obsoleta. Em vez dela, deve usar as CSS para controlar a apresentação visual do texto. Quando este erro surge é porque está a usar dentro do elemento <code>&lt;body&gt;</code> da página os elementos: b, basefont, font, i, s, strike, u, ou os atributos: text, vlink, alink, link.</p>",
+    "G115": "<p>Com o aparecimento das CSS todos os elementos de HTML usados para controlo de estilos da página ficaram obsoletos. Elementos como: b, big, blink, center, font, i, s, strike, u ficaram obsoletos - use CSS para os substituir</p>",
+    "H57": "<p>O HTML apenas dispõe do atributo lang. O XHTML 1.1 apenas permite o  xml:lang. O XHTML 1.0 (como medida de transição) permite ambos os atributos. O XHTML servido como text/html utiliza os atributos lang e xml:lang do elemento html.</p>",
+    "H25": "<p>Tome nota que o elemento <code>&lt;title&gt;</code> apenas deve aparecer uma vez na página.</p>",
+    "F25": "<p>Define-se como condição de falha sempre que uma página Web tem um título igual a um título de outra página do mesmo sítio Web. Cada página deve possuir um título único que identifique o propósito dos conteúdos.</p>",
+    "G88": "<p>O <code>&lt;title&gt;</code> de cada página deve: (1) identificar o assunto da página; (2) fazer sentido quando lido fora do contexto; (3) ser curto.</p>",
+    "H59": "<p>Verifique se em cada cada um dos elementos <code>&lt;link&gt;</code> existentes no <code>&lt;head&gt;</code> da página, o href aponta um recurso apropriado.</p>",
+    "F41": "<p>O valor \"refresh\" deve ser usado com cuidado, uma vez que ele retira o controlo da página ao utilizador.</p>",
+    "F40": "<p>O valor “redirect\" deve ser usado com cuidado, uma vez que ele retira o controlo da página ao utilizador.</p>",
+    "ff89c9": "<p>Quando se define explicitamente o papel semântico de um elemento, deve garantir-se que se ele tiver um contexto obrigatório, os pais do elemento fornecem esse contexto.</p>",
+    "bc4a75": "<p>Quando se define explicitamente o papel semântico de um elemento, deve garantir-se que se ele tiver filhos obrigatórios, pelo menos um destes existe.</p>",
+    "6a7281": "<p>A especificação ARIA define o tipo de valores que os estados e as propriedades ARIA podem assumir. Garanta que usa valores do tipo correto, caso contrário o seu código não irá produzir o efeito desejado.</p>",
+    "5c01ea": "<p>As especificações HTML e ARIA definem os estados e propriedades ARIA que são permitidos nos diferentes elementos HTML. Garanta que apenas usa estados e propriedades permitidos, caso contrário o seu código não irá produzir o efeito desejado.</p>",
+    "5f99a7": "<p>A especificação ARIA define o conjunto de atributos que podem ser usados. Se usar atributos que não estão definidos na especificação, eles não irão funcionar.</p>",
+    "80f0bf": "<p>Elementos <code>&lt;audio&gt;</code> e <code>&lt;video&gt;</code> que tocam automaticamente podem prejudicar utilizadores de leitor de ecrã ao sobreporem o som. Por isso, estes elementos não devem tocar automaticamente, ou, caso toquem, devem ter áudio inferior a 3 segundos, ou possuir um mecanismo que permita interromper ou silenciar o áudio.</p>",
+    "73f2c2": "<p>As regras de preenchimento dos atributos autocomplete são definidas na especificação HTML. Garante que obedece as estas regras, caso contrário, os elementos não serão preenchidos automaticamente.</p>",
+    "97a4e1": "<p>Os elementos <code>&lt;button&t;</code> são elementos com os quais o utilizador pode interagir. Por isso, devem ter nome acessível de modo a que utilizadores de tecnologias de apoio saibam qual o seu propósito.</p>",
+    "oj04fd": "<p>O foco visível permite distinguir quando é os elementos na ordem de foco sequencial recebem o foco. Verifique que todos os elementos na ordem de foco sequencial têm um indicador de foco visível quando recebem o foco.</p>",
+    "6cfa84": "<p>Os elementos com o atributo aria-hidden são escondidos das tecnologias de apoio. Se forem focáveis por teclado, quando forem focados os utilizadores de tecnologias de apoio não recebem informação sobre esses elementos.</p>",
+    "46ca7f": "<p>Os elementos decorativos não têm conteúdo informativo que deve ser apresentado aos utilizadores. Assim, estes elementos não devem ser expostos às Tecnologias de Apoio, para que não sejam apresentados aos seus utilizadores.</p>",
+    "H58": "<p>Quando existem mudanças na linguagem do documento, estas devem ser identificadas recorrendo ao atributo lang.</p>",
+    "307n5z": "<p>Elementos com um papel semântico que confere aos seus descendentes um papel decorativo, não devem possuir conteúdo focável, pois este conteúdo, quando for focado, não será apresentado às Tecnologias de Apoio.</p>",
+    "4e8ab6": "<p>Quando se define explicitamente o papel semântico de um elemento é necessário garantir que todos os estados e propriedades necessários ao funcionamento correto desse papel semântico com Tecnologias de Apoio foram definidos.</p>",
+    "H93": "<p>É conhecido que ter o mesmo atributo <code>id</code> em diferentes elementos causa problemas às tecnologias de apoio. Estes problemas podem ser evitados se garantir que na mesma página não se usam valores de <code>id</code> duplicados.</p>",
+    "4b1c6c": "<p>O nome acessível de um elemento <code>iframe</code> permite aos utilizadores de Tecnologias de Apoio saber o propósito do conteúdo desse elemento. Verifique que quando dois elementos <code>iframe</code> têm o mesmo nome acessível, o seu conteúdo serve o mesmo propósito.</p>",
+    "G202": "<p>Verifique se o equivalente alternativo em texto existente nos elementos svg serve informação ou função igual à desempenhada pela imagem na página.</p>",
+    "24afc2": "<p>Um espaçamento entre letras igual ou superior a 0,12 vezes o tamanho da fonte é importante para garantir que todos os utilizadores conseguem ler o texto. Os estilos CSS não devem impedir que os utilizadores aumentem o espaçamento entre letras se assim o entenderem.</p>",
+    "G91": "<p>A descrição de um link permite ao utilizador compreender o destino da ligação e decidir se quer seguir a ligação ou não.</p>",
+    "fd3a94": "<p>É importante que links com o mesmo nome acessível e que partilhem o mesmo contexto não levem para destinos com diferentes propósitos, pois isso confundirá o utilizador.</p>",
+    "m6b1q3": "<p>Os elementos com o papel semântico <code>menuitem</code> correspondem a opções de navegação que o utilizador por selecionar. Se não tiverem nome acessível, os utilizadores de tecnologias de apoio não conseguirão saber a opção que estão a selecionar.</p>",
+    "G110": "<p>Redirecionamentos implementados no cliente e que não acontecem instantaneamente, podem causar confusão aos utilizadores, pois estes não entendem a razão pela qual o redirecionamento aconteceu.</p>",
+    "b4f0c3": "<p>Alguns browsers mais antigos de dispositivos móveis podem limitar a capacidade do utilizador fazer zoom na página, em função dos valores do atributo <code>viewport</code> do elemento <code>meta</code>. Apesar dos browsers mais recentes ignorarem estes atributos é sempre preferível não dar instruções que podem limitar as capacidades do utilizador.</p>",
+    "8fc3b6": "<p>Quando algum elemento <code>object</code> é usado para apresentar conteúdo não-textual, é necessário garantir que o nome acessível deste elemento existe, para que utilizadores de Tecnologias de Apoio possam saber que conteúdo está a ser apresentado pelo <code>object</code>.</p>",
+    "b33eff": "<p>Alguns utilizadores precisam de usar os seus dispositivos numa orientação específica. Se a página impedir o seu conteúdo de se adaptar à orientação do dispositivo, esses utilizadores ficam impossibilitados de a usar corretamente.</p>",
+    "674b10": "<p>As Tecnologias de Apoio precisam de entender a semântica dos elementos de modo a poder transmitir corretamente aos seus utilizadores os conteúdos e possibilidades de interação disponibilizados pelos elementos de uma página. Quando definir explicitamente o <code>role</code> de um elemento, deve assegurar-se que o valor do <code>role</code> é um valor válido.</p>",
+    "d0f69e": "<p>Em tabelas de dados, o contexto que permite dar significado à informação é transmitido pelas células cabeçalho (que se aplicam às linhas ou às colunas da tabela). Estes cabeçalhos devem estar atribuídos, implicitamente ou explicitamente, a células de dados.</p>",
+    "G17": "<p>De acordo com o critério de sucesso 1.4.6, o rácio 4.5 para 1 corresponde ao contraste otimizado para texto \"em tamanho grande\" (18 pt ou 14 pt negrito, ou maior). Recordo que para tamanho de letra normal o rácio otimizado é de 7 para 1.</p>",
+    "G87": "<p>O áudio de um vídeo deve ser apresentado na página sob a forma de uma alternativa acessível. Esta alternativa pode ser a legendagem do vídeo ou a inclusão de texto na página correspondente ao conteúdo áudio do vídeo.</p>",
+    "G8": "<p>O conteúdo visual de um vídeo deve ser apresentado na página sob a forma de uma alternativa acessível. Esta alternativa pode ser uma áudio descrição ou uma transcrição do vídeo.</p>",
+    "G208": "<p>Os utilizadores de sistemas de reconhecimento de fala, tipicamente dizem o nome de um comando seguido de uma referência ao texto de um elemento (p.ex. selecionar pesquisa, para ativar o botão com o texto “pesquisa”). Os sistemas de reconhecimento de fala usam o nome acessível do elemento para o associar ao comando do utilizador. Assim, se o nome acessível não incluir o texto visível, estes sistemas não conseguirão fazer a associação necessária ao seu funcionamento.</p>",
+    "9e45ec": "<p>Um espaçamento entre palavras igual ou superior a 0,16 vezes o tamanho da fonte é importante para garantir que todos os utilizadores conseguem ler o texto. Os estilos CSS não devem impedir que os utilizadores aumentem o espaçamento entre palavras se assim o entenderem.</p>",
+    "59br37": "<p>Ao ampliar a página a dimensão relativa do texto e dos seus contentores pode mudar o que faz com que estes possam necessitar de mais espaço para apresentar o mesmo texto. A propriedade CSS <code>overflow</code> determina como os contentores se ajustam. Alguns dos seus valores podem resultar no texto ser cortado.</p>",
+    "ARIA11": "<p>Garanta que só há um elemento com a semântica de main na página. Elementos com esta semântica designam a parte principal da página e permitem que utilizadores de leitor de ecrã naveguem rapidamente para essa parte da página. Cada página só deve ter um conteúdo principal, independentemente de ser especificado usando HTML5 ou ARIA.</p>",
+    "H40": "<p>Se uma lista de descrições conter elementos que não são itens da lista, ou se a ordem dos elementos não estiver correta, isto é, os elementos <dt> precederem os elementos <dd>, a lista estará mal formatada, e tecnologias de apoio não serão capazes de a apresentar corretamente.</p>",
+    "in6db8": "<p>Todas as referências obrigatórias a elementos indicadas num atributo WAI-ARIA têm de existir na página.</p>"
+  },
+  "TECHFAIL": {
+    "relationF": "Esta falha WCAG 2.1 está relacionada com:",
+    "relationT": "Esta técnica WCAG 2.1 está relacionada com:",
+    "relationACT": "Esta regra ACT está relacionada com:"
+  },
+  "ELEM_GROUPS": {
+    "area": "Elementos area",
+    "ehandler": "Controladores de eventos",
+    "form": "Formulários",
+    "frame": "Frames",
+    "graphic": "Botões gráficos",
+    "heading": "Cabeçalho",
+    "headings": "Cabeçalhos",
+    "image": "Imagens",
+    "link": "Links",
+    "object": "Embedded objects",
+    "other": "Atributos e outros elementos",
+    "table": "Tabelas",
+    "validator": "Validador W3C",
+    "all_types": "Todos os tipos de elementos"
+  },
+  "TEST_ELEMENTS": {
+    "a": "<a>",
+    "all": "Todos",
+    "area": "<area>",
+    "applet": "<applet>",
+    "dd,dt": "<dd>, <dt>",
+    "dl": "<dl>",
+    "ehandler": "Manipuladores de eventos",
+    "embed": "<embed>",
+    "fontValues": "Tamanho de letra",
+    "form": "<form>",
+    "frame": "<frame>",
+    "frameset": "<frameset>",
+    "hx": "Cabeçalhos h1-h6",
+    "id": "Atributo id",
+    "iframe": "<iframe>",
+    "img": "<img>",
+    "inpImg": "Botões gráficos",
+    "inputLabel": "<label> para <input>",
+    "label": "<label>",
+    "longDImg": "<img> longdesc",
+    "object": "<object>",
+    "table": "<table>",
+    "tableComplex": "Tabelas de dados complexos",
+    "tableData": "Tabelas de dados",
+    "tableLayout": "Tabelas de disposição",
+    "w3cValidator": "Validador W3C"
+  }
+}
