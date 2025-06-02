@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button, Input } from "ama-design-system";
 import Logo from "../../assets/logo-ams.svg"; 
-import './style.module.css'
+import './style.login.css'
 
 const Login = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });

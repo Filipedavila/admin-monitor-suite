@@ -106,13 +106,17 @@ header {
   grid-area: header;
   background-color: var(--ama-color-brand-primary); 
   padding: 20px;
+  position: fixed;
+  width: 100%;
 }
 
 aside {
   grid-area: menu;
+  position: fixed;
 }
 
 main {
+  margin-top: 90px;
   grid-area: content;
   background-color: var(--ama-color-grey-50) !important;
   padding: 40px;
