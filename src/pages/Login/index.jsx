@@ -1,46 +1,39 @@
-import React, { useState } from "react";
+import React from "react";
+import { useForm } from "react-hook-form";
 import { Button, Input } from "ama-design-system";
-import Logo from "../../assets/logo-ams.svg"; 
+import Logo from "../../assets/logo-ams.svg";
 import './login.css'
 
 const Login = () => {
-  const [formData, setFormData] = useState({ username: "", password: "" });
+  const { register, handleSubmit, formState: { errors } } = useForm();
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Login data:", formData);
+  const onSubmit = (data) => {
+    console.log("Login data:", data);
+    // Add login logic here
   };
 
   return (
     <div className="main-content">
-
-    <div className="login-container">
-      <img src={Logo} alt="Logo" className="login-logo" />
-      <form onSubmit={handleSubmit}>
-        <Input
-          name="username"
-          label="Username"
-          value={formData.username}
-          onChange={handleInputChange}
-          required
-          />
-        <Input
-          name="password"
-          label="Password"
-          type="password"
-          value={formData.password}
-          onChange={handleInputChange}
-          required
-          />
-        <Button type="submit" text="Login" />
-      </form>
+      <div className="login-container">
+        <img src={Logo} alt="Logo" className="login-logo" />
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Input
+            name="username"
+            label="Username"
+            {...register("username", { required: true })}
+            error={errors.username ? "Username is required" : undefined}
+            />
+          <Input
+            name="password"
+            label="Password"
+            type="password"
+            {...register("password", { required: true })}
+            error={errors.password ? "Password is required" : undefined}
+            />
+          <Button type="submit" text="Login" />
+        </form>
+      </div>
     </div>
-          </div>
   );
 };
 

@@ -99,7 +99,7 @@
     "header header"
     "menu content"
     "menu content";
-  grid-template-columns: 0.8fr 3fr;
+  grid-template-columns: 0.6fr 3fr;
 }
 
 header {
@@ -108,12 +108,14 @@ header {
   padding: 20px;
   position: fixed;
   width: 100%;
+  z-index: 2;
 }
 
 aside {
   grid-area: menu;
-  position: fixed;
+  position: fixed;  
   margin-top: 90px;
+  z-index: 1;
 }
 
 main {
@@ -121,4 +123,7 @@ main {
   grid-area: content;
   background-color: var(--ama-color-grey-50) !important;
   padding: 40px;
+  min-height: calc(100vh - 90px);
+  z-index: 1;
 }
+  
