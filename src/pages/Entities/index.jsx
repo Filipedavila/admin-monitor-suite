@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import { Button, InputSearch, SortingTable } from "ama-design-system";
 import "./style.users.css";
 import { directoriesHeaders, dataRows, columnsOptions, nameOfIcons, paginationButtonsTexts } from "./table.config.jsx";
-const UserList = () => {
+const EntitiesList = () => {
         
     
     const [data, setData] = useState(dataRows)
@@ -11,22 +11,22 @@ const UserList = () => {
     return(
     
     <div>
-    <h2>Utilizadores</h2>
-    <p>Abaixo encontra a listagem de todos os utilizadores registados no AdminMonitorSuite, num total de 38 diretórios.</p>
+    <h2>Entidades</h2>
+    <p>Abaixo encontra a listagem de todas as Entidades registadas no AdminMonitorSuite, num total de 38 diretórios.</p>
 
     <div className="content">
 
-    <h3>Lista de Utilizadores</h3>
+    <h3>Lista de Entidades</h3>
     <div className="d-flex justify-content-between align-items-center mb-3">
-        <span>Filtrar utilizadores:</span>
+        <span>Filtrar Entidades:</span>
         <InputSearch 
-            placeholder={"Pesquisar utilizadores..."}
+            placeholder={"Pesquisar Entidades..."}
             style={{ width: "87%" }}
             />
     </div>
     <div className="d-flex gap-4 justify-content-end mb-4">
         <Button
-            text={"Apagar Utilizadores"}
+            text={"Apagar Entidades"}
             icon={"AMA-Adicionar-Line"}
             className="btn-primary"
             onClick={() => console.log("Criar Utilizador")}
@@ -52,4 +52,4 @@ const UserList = () => {
 )
 }
 
-export default UserList;
+export default EntitiesList;

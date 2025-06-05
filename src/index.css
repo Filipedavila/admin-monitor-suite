@@ -1,3 +1,4 @@
+
 :root {
 
   /* COLORS PALLETE */
@@ -121,7 +122,7 @@ aside {
 main {
   margin-top: 90px;
   grid-area: content;
-  background-color: var(--ama-color-grey-50) !important;
+  background-color: #F5F5F5;
   padding: 40px;
   min-height: calc(100vh - 90px);
   z-index: 1;
