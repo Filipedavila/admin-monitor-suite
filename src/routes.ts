@@ -15,6 +15,8 @@ import CategoriesList from "./pages/Categories";
 import CategoriesCreateForm from "./pages/Categories/CategoriesCreateForm";
 import PageList from "./pages/Pages/";
 import PageCreateForm from "./pages/Pages/PageCreateForm";
+import UsersGovList from "./pages/UsersGov";
+import UsersGovCreateForm from "./pages/UsersGov/UsersGovCreateForm";
 const router = createBrowserRouter([
   {
     path: "/login",
@@ -59,6 +61,12 @@ const router = createBrowserRouter([
         children: [
           { path: "", element: React.createElement(PageList) },
           { path: "create", element: React.createElement(PageCreateForm) },
+       ],
+      },
+      { path: "usersgov",
+        children: [
+          { path: "", element: React.createElement(UsersGovList) },
+          { path: "create", element: React.createElement(UsersGovCreateForm) },
        ],
       }
     ],

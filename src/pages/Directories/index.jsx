@@ -1,16 +1,25 @@
 import React, {useState} from "react";
-import { Button, InputSearch, SortingTable } from "ama-design-system";
+import { Button, InputSearch, SortingTable, Breadcrumb } from "ama-design-system";
 import "./style.users.css";
 import { directoriesHeaders, dataRows, columnsOptions, nameOfIcons, paginationButtonsTexts } from "./table.config.jsx";
+import { Link } from "react-router-dom";
 const DirectoriesList = () => {
         
-    
+        const breadcrumbs = [
+    { children: <Link to="/">Home</Link> },
+
+    {
+      title: "Dashboard",
+    }
+  ];
     const [data, setData] = useState(dataRows)
     const [checkboxesSelected, setCheckboxesSelected] = useState([])
 
     return(
     
     <div>
+                  <Breadcrumb data={breadcrumbs} />
+
     <h2>Directórios</h2>
     <p>Abaixo encontra a listagem de todos os Directórios registados no AdminMonitorSuite, num total de 38 diretórios.</p>
 

@@ -13,7 +13,7 @@ const UsersCreateForm = () => {
     return (
         <div>
             <h1>Criar Utilizadores</h1>
-            <form className="w-50" onSubmit={handleSubmit(onSubmit)}>
+            <form className="bg-white p-4 mt-3" onSubmit={handleSubmit(onSubmit)}>
                 <Input
                     label="Nome do Utilizador"
                     name="username"

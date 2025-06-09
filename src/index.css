@@ -100,9 +100,12 @@
     "header header"
     "menu content"
     "menu content";
-  grid-template-columns: 0.6fr 3fr;
+  grid-template-columns: 320px 3fr;
 }
-
+.dashboard.menu{
+  width: 360px !important;
+  padding: 10px !important;
+}
 header {
   grid-area: header;
   background-color: var(--ama-color-brand-primary); 
@@ -123,7 +126,7 @@ main {
   margin-top: 90px;
   grid-area: content;
   background-color: #F5F5F5;
-  padding: 40px;
+  padding: 60px;
   min-height: calc(100vh - 90px);
   z-index: 1;
 }

@@ -16,7 +16,7 @@ import {
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 
-const UserList = () => {
+const UsersGovList = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   const breadcrumbs = [
@@ -34,7 +34,8 @@ const UserList = () => {
 
   return (
     <div>
-      <h2>Utilizadores</h2>
+      <Breadcrumb items={breadcrumbs} />
+      <h2>Utilizadores Gov</h2>
       <p>
         Abaixo encontra a listagem de todos os utilizadores registados no AdminMonitorSuite, num total de 38 diretórios.
       </p>
@@ -87,4 +88,4 @@ const UserList = () => {
   );
 };
 
-export default UserList;
+export default UsersGovList;

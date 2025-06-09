@@ -1,7 +1,7 @@
 import React from 'react';
-import { Input, Button } from 'ama-design-system';
+import { Input, Button, Breadcrumb } from 'ama-design-system';
 import { useForm } from "react-hook-form";
-
+import { Link } from "react-router-dom";
 const EntitiesCreateForm = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
 
@@ -10,10 +10,18 @@ const EntitiesCreateForm = () => {
         // Add user creation logic here
     };
 
+    const breadcrumbs = [
+        { children: <Link to="/">Home</Link> },
+        {
+            title: "Dashboard",
+        }
+    ];
+
     return (
         <div>
+            <Breadcrumb data={breadcrumbs} />
             <h1>Criar Entidades</h1>
-            <form className="w-50" onSubmit={handleSubmit(onSubmit)}>
+            <form className="bg-white p-4 mt-3" onSubmit={handleSubmit(onSubmit)}>
                 <Input
                     label="Nome abreviado"
                     name="entityName"

@@ -2,8 +2,8 @@
 .login-container {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  max-width: 540px;
+  justify-content: center;
+  width: 540px;
   padding: 80px;
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -17,7 +17,12 @@
   gap: 15px;
   margin-top: 40px;
 }
-
+.login-logo{
+  width: 250px;
+  margin-left: 70px;
+  height: auto;
+  margin-bottom: 20px;
+}
 .main-content {
   display: flex;
   flex-direction: row;

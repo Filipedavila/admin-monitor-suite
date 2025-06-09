@@ -1,16 +1,25 @@
 import React, {useState} from "react";
-import { Button, InputSearch, SortingTable } from "ama-design-system";
+import { Button, InputSearch, SortingTable, Breadcrumb } from "ama-design-system";
 import "./style.users.css";
+import { Link } from "react-router-dom";
 import { directoriesHeaders, dataRows, columnsOptions, nameOfIcons, paginationButtonsTexts } from "./table.config.jsx";
 const CategoriesList = () => {
         
     
     const [data, setData] = useState(dataRows)
     const [checkboxesSelected, setCheckboxesSelected] = useState([])
+    const breadcrumbs = [
+    { children: <Link to="/">Home</Link> },
 
+    {
+      title: "Categorias",
+    }
+  ];
     return(
     
     <div>
+                  <Breadcrumb data={breadcrumbs} />
+
     <h2>Categorias</h2>
     <p>Abaixo encontra a listagem de todas as Categorias registadas no AdminMonitorSuite, num total de 38 diretórios.</p>
 

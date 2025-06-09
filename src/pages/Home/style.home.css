@@ -17,3 +17,9 @@ h2:not(:first-child){
     margin-top: 20px;
 }
 
+.logo {
+    width: 320px;
+    height: auto;
+    padding:10px;
+}
+

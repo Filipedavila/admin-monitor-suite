@@ -1,7 +1,16 @@
 import React, { useState } from "react";
-import { Card, Button } from "ama-design-system";
+import { Card, Button, Breadcrumb } from "ama-design-system";
+import { Link } from "react-router-dom";
+import CardAvaliation from "../../components/CardAvaliation";
 import "./style.home.css";
 const Home = () => {
+        const breadcrumbs = [
+    { children: <Link to="/">Home</Link> },
+
+    {
+      title: "Dashboard",
+    }
+  ];
     const [cards, setCards] = useState([
         {
             title: "Diretórios",
@@ -36,13 +45,15 @@ const Home = () => {
     ]);
     return (
         <div className="main-content-home">
+                      <Breadcrumb data={breadcrumbs} />
+
             <div>
                 <h1>Bem vindo</h1>
-                <p>Sumário das aplicações</p>
+                <p>Encontra nesta página a síntese dos registos efetuados, em tempo real, pelas diversas aplicações do Ecossistema AccessMonitor.</p>
             </div>
 
             <div className="cards-dashboard">
-                <h2 className="text-start">My Monitor</h2>
+                <h2 className="text-start">Observatório</h2>
                 <div className="d-flex gap-4 flex-grow-1 flex-wrap">
 
                 {cards.map((card, index) => (
@@ -56,7 +67,7 @@ const Home = () => {
                     ))}
 
                     </div>
-                    <h2 className="text-start">Study Monitor</h2>
+                    <h2 className="text-start">MyMonitor</h2>
 
             <div className="d-flex gap-4 flex-grow-1 flex-wrap">
 
@@ -84,7 +95,21 @@ const Home = () => {
                 <Button text={"Sincronizar dados com o observatório"} ></Button>
             </div>
 
-            
+            <div className="d-flex gap-5 mt-5 justify-content-between">
+                <CardAvaliation
+                    title="Avaliação de Diretórios"
+                    description="Avaliações feitas pelo Access Monitor "
+                 
+                />
+                <CardAvaliation
+                    title="Avaliação de Utilizadores"
+                    description="Avaliações feitas pelo Access Monitor "
+                />
+                <CardAvaliation
+                    title="Avaliação de Aplicações"
+                    description="Avaliações feitas pelo Access Monitor "
+                />
+            </div>
         </div>
     );
 }

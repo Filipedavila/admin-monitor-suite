@@ -1,10 +1,16 @@
 import React from 'react';
-import { Input, Button, CheckGroup, RadioGroup } from 'ama-design-system';
+import { Input, Button, CheckGroup, RadioGroup, Breadcrumb } from 'ama-design-system';
 import { useForm } from "react-hook-form";
-
+import { Link } from 'react-router-dom';
 const DirectoriesCreateForm = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
+    const breadcrumbs = [
+    { children: <Link to="/dashboard/home">Home</Link> },
 
+    {
+      title: "Criar Diretórios",
+    }
+  ];
     const onSubmit = (data) => {
         console.log("User data:", data);
         // Add user creation logic here
@@ -12,8 +18,10 @@ const DirectoriesCreateForm = () => {
 
     return (
         <div>
+                      <Breadcrumb data={breadcrumbs} />
+
             <h1>Criar Diretórios</h1>
-            <form className="w-50" onSubmit={handleSubmit(onSubmit)}>
+            <form className="bg-white p-4 mt-3" onSubmit={handleSubmit(onSubmit)}>
                 <Input
                     label="Nome"
                     name="name"
