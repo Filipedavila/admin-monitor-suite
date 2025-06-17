@@ -15,7 +15,12 @@ export function BarLineGraphTabs({ columnsOptions, dataList, dataHeaders, barDat
       title: "Gráfico",
       component: (
         <div style={{ padding: 20 }}>
-          <Bar alt="Gráfico de Barras	" data={memoBarData} options={memoBarOptions} aria-label="Bar Chart" />
+          <Bar 
+            role="img"
+            aria-label="Gráfico de barras mostrando a distribuição de pontuações de acessibilidade"
+            data={memoBarData} 
+            options={memoBarOptions} 
+          />
         </div>
       ),
     },

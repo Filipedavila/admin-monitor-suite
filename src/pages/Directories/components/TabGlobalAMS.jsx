@@ -15,7 +15,7 @@ export const TabGlobalAMS = ({
     return (
         <div>
             
-      <h1>Dados Globais do AMS</h1>
+      <h2>AMS</h2>
       <p>Abaixo encontra a listagem de todos os Directórios registados no AdminMonitorSuite, num total de 38 diretórios.</p>
 
       <div className="content bg-white">
@@ -74,6 +74,7 @@ export const TabGlobalAMS = ({
           doubleRow={true}
           gaugeType={null}
           showGauge={false}
+
           stats={{
             recentPage: "",
             oldestPage: "",
@@ -91,6 +92,7 @@ export const TabGlobalAMS = ({
           statsTitles={statsTitle}
           subtitle="Metadados"
           title="Estatísticas"
+          gaugeTitle={["Conformidade global do AMS"]}
         />
       </div>
 

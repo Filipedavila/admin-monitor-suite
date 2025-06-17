@@ -45,7 +45,12 @@ const mockRadarOptions = {
 export const RadarGraph = () => {
     return (
         <div style={{ width: '100%', maxWidth: '600px', margin: '0 auto' }}>
-            <Radar alt="Gráfico de Radar" data={mockRadarData} options={mockRadarOptions} />
+            <Radar 
+                role="img"
+                aria-label="Gráfico de Radar mostrando a distribuição de pontuações de acessibilidade"
+                data={mockRadarData} 
+                options={mockRadarOptions} 
+            />
         </div>
     );
 };

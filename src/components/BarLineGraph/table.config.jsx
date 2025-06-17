@@ -36,22 +36,22 @@ export const columnsOptions = {
 
 export const dataList = [
   {
-    id: 22,
+    id: Math.random() * 100,
     name: "Portal Mais Transparência",
     type: "MyMonitor",
   },
   {
-    id: 23,
+    id: Math.random() * 100,
     name: "Instituto da Segurança Social, I.P. - Portal Seg Social com o <title>",
     type: "MyMonitor",
   },
   {
-    id: 31,
+    id: Math.random() * 100,
     name: "Portal do SNS 24",
     type: "AcessMonitor",
   },
   {
-    id: 25,
+    id:  Math.random() * 100,
     name: "Comissão Nacional de Eleições",
     type: "AcessMonitor",
   },

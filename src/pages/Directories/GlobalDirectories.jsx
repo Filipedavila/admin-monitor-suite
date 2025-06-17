@@ -77,6 +77,7 @@ const tabs = [
 
     <div>
       <Breadcrumb data={breadcrumbs} />
+      <h1>Dados Globais</h1>
       <Tabs tabs={tabs} defaultActiveKey="ams" />
     </div>
   )

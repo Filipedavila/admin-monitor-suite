@@ -7,7 +7,7 @@ export const TabGlobalObservatory = ({ theme, statsTitle, columnsOptionsBar, bar
     return (
         <div>
          
-      <h1>Dados Globais do Observatório</h1>
+      <h2>Observatório</h2>
       <p>Abaixo encontra a listagem de todos os Directórios registados no AdminMonitorSuite, num total de 38 diretórios.</p>
 
       <div className="content bg-white">
