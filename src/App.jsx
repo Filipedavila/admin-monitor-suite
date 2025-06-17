@@ -1,12 +1,14 @@
-import { Routes, Route, BrowserRouter } from 'react-router-dom';
-import DashboardLayout from './components/DashboardLayout';
-
+import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import Routes from './routes';
 
 function App() {
   return (
-    <Routes>
-      <Route path="/dashboard" element={<DashboardLayout />} />
-    </Routes>
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes />
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 

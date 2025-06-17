@@ -27,7 +27,7 @@ const DirectoriesList = () => {
       </p>
 
       <div className="content bg-white">
-        <h3>Lista de Directórios</h3>
+        <h2>Lista de Directórios</h2>
         <div className="d-flex justify-content-between align-items-center mb-3">
           <span>Filtrar Directórios:</span>
           <InputSearch

@@ -26,6 +26,8 @@ const UsersCreateForm = () => {
                     label="Senha"
                     name="password"
                     type="password"
+                    showPassTextAria="Mostrar senha"
+                    hidePassTextAria="Ocultar senha"
                     {...register("password", { required: true })}
                     error={errors.password ? "Campo obrigatório" : undefined}
                 />
@@ -34,6 +36,8 @@ const UsersCreateForm = () => {
                     label="Confirmar Senha"
                     name="confirmPassword"
                     type="password"
+                    showPassTextAria="Mostrar senha"
+                    hidePassTextAria="Ocultar senha"
                     {...register("confirmPassword", { required: true })}
                     error={errors.confirmPassword ? "Campo obrigatório" : undefined}
                 />

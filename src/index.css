@@ -162,3 +162,21 @@ main {
   width: 67.3vw !important;
 }
 
+.skip-to-content {
+  position: absolute;
+  left: -999px;
+  top: 10px;
+  background: #333399;
+  color: #fff;
+  padding: 8px 16px;
+  z-index: 1000;
+  border-radius: 4px;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: left 0.2s;
+}
+.skip-to-content:focus {
+  left: 10px;
+  outline: 2px solid #fff;
+}
+

@@ -35,13 +35,13 @@ const DirectoriesCreateForm = () => {
                         darkTheme="light"
                         data={[
                             {
-                                id: '1',
                                 name: 'Mostrar este diretório no observatório',
-                            }
+                            },
+                           
                         ]}
                         inline
                         onChange={() => { }}
-                        value="1"
+                        
                     />
                 </div>
 

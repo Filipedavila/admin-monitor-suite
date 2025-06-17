@@ -1,19 +1,17 @@
-
-
 export const directoriesHeaders = [
   [
-    {type: "SortingText", nRow: 2, name: "Nome", property: "Nome"},
+    {type: "Checkbox", nRow: 2, name: "Selecionar", property: "id", justifyCenter: true},
+    {type: "SortingText", nRow: 2, name: "Nome", property: "name"},
     {type: "SortingText", nRow: 2, name: "Nº sítios Web", property: "numberSites", justifyCenter: true},
-    {type: "Checkbox", nRow: 2, name: "Seleção ", property: "selection", justifyCenter: true},
   ]
 ]
 
 export const columnsOptions = {
+  id: { type: "Checkbox", center: true, bold: false, decimalPlace: false, label: "Selecionar" },
   name: { type: "Link", center: false, bold: false, decimalPlace: false, href: (row) => {
     return `http://localhost:5173/dashboard/categories/view/${row.name}`
   } },
   numberSites: { type: "Text", center: false, bold: false, decimalPlace: false },
-  selection: { type: "Checkbox", center: true, bold: false, decimalPlace: true },
  }
 
 export const nameOfIcons = [
@@ -42,28 +40,37 @@ export const itemsPaginationText = [
   " itens"
 ]
 
+const generateAccessibleId = (name) => {
+  // Convert name to lowercase and replace spaces with hyphens
+  const sanitizedName = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  
+  // Add timestamp for uniqueness
+  return `category-${sanitizedName}`;
+};
 
 export const dataRows = [
   {
-    "name": "Portal Mais Transparência",
-    "numberSites": "12",
-    "selection": "MyMonitor",
-
+    id: generateAccessibleId("Portal Mais Transparência"),
+    name: "Portal Mais Transparência",
+    numberSites: "12",
   },
   {
-    "name": "Instituto da Segurança Social, I.P. - Portal Seg Social com o <title>",
-    "numberSites": "24",
-    "selection": "MyMonitor",
+    id: generateAccessibleId("Instituto da Segurança Social"),
+    name: "Instituto da Segurança Social, I.P. - Portal Seg Social com o <title>",
+    numberSites: "24",
   },
   {
-    "name": "Portal do SNS 24",
-    "numberSites": "23",
-    "selection": "AcessMonitor",
+    id: generateAccessibleId("Portal do SNS 24"),
+    name: "Portal do SNS 24",
+    numberSites: "23",
   },
   {
-    "name": "Comissão Nacional de Eleições",
-    "numberSites": "64",
-    "selection": "AcessMonitor",
+    id: generateAccessibleId("Comissão Nacional de Eleições"),
+    name: "Comissão Nacional de Eleições",
+    numberSites: "64",
   }
 ]
 

@@ -46,9 +46,8 @@ const UserList = () => {
       </p>
 
       <div className="content bg-white">
-        <h3>Lista de Utilizadores</h3>
+        <h2>Lista de Utilizadores</h2>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="d-flex justify-content-between align-items-center mb-3">
             <span>Filtrar utilizadores:</span>
             <InputSearch
@@ -78,7 +77,6 @@ const UserList = () => {
               disabled={checkboxesSelected.length === 0}
             />
           </div>
-        </form>
 
         <SortingTable
           darkTheme={theme === 'dark'}

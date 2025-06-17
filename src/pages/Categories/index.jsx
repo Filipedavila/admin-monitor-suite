@@ -21,12 +21,12 @@ const CategoriesList = () => {
     <div>
       <Breadcrumb data={breadcrumbs} />
 
-      <h2>Categorias</h2>
+      <h1>Categorias</h1>
       <p>Abaixo encontra a listagem de todas as Categorias registadas no AdminMonitorSuite, num total de 38 diretórios.</p>
 
       <div className="content bg-white bg-white">
 
-        <h3>Lista de Categorias</h3>
+        <h2>Lista de Categorias</h2>
         <div className="d-flex justify-content-between align-items-center mb-3">
           <span>Filtrar Categorias:</span>
           <InputSearch

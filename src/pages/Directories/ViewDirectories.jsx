@@ -88,6 +88,7 @@ const ViewDirectories = () => {
           gaugeTitle={[
             'Pontuação média'
           ]}
+          screenReaderTitle="Indicadores globais do Diretório"
           gaugeType=""
           newestPage="Avaliação mais recente de uma página:"
           oldestPage="Avaliação mais antiga de uma página:"
@@ -123,6 +124,7 @@ const ViewDirectories = () => {
           doubleRow={true}
           gaugeType={null}
           showGauge={false}
+          screenReaderTitle="Conformidade global do Diretório"
           stats={{
             recentPage: "",
             oldestPage: "",

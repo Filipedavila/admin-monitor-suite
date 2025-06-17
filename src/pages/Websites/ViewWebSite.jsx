@@ -95,6 +95,7 @@ const ViewWebSites = () => {
           gaugeTitle={[
             'Pontuação média'
           ]}
+          screenReaderTitle="Indicadores globais do sítio web"
           gaugeType=""
           newestPage="Avaliação mais recente de uma página:"
           oldestPage="Avaliação mais antiga de uma página:"
@@ -122,6 +123,7 @@ const ViewWebSites = () => {
           doubleRow={true}
           gaugeType={null}
           showGauge={false}
+          screenReaderTitle="Conformidade do sítio web"
           stats={{
             recentPage: "",
             oldestPage: "",

@@ -1,49 +1,84 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button, Input, Breadcrumb } from "ama-design-system";
-import { Link } from "react-router-dom";
+import { Button, Input } from "ama-design-system";
 import Logo from "../../assets/logo-ams.svg";
+import { useAuth } from "../../context/AuthContext";
 import './login.css'
-
+import { useNavigate } from "react-router-dom";
 const Login = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm();
+  const { login, loading } = useAuth();
+  const [loginError, setLoginError] = useState('');
+  const navigate = useNavigate();
+  const onSubmit = async (data) => {
+    console.log(data);
+    setLoginError('');
+   // const result = await login(data.email, data.password, data.machineIP);
+   navigate('/dashboard/home');
+    if (!result.success) {
+      setLoginError(result.error);
+    }
+  };
 
-
-  const onSubmit = (data) => {
-    console.log("Login data:", data);
-    // Add login logic here
+  const handleInputChange = (e) => {
+    console.log(e.target.value);
+    const { name, value } = e.target;
+    setValue(name, value, { 
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true
+    });
   };
 
   return (
-    <div className="main-content">
-      <div className="login-container">
-        <img src={Logo} alt="AdminMonitorSuite Login Logo" className="login-logo" />
-        <form onSubmit={handleSubmit(onSubmit)}>
-           <Input
-            name="username"
-            label="IP da Máquina"
-            type="url"
-            {...register("username", { required: true })}
-            error={errors.username ? "Username is required" : undefined}
+    <>
+      <a 
+        href="#main-content" 
+        className="skip-link"
+        aria-label="Saltar para o conteúdo principal"
+      >
+        Saltar para o conteúdo principal
+      </a>
+      <div className="main-content">
+        <div className="login-container" id="main-content" role="main">
+          <h1 className="login-title visually-hidden">Login</h1>
+          <img src={Logo} alt="AdminMonitorSuite Login Logo" className="login-logo" />
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <Input
+              name="machineIP"
+              label="IP da Máquina"
+              type="url"
+              onChange={handleInputChange}
+             
+              error={errors.machineIP?.message}
             />
-          <Input
-            name="username"
-            label="Email"
-            type="text"
-            {...register("username", { required: true })}
-            error={errors.username ? "Username is required" : undefined}
+            <Input
+              name="email"
+              label="Email"
+              type="email"
+              onChange={handleInputChange}
+           error={errors.email?.message}
             />
-          <Input
-            name="Palavra-Passe"
-            label="Password"
-            type="password"
-            {...register("password", { required: true })}
-            error={errors.password ? "Password is required" : undefined}
+            <Input
+              name="password"
+              label="Password"
+              type="password"
+              onChange={handleInputChange}
+              showPassTextAria="Mostrar senha"
+              hidePassTextAria="Ocultar senha"
+              
+              error={errors.password?.message}
             />
-          <Button type="submit" text="Login" />
-        </form>
+
+            <Button 
+              type="submit" 
+              text={loading ? "A carregar..." : "Login"}
+              disabled={loading}
+            />
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

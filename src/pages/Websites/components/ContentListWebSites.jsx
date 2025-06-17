@@ -12,7 +12,7 @@ export default function ContentListWebSites({ checkboxesSelected, setCheckboxesS
 
   return (
     <>
-      <h3>Lista de sítios web</h3>
+      <h2>Lista de sítios web</h2>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <span>Filtrar Sítios Web:</span>
         <InputSearch

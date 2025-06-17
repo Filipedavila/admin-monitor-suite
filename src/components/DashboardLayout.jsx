@@ -57,6 +57,7 @@ const DashboardLayout = () => {
 
   return (
     <div className={`main-content-dashboard ${theme === 'dark' ? 'dark-theme' : 'light-theme'}`}>
+      <a href="#main-content" className="skip-to-content">Pular para o conteúdo</a>
       <header className="d-flex justify-content-between gap-5 align-items-center">
         <div className="d-flex align-items-center gap-3">
           <img src={Logo} alt="AdminMonitorSuite Logo" className="logo"/>
@@ -94,7 +95,7 @@ const DashboardLayout = () => {
           onMenuItemClick={handleMenuItemClick}
         />
       </aside>
-      <main>
+      <main id="main-content">
         <Outlet />
       </main>
     </div>

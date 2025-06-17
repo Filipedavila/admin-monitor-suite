@@ -17,7 +17,7 @@ const PageList = () => {
       </p>
 
       <div className="content bg-white">
-        <h3>Lista de Páginas Web</h3>
+        <h2>Lista de Páginas Web</h2>
         <ContentListPages 
         checkboxesSelected={checkboxesSelected}
         setCheckboxesSelected={setCheckboxesSelected}

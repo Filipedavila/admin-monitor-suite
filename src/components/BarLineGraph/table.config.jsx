@@ -34,24 +34,35 @@ export const columnsOptions = {
   },
 };
 
+const generateAccessibleId = (name, type) => {
+  // Convert name to lowercase and replace spaces with hyphens
+  const sanitizedName = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  
+  // Add type and timestamp for uniqueness
+  return `${type.toLowerCase()}-${sanitizedName}-${Date.now()}`;
+};
+
 export const dataList = [
   {
-    id: Math.random() * 100,
+    id: generateAccessibleId("Portal Mais Transparência", "MyMonitor"),
     name: "Portal Mais Transparência",
     type: "MyMonitor",
   },
   {
-    id: Math.random() * 100,
+    id: generateAccessibleId("Instituto da Segurança Social", "MyMonitor"),
     name: "Instituto da Segurança Social, I.P. - Portal Seg Social com o <title>",
     type: "MyMonitor",
   },
   {
-    id: Math.random() * 100,
+    id: generateAccessibleId("Portal do SNS 24", "AcessMonitor"),
     name: "Portal do SNS 24",
     type: "AcessMonitor",
   },
   {
-    id:  Math.random() * 100,
+    id: generateAccessibleId("Comissão Nacional de Eleições", "AcessMonitor"),
     name: "Comissão Nacional de Eleições",
     type: "AcessMonitor",
   },

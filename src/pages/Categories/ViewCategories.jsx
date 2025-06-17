@@ -89,6 +89,7 @@ const ViewCategories = () => {
           gaugeTitle={[
             'Pontuação média'
           ]}
+          screenReaderTitle="Indicadores globais da Categoria"
           gaugeType=""
           newestPage="Avaliação mais recente de uma página:"
           oldestPage="Avaliação mais antiga de uma página:"
@@ -124,6 +125,7 @@ const ViewCategories = () => {
           doubleRow={true}
           gaugeType={null}
           showGauge={false}
+          screenReaderTitle="Conformidade global da Categoria"
           stats={{
             recentPage: "",
             oldestPage: "",

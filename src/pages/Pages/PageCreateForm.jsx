@@ -59,7 +59,7 @@ const PageCreateForm = () => {
         Nesta página é possível adicionar amostras de páginas a um sítio web.
       </p>
 
-      <h4>Métodos de adicionar páginas a um sítio web:</h4>
+      <h2>Métodos de adicionar páginas a um sítio web:</h2>
       <ul className="list-style-disc" style={{ listStyleType: "disc" }}>
         <li>Submeter manualmente uma lista de URLs;</li>
         <li>Submeter um ficheiro em formato sitemap;</li>

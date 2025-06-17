@@ -28,6 +28,10 @@ const router = createBrowserRouter([
     element: React.createElement(Login),
   },
   {
+    path: "/",
+    element: React.createElement(Login),
+  },
+  {
     path: "/dashboard",
     element: React.createElement(DashboardLayout),
     children: [

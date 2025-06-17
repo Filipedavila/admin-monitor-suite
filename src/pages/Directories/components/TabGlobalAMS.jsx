@@ -2,6 +2,7 @@ import { Button, StatisticsHeader } from "ama-design-system";
 import { BarLineGraphTabs } from "../../../components/BarLineGraph";
 import { RadarGraph } from "../../../components/RadarGraph";
 import GoodBadTab  from "../../../components/GoodBadTab/GoodBadTab.jsx";
+import { useState } from "react";
 export const TabGlobalAMS = ({
     theme,
     columnsOptionsBar,
@@ -12,6 +13,28 @@ export const TabGlobalAMS = ({
     dataListBar,
     headerBarlineBar
 }) => {
+    const [data, setData] = useState( [
+        {
+          id:Date.now()+Math.random().toString(36).substr(2, 9),
+          name: "Portal Mais Transparência",
+          type: "MyMonitor",
+        },
+        {
+          id:Date.now()+Math.random().toString(36).substr(2, 9),
+          name: "Instituto da Segurança Social, I.P. - Portal Seg Social com o <title>",
+          type: "MyMonitor",
+        },
+        {
+          id:Date.now()+Math.random().toString(36).substr(2, 9),
+          name: "Portal do SNS 24",
+          type: "AcessMonitor",
+        },
+        {
+          id:Date.now() +Math.random().toString(36).substr(2, 9),
+          name: "Comissão Nacional de Eleições",
+          type: "AcessMonitor",
+        },
+      ]);
     return (
         <div>
             
@@ -40,6 +63,7 @@ export const TabGlobalAMS = ({
           gaugeTitle={[
             'Pontuação média'
           ]}
+          screenReaderTitle="Indicadores globais do AMS"
           gaugeType=""
           newestPage="Avaliação mais recente de uma página:"
           oldestPage="Avaliação mais antiga de uma página:"
@@ -74,7 +98,7 @@ export const TabGlobalAMS = ({
           doubleRow={true}
           gaugeType={null}
           showGauge={false}
-
+          screenReaderTitle="Conformidade global do AMS"
           stats={{
             recentPage: "",
             oldestPage: "",
@@ -103,7 +127,7 @@ export const TabGlobalAMS = ({
           barData={barDataCopy}
           barOptions={barOptionsCopy}
           dataHeaders={dataHeadersBar}
-          dataList={dataListBar}
+          dataList={data}
           headerBarline={headerBarlineBar}
         />
       </div>
