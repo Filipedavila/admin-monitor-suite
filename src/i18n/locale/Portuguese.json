@@ -13,6 +13,7 @@
     "show_password": "Carregue aqui para mostrar a palavra-chave",
     "hide_password": "Carregue aqui para esconder a palavra-chave",
     "submit": "Iniciar sessão",
+    "skip_link_text": "Saltar para o conteúdo principal",
     "messages": {
       "password_match": "Utilizador ou palavra-chave incorretos",
       "no_user": "Utilizador ou palavra-chave incorretos",

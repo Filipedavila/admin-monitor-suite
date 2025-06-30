@@ -13,6 +13,7 @@
     "show_password": "Click here to show the password text",
     "hide_password": "Click here to hide the password text",
     "submit": "Login",
+    "skip_link_text":"Skip to the main content",
     "messages": {
       "password_match": "Wrong username or password",
       "no_user": "Wrong username or password",

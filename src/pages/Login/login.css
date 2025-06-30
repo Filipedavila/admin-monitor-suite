@@ -25,7 +25,7 @@
 }
 
 .login-title {
-  font-size: 24px;
+  font-size: 1.2rem;
   font-weight: 600;
   color: var(--ama-color-brand-primary);
   margin-bottom: 15px;
@@ -58,4 +58,8 @@
 
 .skip-link:focus {
   top: 0;
+}
+
+.ama-typography-body{
+  font-size: 1rem;
 }
