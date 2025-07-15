@@ -3,7 +3,7 @@ import { Button, InputSearch, SortingTable, Breadcrumb } from "ama-design-system
 import "./style.users.css";
 import { Link } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
-import { directoriesHeaders, dataRows, columnsOptions, nameOfIcons, paginationButtonsTexts } from "./table.config.jsx";
+import { categoriesHeaders, dataRows, columnsOptions, nameOfIcons, paginationButtonsTexts } from "./table.config.jsx";
 import { useTranslation } from 'react-i18next';
 
 const CategoriesList = () => {
@@ -13,7 +13,7 @@ const CategoriesList = () => {
   const [checkboxesSelected, setCheckboxesSelected] = useState([])
   const { t } = useTranslation();
   const breadcrumbs = [
-    { children: <Link to="/">Início</Link> },
+    { children: <Link to="/dashboard/home">Início</Link> },
 
     {
       title: "Categorias",
@@ -22,14 +22,14 @@ const CategoriesList = () => {
   return (
 
     <div>
-      <Breadcrumb data={breadcrumbs} />
+      <Breadcrumb data={breadcrumbs} tagHere={t('BREADCRUMB.tag_here')} />
 
       <h1>{t('CATEGORIES_PAGE.LIST.title')}</h1>
-      <p>{t('CATEGORIES_PAGE.LIST.subtitle')}</p>
+      <p>Abaixo encontra a listagem de todas as categorias registadas no AdminMonitorSuite, num total de 58 categorias.</p>
 
       <div className="content bg-white bg-white">
 
-        <h2>{t('CATEGORIES_PAGE.LIST.title')}</h2>
+        <h2>{t('CATEGORIES_PAGE.LIST.subtitle')}</h2>
         <div className="d-flex gap-2 align-items-center mb-3">
           <span>{t('MISC.filter')}</span>
           <InputSearch
@@ -74,7 +74,7 @@ const CategoriesList = () => {
         </div>
         <SortingTable
           darkTheme={theme}
-          headers={directoriesHeaders}
+          headers={categoriesHeaders}
           setDataList={setData}
           dataList={data}
           columnsOptions={columnsOptions}

@@ -24,6 +24,9 @@ const UsersGovCreateForm = () => {
             <Breadcrumb data={breadcrumbs} />
             <h1>{t('GOV_USERS_PAGE.ADD.title')}</h1>
             <form className="bg-white p-4 mt-3" onSubmit={handleSubmit(onSubmit)}>
+                <p>{t('GOV_USERS_PAGE.ADD.description_usergov')}</p>
+                <p>{t('GOV_USERS_PAGE.ADD.description_usergov1')}</p>
+                <p>{t('GOV_USERS_PAGE.ADD.description_usergov2')}</p>
                 <div className='w-50 d-flex flex-column gap-3'>
                     <Input
                         id="username"
@@ -67,7 +70,7 @@ const UsersGovCreateForm = () => {
                         <Button
                             darkTheme={theme}
                             type="submit"
-                            text={t('GOV_USERS_PAGE.ADD.title')}
+                            text={t('ADMIN_CONSOLE.save_and_exit')}
                         />
                     </div>
                 </div>

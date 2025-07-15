@@ -14,11 +14,22 @@ import {
   paginationButtonsTexts,
 } from "./table.config";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
 import { useTranslation } from 'react-i18next';
+import { useEffect } from "react";
 
 const UserGovList = () => {
+  const location = useLocation();
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const lastPath = localStorage.getItem('currentPath');
+    if (lastPath && lastPath !== currentPath) {
+      localStorage.setItem('previousPath', lastPath);
+    }
+    localStorage.setItem('currentPath', currentPath);
+  }, [location.pathname]);
+  
   const {
     register,
     handleSubmit,
@@ -28,7 +39,7 @@ const UserGovList = () => {
   const { theme } = useTheme();
   const { t } = useTranslation();
   const breadcrumbs = [
-    { children: <Link to="/">Início</Link> },
+    { children: <Link to="/dashboard/home">Início</Link> },
     { title: "Utilizadores Gov" },
   ];
 
@@ -42,7 +53,7 @@ const UserGovList = () => {
 
   return (
     <div>
-      <Breadcrumb data={breadcrumbs} />
+      <Breadcrumb data={breadcrumbs} tagHere={t('BREADCRUMB.tag_here')} />
       <h1>{t('GOV_USERS_PAGE.LIST.title')}</h1>
       <p>
         {t('GOV_USERS_PAGE.LIST.subtitle')}
@@ -69,7 +80,7 @@ const UserGovList = () => {
           dataList={data}
           columnsOptions={columnsOptions}
           nextPage={() => null}
-          caption={t('DIRECTORIES_PAGE.LIST.subtitle')}
+          caption={t('GOV_USERS_PAGE.LIST.table.title')}
           iconsAltTexts={nameOfIcons}
           paginationButtonsTexts={paginationButtonsTexts}
           project=""

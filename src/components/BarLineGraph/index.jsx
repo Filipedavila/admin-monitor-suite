@@ -14,14 +14,14 @@ export function BarLineGraphTabs({ columnsOptions, dataList, dataHeaders, barDat
       eventKey: "tab1",
       title: "Gráfico",
       component: (
-        <div style={{ padding: 20 }}>
-          <Bar 
-            role="img"
-            aria-label="Gráfico de barras mostrando a distribuição de pontuações de acessibilidade"
-            data={memoBarData} 
-            options={memoBarOptions} 
-            darkTheme={darkTheme}
-          />
+        <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+            <Bar 
+              role="img"
+              aria-label="Histograma das pontuações do AccessMonitor"
+              data={memoBarData} 
+              options={memoBarOptions} 
+              darkTheme={darkTheme}
+            />
         </div>
       ),
     },

@@ -1,7 +1,7 @@
 import i18n from '../../i18n';
 const apiUrl = import.meta.env.VITE_API_URL;
 
-export const directoriesHeaders = [
+export const categoriesHeaders = [
   [
     {type: "Checkbox", nRow: 2, name: i18n.t('MISC.select'), property: "id", justifyCenter: true},
     {type: "SortingText", nRow: 2, name: i18n.t('CATEGORIES_PAGE.LIST.table.name_label'), property: "name"},
@@ -91,3 +91,52 @@ export const options = [
     tdClassName: "warning-cell"
   },
 ];
+
+export const detailsTableHeaders = [
+  [
+    { type: "Text", nRow: 1, bigWidth: "50%", name: i18n.t("WEBSITES_PAGE.table_best_practices.practice_label"), property: "practices" },
+    { type: "Text", nRow: 1, bigWidth: "30%", name: i18n.t("WEBSITES_PAGE.table_best_practices.details_practice_label"), justifyCenter: true, property: "practicesPerPage" },
+    { type: "Text", nRow: 1, name: i18n.t("WEBSITES_PAGE.table_best_practices.n_pages_label"), justifyCenter: true, property: "pages" },
+    { type: "Text", nRow: 1, name: i18n.t("WEBSITES_PAGE.table_best_practices.n_errors_label"), justifyCenter: true, property: "occurences" },
+    { type: "Text", nRow: 1, name: i18n.t("WEBSITES_PAGE.table_best_practices.lvl_label"), justifyCenter: true, property: "lvl" },
+  ]
+]
+
+  export const columnsOptionsDetails = {
+    practices: { type: "DangerousHTML", center: false, bold: false, decimalPlace: false, property: "name" },
+    practicesPerPage: { type: "MultiText", center: true, bold: false, decimalPlace: false, property: "practicesPerPage" },
+    pages: { type: "Number", center: true, bold: false, decimalPlace: false, property: "pages" },
+    occurences: { type: "Number", center: true, bold: false, decimalPlace: false, property: "occurences" },
+    lvl: { type: "Text", center: true, bold: false, decimalPlace: false, ariaLabel: true, property: "lvl" },
+  }
+
+  export const ariaLabels = {
+    "A": i18n.t("WEBSITES_PAGE.ariaLabels.A"),
+    "AA": i18n.t("WEBSITES_PAGE.ariaLabels.AA"),
+    "AAA": i18n.t("WEBSITES_PAGE.ariaLabels.AAA")
+  }
+
+ export const detailsTable = [
+        {
+            "practices": "Verifiquei que todas as ligações têm nome acessível.",
+            "practicesPerPage": [
+                "de 28 a 77 ocorrências em 12 páginas",
+                "de 78 a 83 ocorrências em 9 páginas",
+                "de 84 a 97 ocorrências em 9 páginas"
+            ],
+            "pages": 42,
+            "occurences": 5471,
+            "lvl": "AA",
+        },
+        {
+            "practices": "Encontrei um elemento com a semântica de banner.",
+            "practicesPerPage": [
+                "de 28 a 77 ocorrências em 12 páginas",
+                "de 78 a 83 ocorrências em 9 páginas",
+                "de 84 a 97 ocorrências em 9 páginas"
+            ],
+            "pages": 42,
+            "occurences": 1402,
+            "lvl": "AA",
+        }
+    ]

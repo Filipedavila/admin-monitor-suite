@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, StatisticsHeader, Breadcrumb, SortingTable } from "ama-design-system";
 import "./style.users.css";
 import { directoriesHeadersPage, dataRowsPage, columnsOptionsPage, nameOfIcons, paginationButtonsTexts } from "./table.config.jsx";
 import { RadarGraph } from "../../components/RadarGraph/index.jsx";
 import GoodBadTab from "../../components/GoodBadTab/GoodBadTab.jsx";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { BarLineGraphTabs } from "../../components/BarLineGraph/index.jsx";
 import { 
   barData,
@@ -17,6 +17,7 @@ import { useTheme } from '../../context/ThemeContext';
 
 const ViewPages = () => {
   const { theme } = useTheme();
+  const location = useLocation();
   const [statsTitle, setWebsiteStatsTitle] = useState([
     { subtitle: 'Sítios Web', subtitle2: "" },
     { subtitle: 'Sítios Web não conformes', subtitle2: "" },
@@ -33,16 +34,35 @@ const ViewPages = () => {
       subtitle2: "Sem erros de nível A + AA + AAA"
     }
   ])
-  const breadcrumbs = [
-    { children: <Link to="/">Global</Link> },
-    { children: <Link to="/directories">Diretórios</Link> },
-    { children: <Link to="/directories/view">Diretório</Link> },
-    { children: <Link to="/websites/view">Sítio Web</Link> },
-    { title: "Página" }
-  ];
+  const [breadcrumbs, setBreadcrumbs] = useState([]);
   const [data, setData] = useState(dataRowsPage)
   const [checkboxesSelected, setCheckboxesSelected] = useState([])
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const lastPath = localStorage.getItem('currentPath');
+    if (lastPath && lastPath !== currentPath) {
+      localStorage.setItem('previousPath', lastPath);
+    }
+    localStorage.setItem('currentPath', currentPath);
+  }, [location.pathname]);
 
+  useEffect(() => {
+    if (localStorage.getItem('previousPath')?.includes('websites')) {
+      const previousWebsite = localStorage.getItem('previousPath').split('/').pop();
+      setBreadcrumbs([
+        { children: <Link to="/dashboard/global">Global</Link> },
+        { children: <Link to="/dashboard/directories">Diretórios</Link> },
+        { children: <Link to={`/dashboard/websites/view/${previousWebsite}`}>Sítio Web</Link> },
+        { title: "Página" }
+      ]);
+    } else {
+      setBreadcrumbs([
+        { children: <Link to="/dashboard/global">Global</Link> },
+        { children: <Link to="/dashboard/websites">Sítios Web</Link> },
+        { title: "Página" }
+      ]);
+    }
+  }, []);
   return (
     <div>
       <Breadcrumb data={breadcrumbs} />

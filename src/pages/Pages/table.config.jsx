@@ -5,20 +5,22 @@ export const directoriesHeaders = [
   [
     { type: "Checkbox", nRow: 2,center: true, name: i18n.t('MISC.select'), property: "id", label: i18n.t('MISC.select') },
     { type: "SortingText", nRow: 2, center: true, name: i18n.t('WEBSITES_PAGE.LIST.table.url_label'), property: "url" },
-    { type: "SortingText", nRow: 2, center: true, name: i18n.t('WEBSITES_PAGE.LIST.table.title_label'), property: "title" },
     { type: "SortingText", nRow: 2, center: true, name: i18n.t('WEBSITES_PAGE.LIST.table.score_label'), property: "point", justifyCenter: true },
     { type: "SortingText", nRow: 2, center: true, name: i18n.t('WEBSITES_PAGE.LIST.table.last_updated_label'), property: "lastavaliation", justifyCenter: true },
-    { type: "SortingText", nRow: 2, center: true, name: i18n.t('WEBSITES_PAGE.LIST.table.elements_label'), property: "elementnumber", justifyCenter: true },
-    { type: "SortingText", nRow: 2, center: true, name: i18n.t('WEBSITES_PAGE.LIST.table.a_label'), property: "a", justifyCenter: true },
-    { type: "SortingText", nRow: 2, center: true, name: i18n.t('WEBSITES_PAGE.LIST.table.aa_label'), property: "aa", justifyCenter: true },
-    { type: "SortingText", nRow: 2, center: true, name: i18n.t('WEBSITES_PAGE.LIST.table.aaa_label'), property: "aaa", justifyCenter: true },
-    { type: "SortingText", nRow: 2, center: true, name: i18n.t('WEBSITES_PAGE.LIST.table.observatory_label'), property: "observatory", justifyCenter: true, label: i18n.t('PAGES_PAGE.LIST.table.observatory_label') },
+    { type: "SortingText", nRow: 2, center: true, name: i18n.t('WEBSITES_PAGE.LIST.table.elements_label'), property: "elementsNumber", justifyCenter: true },
+    { id: "conformidade", type: "Text", name: "Nº de Erros", property: "", justifyCenter: true, multiCol: true, nCol: 3 },
+    { type: "SortingText", nRow: 2, center: true, name: "E", property: "e", justifyCenter: true },
+    { type: "SortingText", nRow: 2, center: true, name: "OPAW", property: "OPAW", justifyCenter: true, label: "OPAW" },
+  ],
+  [
+    { id: "a", type: "SortingText", name:"A", property: "a", justifyCenter: true },
+    { id: "aa", type: "SortingText", name: "AA", property: "aa", justifyCenter: true },
+    { id: "aaa", type: "SortingText", name: "AAA", property: "aaa", justifyCenter: true },
   ],
 ];
 
 export const columnsOptions = {
   id: { type: "Checkbox", center: true, bold: false, decimalPlace: false, label:"Selecionar"},
-  title: { type: "Text", center: true, bold: false, decimalPlace: false }, // Checkbox
   url: { type: "Link", center: true, bold: false, decimalPlace: false, href: (row) => apiUrl + "dashboard/pages/view/" + row.title },
   point: { type: "Text", center: true, bold: false, decimalPlace: true },
   lastavaliation: {
@@ -27,16 +29,17 @@ export const columnsOptions = {
     bold: false,
     decimalPlace: false,
   },
-  elementnumber: {
+  e: { type: "Text", center: true, bold: false, decimalPlace: false },
+  a: { type: "Number", center: true, bold: false, decimalPlace: false, headers: "conformidade A" },
+  aa: { type: "Number", center: true, bold: false, decimalPlace: false, headers: "conformidade AA" },
+  aaa: { type: "Number", center: true, bold: false, decimalPlace: false, headers: "conformidade AAA" },
+  elementsNumber: {
     type: "Text",
     center: true,
     bold: false,
     decimalPlace: false,
   },
-  a: { type: "Text", center: true, bold: false, decimalPlace: false },
-  aa: { type: "Text", center: true, bold: false, decimalPlace: false },
-  aaa: { type: "Text", center: true, bold: false, decimalPlace: false },
-  observatory: { type: "Checkbox", center: true, bold: false, decimalPlace: false, label:"Observatório"},
+  OPAW: { type: "Checkbox", center: true, bold: false, decimalPlace: false, label:"OPAW"},
 };
 
 export const nameOfIcons = [
@@ -62,27 +65,27 @@ export const itemsPaginationText = [i18n.t('RANGE_PAGE_LABEL_1'), i18n.t('RANGE_
 export const dataRows = [
   {
     id: "1",
-    title: "Página 1",
     url: "exemplo.pt",
     point: "82.5",
     lastavaliation: "05/06/2025",
-    elementnumber: 134,
+    elementsNumber: 134,
     a: 10,
     aa: 8,
     aaa: 5,
-    observatory: "",
+    e: "?",
+    OPAW: "",
   },
   {
     id: "2",
-    title: "Página 2",
     url: "exemplo.pt",
     point: "82.5",
     lastavaliation: "05/06/2025",
-    elementnumber: 134,
+    elementsNumber: 134,
     a: 10,
     aa: 8,
     aaa: 5,
-    observatory: "",
+    e: "?",
+    OPAW: "",
   },
 ];
 
@@ -124,7 +127,7 @@ export const directoriesHeadersPage = [
       type: "SortingText",
       nRow: 2,
       name: "Elementos HTML",
-      property: "elementnumber",
+      property: "elementsNumber",
       justifyCenter: true,
     },
 
@@ -151,7 +154,13 @@ export const directoriesHeadersPage = [
       property: "aaa",
       justifyCenter: true,
     },
-
+    {
+      type: "SortingText",
+      nRow: 2,
+      name: "E",
+      property: "e",
+      justifyCenter: true,
+    },
     {
       type: "SortingText",
       nRow: 2,
@@ -159,26 +168,26 @@ export const directoriesHeadersPage = [
       property: "state",
       justifyCenter: true,
     },
-
   ],
 ];
 
 export const columnsOptionsPage = {
-  id: { type: "Skip", center: false, bold: false, decimalPlace: false },
   title: { type: "Text", center: false, bold: false, decimalPlace: false }, // Checkbox
   date_avaliation: { type: "Text", center: false, bold: false, decimalPlace: false },
   point: { type: "Text", center: true, bold: false, decimalPlace: true },
 
-  elementnumber: {
+  elementsNumber: {
     type: "Text",
     center: true,
     bold: false,
     decimalPlace: false,
   },
+  e: { type: "Text", center: true, bold: false, decimalPlace: false },
   a: { type: "Text", center: true, bold: false, decimalPlace: false },
   aa: { type: "Text", center: true, bold: false, decimalPlace: false },
   aaa: { type: "Text", center: true, bold: false, decimalPlace: false },
   state: { type: "Link", center: true, bold: false, decimalPlace: false },
+  id: { type: "Checkbox", center: false, bold: false, decimalPlace: false },
 };
 
 
@@ -189,7 +198,8 @@ export const dataRowsPage = [
     title: "",
     date_avaliation: "05/06/2025",
     point: "8.5",
-    elementnumber: 134,
+    elementsNumber: 134,
+    e: "?",
     a: 10,
     aa: 8,
     aaa: 5,

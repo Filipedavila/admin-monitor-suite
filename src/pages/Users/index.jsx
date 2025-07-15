@@ -14,11 +14,21 @@ import {
   paginationButtonsTexts,
 } from "./table.config";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
 import { useTranslation } from 'react-i18next';
+import { useEffect } from "react";
 
 const UserList = () => {
+  const location = useLocation();
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const lastPath = localStorage.getItem('currentPath');
+    if (lastPath && lastPath !== currentPath) {
+      localStorage.setItem('previousPath', lastPath);
+    }
+    localStorage.setItem('currentPath', currentPath);
+  }, [location.pathname]);
   const {
     register,
     handleSubmit,
@@ -27,7 +37,7 @@ const UserList = () => {
   const { theme } = useTheme();
   const { t } = useTranslation();
   const breadcrumbs = [
-    { children: <Link to="/">Início</Link> },
+    { children: <Link to="/dashboard/home">Início</Link> },
     { title: "Utilizadores" },
   ];
 
@@ -41,7 +51,7 @@ const UserList = () => {
 
   return (
     <div>
-      <Breadcrumb data={breadcrumbs} />
+      <Breadcrumb data={breadcrumbs} tagHere={t('BREADCRUMB.tag_here')} />
       <h1>{t('USERS_PAGE.LIST.title')}</h1>
       <p>
         {t('USERS_PAGE.LIST.subtitle')}
@@ -49,16 +59,23 @@ const UserList = () => {
 
       <div className="content bg-white">
         <h2>{t('USERS_PAGE.LIST.title')}</h2>
-
+          
           <div className="d-flex gap-2 align-items-center mb-4">
             <span>{t('MISC.filter')}</span>
+
             <InputSearch
               darkTheme={theme}
               placeholder={t('MISC.filter') + '...'}
               label={t('MISC.filter')}
             />
           </div>
-
+ <Button
+          darkTheme={theme}
+          text={t('USERS_PAGE.LIST.delete_users')}
+          icon={"AMA-Adicionar-Line"}
+          className="btn-primary mb-3" 
+          onClick={() => console.log(t('USERS_PAGE.LIST.delete_users'))}
+        />
 
         <SortingTable
           darkTheme={theme}
@@ -67,7 +84,7 @@ const UserList = () => {
           dataList={data}
           columnsOptions={columnsOptions}
           nextPage={() => null}
-          caption={t('DIRECTORIES_PAGE.LIST.subtitle')}
+          caption={t( 'USERS_PAGE.LIST.table.title')}
           iconsAltTexts={nameOfIcons}
           paginationButtonsTexts={paginationButtonsTexts}
           project=""

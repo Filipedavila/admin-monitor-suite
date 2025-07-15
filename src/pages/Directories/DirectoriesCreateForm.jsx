@@ -9,7 +9,7 @@ const DirectoriesCreateForm = () => {
     const { t } = useTranslation();
     const { theme } = useTheme();
     const breadcrumbs = [
-        { children: <Link to="/dashboard/home">Início</Link> },
+        { children: <Link to="/dashboard/global">Global</Link> },
 
         {
             title: t('DIRECTORIES_PAGE.ADD.title'),
@@ -25,7 +25,14 @@ const DirectoriesCreateForm = () => {
             <Breadcrumb data={breadcrumbs} />
 
             <h1>{t('DIRECTORIES_PAGE.ADD.title')}</h1>
+           
             <form className="bg-white p-4 mt-3" onSubmit={handleSubmit(onSubmit)}>
+                 <p>Um Diretório é um agregador de sítios web. Os Diretórios têm por objetivo publicar sítios web publicamente no Observatório. Os Diretórios são construídos com base nas Categorias/tags que se encontram agarradas aos sítios web.</p>
+            <p>Os Diretórios podem ser construídos:</p>
+            <ul>
+                <li>por interseção das Categorias. A interseção é uma operação entre conjuntos que resulta em um novo conjunto formado por todos os elementos que são comuns a dois ou mais conjuntos originais.</li>
+                <li>por reunião das Categorias. A reunião, ou união, de conjuntos refere-se à combinação de todos os elementos de dois ou mais conjuntos.</li>
+            </ul>
                 <div className='w-50 d-flex flex-column gap-3'>
                     <Input
                         id="name"
@@ -37,23 +44,28 @@ const DirectoriesCreateForm = () => {
                         error={errors.name ? "Campo obrigatório" : undefined}
                     />
 
-                    <div>
-                        <CheckGroup
-                            id="show_in_observatory"
+                    <fieldset>
+                        <label>{t('DIRECTORIES_PAGE.ADD.show_in_observatory')}</label>
+                        <RadioGroup
                             darkTheme={theme}
                             data={[
                                 {
-                                    name: t('DIRECTORIES_PAGE.ADD.show_in_observatory'),
+                                    id: 'yes',
+                                    name: "Sim"
                                 },
-
+                                {
+                                    id: 'no',
+                                    name: "Não"
+                                }
                             ]}
                             inline
                             onChange={() => { }}
-
+                            value="1"
+                            name="show_in_observatory"
                         />
-                    </div>
+                    </fieldset>
 
-                    <div>
+                    <fieldset>
                         <label>{t('DIRECTORIES_PAGE.ADD.choose_format')}</label>
                         <RadioGroup
                             darkTheme={theme}
@@ -70,8 +82,9 @@ const DirectoriesCreateForm = () => {
                             inline
                             onChange={() => { }}
                             value="1"
+                            name="format"
                         />
-                    </div>
+                    </fieldset>
 
                     <Select
                         id="entities"
@@ -94,7 +107,7 @@ const DirectoriesCreateForm = () => {
                         <Button
                             type="submit"
                             darkTheme={theme}
-                            text={t('DIRECTORIES_PAGE.ADD.create_button')}
+                            text={t('ADMIN_CONSOLE.save_and_exit')}
 
                         />
                     </div>

@@ -93,6 +93,12 @@
   margin: 0;
 }
 
+fieldset {
+  border: 1px solid var(--ama-color-blue-500) !important;
+  padding: 10px !important;
+  border-radius: 5px !important;
+}
+
 .main-content-dashboard {
   display: grid;
   grid-template-areas:
@@ -233,4 +239,9 @@ h2 {
 
 .field-search{
     width: 50% !important;
+}
+
+canvas[aria-label="Histograma das pontuações do AccessMonitor"] {
+  width: 70% !important;
+  height: 60% !important;
 }

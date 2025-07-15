@@ -15,8 +15,10 @@ import { useTheme } from "../../context/ThemeContext";
 import { TabGlobalAMS } from "./components/TabGlobalAMS.jsx";
 import { TabGlobalObservatory } from "./components/TabGlobalObservatory.jsx";
 import { barOptionsDark } from "../Websites/table.config.jsx";
+import { useTranslation } from 'react-i18next';
 const GlobalDirectories = () => {
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const [statsTitle, setWebsiteStatsTitle] = useState([
 
     { subtitle: 'Sítios Web', subtitle2: "" },
@@ -36,8 +38,8 @@ const GlobalDirectories = () => {
 
   ])
   const breadcrumbs = [
-    { children: <Link to="/">Global</Link> },
-    { title: "Diretórios" }
+    { children: <Link to="/">Início</Link> },
+    { title: "Dados Globais do Observatório" }
   ];
   const [data, setData] = useState(dataRows)
   const [checkboxesSelected, setCheckboxesSelected] = useState([])
@@ -61,7 +63,7 @@ const tabs = [
   {
     eventKey: "observatory",
     title: "Observatório",
-    component: <TabGlobalObservatory 
+    component: <TabGlobalObservatory  
         theme={theme}
         columnsOptionsBar={columnsOptionsBar}
         barDataCopy={barDataCopy}
@@ -77,7 +79,7 @@ const tabs = [
   return (
 
     <div>
-      <Breadcrumb data={breadcrumbs} />
+      <Breadcrumb data={breadcrumbs} tagHere={t('BREADCRUMB.tag_here')} />
       <h1>Dados Globais</h1>
       <Tabs tabs={tabs} defaultActiveKey="ams" />
     </div>

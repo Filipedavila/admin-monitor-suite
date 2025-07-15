@@ -25,7 +25,9 @@ const EntitiesCreateForm = () => {
             <Breadcrumb data={breadcrumbs} />
             <h1>{t('ENTITIES_PAGE.ADD.title')}</h1>
             <form className="bg-white p-4 mt-3" onSubmit={handleSubmit(onSubmit)}>
+                <p>{t('ENTITIES_PAGE.ADD.description_entity')}</p>
                 <div className='w-50 d-flex flex-column gap-3'>
+                    <h2>Nova Entidade</h2>
                     <Input
                         id="entityName"
                         label={t('ENTITIES_PAGE.ADD.short_name_label')}
@@ -68,7 +70,7 @@ const EntitiesCreateForm = () => {
                         <Button
                             darkTheme={theme}
                             type="submit"
-                            text={t('ENTITIES_PAGE.ADD.title')}
+                            text={t('ADMIN_CONSOLE.save_and_exit')}
                         />
                     </div>
                 </div>

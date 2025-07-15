@@ -15,7 +15,6 @@
 }
 
 .cards-sync {
-    width:49.3%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;

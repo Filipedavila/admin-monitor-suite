@@ -59,7 +59,10 @@ const PageCreateForm = () => {
     <div>
       <Breadcrumb data={breadcrumbs} />
       <h1>{t('PAGES_PAGE.ADD.title')}</h1>
-      <p className="w-50">
+      
+      <form className="bg-white" onSubmit={handleSubmit(onSubmit)}>
+        {/* Seção 1: Informações básicas */}
+        <p >
         {t('PAGES_PAGE.ADD.description')}
       </p>
 
@@ -69,9 +72,7 @@ const PageCreateForm = () => {
         <li>Submeter um ficheiro em formato sitemap;</li>
         <li>Solicitar crawling ao sítio web.</li>
       </ul>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        {/* Seção 1: Informações básicas */}
-        <div className="bg-white p-4">
+        <div >
           <h2 className="mb-4">
             1. Em sítio web pretende efetuar a adição de páginas?
           </h2>
@@ -86,7 +87,7 @@ const PageCreateForm = () => {
           </div>
         </div>
 
-        <div className="bg-white p-4 mt-5">
+        <div className=" mt-5">
           <h2 className="mb-4">
             2. De que forma deseja adicionar as novas páginas?
           </h2>

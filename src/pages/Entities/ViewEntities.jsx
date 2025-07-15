@@ -1,32 +1,40 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, Link, useLocation } from "react-router-dom";
+import { useState } from "react";
 import { Button, StatisticsHeader, Breadcrumb, SortingTable } from "ama-design-system";
-import { BarLineGraphTabs } from "../../components/BarLineGraph";
-import { RadarGraph } from "../../components/RadarGraph";
-import GoodBadTab from "../../components/GoodBadTab/GoodBadTab";
-import { useTheme } from "../../context/ThemeContext";
-import ContentListWebSites from "../Websites/components/ContentListWebSites";
-import { dataRows as dataRowsWebSites } from "../Websites/table.config.jsx";
-import {
+import "./style.users.css";
+import { RadarGraph } from "../../components/RadarGraph/index.jsx";
+import { Link, useParams, useLocation } from "react-router-dom";
+import { BarLineGraphTabs } from "../../components/BarLineGraph/index.jsx";
+import { 
   barData,
   barOptions,
   dataHeaders as dataHeadersBar,
   columnsOptions as columnsOptionsBar,
-  dataList as dataListBar
-} from "../../components/BarLineGraph/table.config.jsx";
-import { useParams } from "react-router-dom";
-import Indicators from "../../components/Indicators";
-import { detailsTableHeaders, columnsOptionsDetails, ariaLabels, detailsTable } from "./table.config.jsx";
-import { useTranslation } from 'react-i18next';
-const ViewCategories = () => {
-  const { t } = useTranslation();
-  const [breadcrumbs, setBreadcrumbs] = useState([]);
-  const { categoryName } = useParams();
-  const { theme } = useTheme();
-  const [checkboxesSelected, setCheckboxesSelected] = useState([]);
+  dataList as dataListBar,
+ 
+ } from "../../components/BarLineGraph/table.config.jsx";
 
-  const [selectedWebsite, setSelectedWebsite] = useState(null);
-  const [data, setData] = useState(dataRowsWebSites);
+import {
+   columnsOptionsDetails,
+  detailsTableHeaders,
+  detailsTable,
+  ariaLabels
+} from "../Directories/table.config.jsx";
+import { useTheme } from "../../context/ThemeContext.jsx";
+import ContentListWebSites from "../Websites/components/ContentListWebSites.jsx";
+import { barOptionsDark, dataRows as dataRowsWebSites } from "../Websites/table.config.jsx";
+import { useTranslation } from "react-i18next"; 
+import Indicators from "../../components/Indicators";
+import { useEffect } from "react";
+const ViewEntities = () => {
+  const location = useLocation();
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const lastPath = localStorage.getItem('currentPath');
+    if (lastPath && lastPath !== currentPath) {
+      localStorage.setItem('previousPath', lastPath);
+    }
+    localStorage.setItem('currentPath', currentPath);
+  }, [location.pathname]);
   const listItems = [
     { title: 'Pontuação média', value: '7.4' },
     { title: 'Avaliação mais antiga de uma página', value: '15 de dezembro de 2020' },
@@ -49,25 +57,36 @@ const ViewCategories = () => {
     },
 
   ]
-  const location = useLocation();
-
-  const barDataCopy = JSON.parse(JSON.stringify(barData || {}));
-  const barOptionsCopy = JSON.parse(JSON.stringify(barOptions || {}));
-  useEffect(() => {
-    const currentPath = location.pathname;
-    const lastPath = localStorage.getItem('currentPath');
-    if (lastPath && lastPath !== currentPath) {
-      localStorage.setItem('previousPath', lastPath);
+  const { entityName } = useParams();
+  const { theme } = useTheme();
+  const { t } = useTranslation();
+  const [statsTitle, setWebsiteStatsTitle] = useState([
+    { subtitle: 'Sítios Web', subtitle2: "" },
+    { subtitle: 'Sítios Web não conformes', subtitle2: "" },
+    { subtitle: 'Sítios Web conformes', subtitle2: "" },
+    {
+      subtitle: "Conformidade A",
+      subtitle2: "Sem erros de nível A"
+    },
+    {
+      subtitle: "Conformidade AA",
+      subtitle2: "Sem Erros de Nível A + AA"
+    }, 
+    {
+      subtitle: "Conformidade AAA",
+      subtitle2: "Sem erros de nível A + AA + AAA"
     }
-    localStorage.setItem('currentPath', currentPath);
-  }, [location.pathname]);
-
+  ])
+  const [breadcrumbs, setBreadcrumbs] = useState([]);
   useEffect(() => {
-    setBreadcrumbs([
-      { children: <Link to="/dashboard/global">Global</Link> },
-      { children: <Link to="/dashboard/categories">Categorias</Link> },
-      { title: categoryName }
-    ]);
+    if (localStorage.getItem('previousPath')?.includes('')) {
+      const previousWebsite = localStorage.getItem('previousPath').split('/').pop();
+      setBreadcrumbs([
+        { children: <Link to="/dashboard/global">Global</Link> },
+        { children: <Link to="/dashboard/entities">Entidades</Link> },
+        { title: entityName }
+      ]);
+    }
   }, []);
 
   useEffect(() => {
@@ -79,58 +98,56 @@ const ViewCategories = () => {
     localStorage.setItem('currentPath', currentPath);
   }, [location.pathname]);
 
+  const [data, setData] = useState(dataRowsWebSites || [])
+  const [checkboxesSelected, setCheckboxesSelected] = useState([])
+  const barDataCopy = JSON.parse(JSON.stringify(barData || {}));
+  const barOptionsCopy = JSON.parse(JSON.stringify(barOptions || {}));
   return (
-    <div className={theme === 'dark' ? 'dark-theme' : 'light-theme'}>
-      <div className="flex justify-between items-center mb-4">
-        <Breadcrumb
-          darkTheme={theme}
-          data={breadcrumbs}
-          tagHere={t('BREADCRUMB.tag_here')}
-        />
-      </div>
+
+    <div>
+      <Breadcrumb data={breadcrumbs || []} />
+
+      <h1>{t('ENTITIES_PAGE.LIST.title', { entityName })}</h1>
+
       <div>
-        <h1>Dados Globais da Categoria</h1>
-      <div className="mt-5">
         <ContentListWebSites
-          title={`Lista de sítios web da categoria "${categoryName}"`}
-          darkTheme={theme}
-          checkboxesSelected={checkboxesSelected}
+          title={t('WEBSITES_PAGE.LIST.subtitle_list', { entityName })}
+          checkboxesSelected={checkboxesSelected || []}
           setCheckboxesSelected={setCheckboxesSelected}
-          data={data}
+          data={data || []}
           setData={setData}
         />
+
+        
       </div>
+    
+
       <div className="bg-white mt-5">
         <div>
-          <h2>Exportação de dados</h2>
-          <p>Para exportar todos os dados da Categoria "{categoryName}" à data de hoje, pressione o botão "Exportar CSV" abaixo.</p>
+          <h2>{t('ENTITIES_PAGE.LIST.export_data')}</h2>
+          <p>{t('ENTITIES_PAGE.LIST.export_data_description', {entityName})}</p>
         </div>
-        <div className="d-flexjustify-content-end align-items-end">
+        <div className="d-flex justify-content-start align-items-end">
           <Button
-          darkTheme={theme}
-
-            text={"Exportar CSV"}
+            darkTheme={theme}
+            text={t('ENTITIES_PAGE.LIST.export_csv')}
             className="btn-primary"
-            onClick={() => console.log("Criar Utilizador")}
+            onClick={() => console.log(t('ENTITIES_PAGE.LIST.export_csv'))}
             />
         </div>
       </div>
-
-      <div className="mt-5 bg-white">
-        <h2 className="mb-4">Indicadores globais da Categoria</h2>
+      <div className="mt-5 bg-white p-4">
+        <h2 className="mb-4">{t('ENTITIES_PAGE.LIST.global_indicators')}</h2>
         <Indicators listItems={listItems}/>
         {/*<StatisticsHeader
-                    darkTheme={theme}
-
+          darkTheme={theme}
           gaugeDescription=""
-          gaugeTitle={[
-            'Pontuação média'
-          ]}
-          screenReaderTitle="Indicadores globais da Categoria"
+          gaugeTitle={[t('STATISTICS.gauge.label')]}
+          screenReaderTitle={t('ENTITIES_PAGE.LIST.global_indicators')}
           gaugeType=""
           tag="h3"
-          newestPage="Avaliação mais recente de uma página:"
-          oldestPage="Avaliação mais antiga de uma página:"
+          newestPage={t('STATISTICS.newest_page_updated')}
+          oldestPage={t('STATISTICS.oldest_page_updated')}
           stats={{
             oldestPage: '16 de outubro de 2023',
             recentPage: '16 de outubro de 2023',
@@ -144,29 +161,29 @@ const ViewCategories = () => {
             ]
           }}
           statsTitles={[
-            'Diretórios',
-            'Entidades',
-            'Sítios Web',
-            'Páginas',
-            'Páginas por sítio'
-          ]}
-          subtitle="Metadados"
-          title="Estatísticas"
+            t('DIRECTORIES_PAGE.LIST.title_list'),
+            t('ENTITIES_PAGE.LIST.title_list'),
+            t('WEBSITES_PAGE.LIST.title_list'),
+            t('PAGES_PAGE.LIST.title'),
+            t('STATISTICS.average_page')
+          ] || []}
+          subtitle={t('STATISTICS.subtitle')}
+          title={t('STATISTICS.title')}
         />*/}
       </div>
 
       <div className="mt-5 bg-white p-4">
-        <h2 className="mb-4">Conformidade global da Categoria</h2>
+        <h2 className="mb-4">Conformidade global da Entidade</h2>
         <Indicators listItems={listItemsGlobal}/>
         {/*<StatisticsHeader
-                    darkTheme={theme}
-
+          darkTheme={theme}
           gaugeDescription=""
           doubleRow={true}
           gaugeType={null}
           showGauge={false}
+
           tag="h3"
-          screenReaderTitle="Conformidade global da Categoria"
+          screenReaderTitle="Conformidade global da Entidade"
           stats={{
             recentPage: "",
             oldestPage: "",
@@ -181,13 +198,14 @@ const ViewCategories = () => {
                 0
               ]
           }}
-          statsTitles={statsTitle}
+          statsTitles={statsTitle || []}
           subtitle="Metadados"
           title="Estatísticas"
         />*/}
       </div>
+
       <div className="mt-5 bg-white p-4">
-        <h2 className="mb-4">Distribuição das pontuações AccessMonitor no universo da Categoria</h2>
+        <h2 className="mb-4">Distribuição das pontuações AccessMonitor no universo da Entidade</h2>
         <BarLineGraphTabs
           columnsOptions={columnsOptionsBar}
           barData={barDataCopy}
@@ -199,7 +217,7 @@ const ViewCategories = () => {
       </div>
       <div className="mt-5 bg-white p-4">
         <h2 className="mb-4">Mancha Gráfica da Acessibilidade</h2>
-        <RadarGraph />
+        <RadarGraph darkTheme={theme}/>
       </div>
       <div className="mt-5 bg-white p-4">
         <h2 className="mb-4">Distribuição detalhada das melhores práticas</h2>
@@ -210,8 +228,8 @@ const ViewCategories = () => {
             columnsOptions={columnsOptionsDetails || {}}
             darkTheme={theme}
             pagination={false}
-            links={false}
             ariaLabels={ariaLabels || {}}
+            links={false}
             caption="Distribuição detalhada das melhores práticas"
             setDataList={() => {}}
             nextPage={() => {}}
@@ -287,9 +305,8 @@ const ViewCategories = () => {
           </div>
         </div>
       </div>
-      </div>
     </div>
-  );
-};
+  )
+}
 
-export default ViewCategories;
+export default ViewEntities;

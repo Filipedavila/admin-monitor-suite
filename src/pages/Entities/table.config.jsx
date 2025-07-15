@@ -1,5 +1,5 @@
 import i18n from '../../i18n';
-
+const apiUrl = import.meta.env.VITE_API_URL;
 
 export const directoriesHeaders = [
   [
@@ -42,7 +42,7 @@ export const directoriesHeaders = [
 
 export const columnsOptions = {
   id: { type: "Checkbox", center: true, bold: false, decimalPlace: false, label:"Selecionar"},
-  shortName: { type: "Text", center: false, bold: false, decimalPlace: false },
+  shortName: { type: "Link", center: false, bold: false, decimalPlace: false, href: (row) => apiUrl + "dashboard/entities/view/" + row.shortName },
   fullName: { type: "Text", center: false, bold: false, decimalPlace: false },
   createdAt: { type: "Text", center: true, bold: false, decimalPlace: false },
   websiteCount: {

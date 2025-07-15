@@ -26,8 +26,10 @@ const CategoriesCreateForm = () => {
 
             <h1>{t('CATEGORIES_PAGE.ADD.title')}</h1>
             <form className="bg-white p-4 mt-3" onSubmit={handleSubmit(onSubmit)}>
+            <p>{t('CATEGORIES_PAGE.ADD.description_category')}</p>
+            <p>{t('CATEGORIES_PAGE.ADD.note')}</p>
                 <div className='w-50 d-flex flex-column gap-4'>
-
+            <h2>Nova Categoria</h2>
                     <Input
                         id="categoryName"
                         label={t('CATEGORIES_PAGE.ADD.name_label')}
@@ -74,7 +76,7 @@ const CategoriesCreateForm = () => {
                         <Button
                             darkTheme={theme}
                             type="submit"
-                            text={t('CATEGORIES_PAGE.ADD.create_button')}
+                            text={t('ADMIN_CONSOLE.save_and_exit')}
                         />
                     </div>
                 </div>

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Outlet, useLocation } from "react-router-dom";
 import { DashboardMenu, Breadcrumb, InputSearch, Button, Icon } from "ama-design-system";
 import { useNavigate, Link } from "react-router-dom";
 import Logo from "../assets/logo-header.svg"; 
@@ -8,10 +8,12 @@ import { useTranslation } from "react-i18next";
 
 const DashboardLayout = () => {
 
-  const [activeItem, setActiveItem] = useState("home");
+  const [activeItem, setActiveItem] = useState(JSON.parse(localStorage.getItem("activeMenuItem")) || "/dashboard/home");
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const { i18n } = useTranslation();
+  const location = useLocation();
+
   const propsDashboardMenu = {
     menuItems: [
       { id: "/dashboard/home", label: "Início", icon: "AMA-MenuCimaGrande-Line", url: "/dashboard/home" },
@@ -77,8 +79,24 @@ const DashboardLayout = () => {
     ]
   };
 
+  useEffect(() => {
+    // Find the menu or submenu item whose url matches the current path
+    let found = propsDashboardMenu.menuItems.find(item => item.url === location.pathname);
+    if (!found) {
+      propsDashboardMenu.menuItems.forEach(item => {
+        if (item.submenu) {
+          const sub = item.submenu.find(sub => sub.url === location.pathname);
+          if (sub) found = sub;
+        } 
+      });
+    }
+    setActiveItem(found ? found : "");
+  }, [location.pathname]);
+
+
   const handleMenuItemClick = (id) => {
     setActiveItem(id);
+    localStorage.setItem("activeMenuItem", JSON.stringify(id));
     if(id.submenu !== undefined) {
       return; 
     }

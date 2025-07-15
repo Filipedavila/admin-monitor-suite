@@ -22,7 +22,9 @@ const UsersCreateForm = () => {
         <div>
             <Breadcrumb data={breadcrumbs} />
             <h1>{t('USERS_PAGE.ADD.title')}</h1>
-            <form className="bg-white p-4 mt-3" onSubmit={handleSubmit(onSubmit)}>
+            <form className="bg-white" onSubmit={handleSubmit(onSubmit)}>
+                <p>{t('USERS_PAGE.ADD.description_user')}</p>
+                <p>{t('USERS_PAGE.ADD.description_user_ams')}</p>
                 <div className='w-50 d-flex flex-column gap-3'>
                 <Input
                     label={t('USERS_PAGE.ADD.username_label')}
@@ -101,7 +103,7 @@ const UsersCreateForm = () => {
                 <Button
                     darkTheme={theme}
                     type="submit"
-                    text={t('USERS_PAGE.ADD.title')}
+                    text={t('ADMIN_CONSOLE.save_and_exit')}
                 />
                 </div>
                 </div>

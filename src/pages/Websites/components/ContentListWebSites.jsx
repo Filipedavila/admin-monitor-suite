@@ -8,19 +8,20 @@ import {
   paginationButtonsTexts,
 } from "../table.config";
 import { useTranslation } from "react-i18next";
+import i18n from "../../../i18n";
 
-export default function ContentListWebSites({ checkboxesSelected, setCheckboxesSelected, data, setData }) {
-  const { theme } = useTheme();
+export default function ContentListWebSites({ title= i18n.t('WEBSITES_PAGE.LIST.title'), checkboxesSelected, setCheckboxesSelected, data, setData }) {
   const { t } = useTranslation();
+  const { theme } = useTheme();
   return (
     <div className="content bg-white">
-      <h2>{t('WEBSITES_PAGE.LIST.title')}</h2>
+      <h2>{title}</h2>
       <div className="d-flex gap-2 align-items-center mb-3">
-        <span>{t('MISC.filter')} {t('WEBSITES_PAGE.LIST.title')}:</span>
+        <span>{t('MISC.filter')} {t('WEBSITES_PAGE.LIST.title_list')}:</span>
         <InputSearch
           darkTheme={theme}
-          label={t('MISC.filter') + ' ' + t('WEBSITES_PAGE.LIST.title')}
-          placeholder={t('MISC.filter') + ' ' + t('WEBSITES_PAGE.LIST.title') + '...'}
+          label={t('MISC.filter') + ' ' + t('WEBSITES_PAGE.LIST.title_list')}
+          placeholder={t('MISC.filter') + ' ' + t('WEBSITES_PAGE.LIST.title_list') + '...'}
         />
       </div>
       <div className="d-flex gap-4 justify-content-start mb-4">
@@ -63,8 +64,8 @@ export default function ContentListWebSites({ checkboxesSelected, setCheckboxesS
         setDataList={setData}
         dataList={data}
         columnsOptions={columnsOptions}
-        nextPage={() => null}
-        caption={"Estatísticas do diretório" + " " + "Os 25 Portais + Procurados da AP"}
+          nextPage={() => null}
+          caption={t('WEBSITES_PAGE.LIST.table.title')}
         iconsAltTexts={nameOfIcons}
         paginationButtonsTexts={paginationButtonsTexts}
         project={""}

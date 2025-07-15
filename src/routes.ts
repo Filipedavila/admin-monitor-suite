@@ -25,6 +25,7 @@ import GlobalDirectories from "./pages/Directories/GlobalDirectories";
 import CrawlerList from "./pages/Crawler";
 import LogsList from "./pages/Logs";
 import AccessibilityDeclarationList from "./pages/AccessiblityDeclaration";
+import ViewEntities from "./pages/Entities/ViewEntities";
 const router = createBrowserRouter([
   {
     path: "/login",
@@ -50,6 +51,7 @@ const router = createBrowserRouter([
         children: [
           { path: "", element: React.createElement(EntitiesList) },
           { path: "create", element: React.createElement(EntitiesCreateForm) },
+          { path: "view/:entityName", element: React.createElement(ViewEntities)},
        ],
       },
       { path: "directories",

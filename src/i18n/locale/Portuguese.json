@@ -23,6 +23,7 @@
     }
   },
   "ADMIN_CONSOLE": {
+    "save_and_exit": "Guardar e Sair",
     "add_button": "Adicionar conteúdo",
     "bottom_sheet": {
       "user": {
@@ -130,8 +131,10 @@
     "title": "Utilizador:",
     "LIST": {
       "title": "Utilizadores",
+      "delete_users": "Apagar utilizador(es)",
       "subtitle": "Lista de todos os utilizadores das aplicações Study Monitor e My Monitor",
       "table": {
+        "title":"Listagem de utilizadores",
         "id_label": "ID",
         "username_label": "Nome de utilizador",
         "app_label": "Aplicação",
@@ -144,6 +147,8 @@
       }
     },
     "ADD": {
+      "description_user": "Para usar o AdminMonitorSuite (AMS) e o MyMonitor é necessário ter um utilizador",
+      "description_user_ams": "No caso do AMS a autenticação do utilizador é feita por via de User/pass. No caso do MyMonitor a autenticação do utilizador é feita pelo processo oficial usado na Administração Pública Portuguesa e descrita no https://www.autenticacao.gov.pt .",
       "title": "Criar novo utilizador",
       "subtitle": "Criar um novo utilizador para uma das seguintes aplicações: Study Monitor ou My Monitor",
       "user_data": "Dados do utilizador",
@@ -215,6 +220,7 @@
       "title": "Utilizadores Gov",
       "subtitle": "Lista de todos os utilizadores das aplicações Study Monitor e My Monitor",
       "table": {
+        "title":"Listagem de utilizadores Gov",
         "id_label": "ID",
         "username_label": "Nome de utilizador",
         "app_label": "Aplicação",
@@ -229,6 +235,9 @@
     },
     "ADD": {
       "title": "Criar novo utilizador Gov",
+      "description_usergov": "Para usar o MyMonitor é necessário ter um utilizador Autenticação.Gov (utilizador.Gov).",
+      "description_usergov1": "Os Utilizadores são uma espécie de conta que agrega sítios Web para serem acedidos por um grupo de pessoas.",
+      "description_usergov2": "Com o MyMonitor o processo passou a ser individualizado uma vez que a autenticação é individual. Assim, é necessário que cada utilizador.Gov aceda ao seu utilizador/conta ou grupo de sítios web de uma conta.",
       "subtitle": "Criar um novo utilizador Gov para uma das seguintes aplicações: Study Monitor ou My Monitor",
       "user_data": "Dados do utilizador Gov",
       "username_label": "Nome de utilizador Gov",
@@ -293,6 +302,7 @@
     "title": "Logs",
     "subtitle": "Lista de todos os logs",
     "table": {
+      "title":"Listagem de logs",
       "id_label": "ID",
       "user_label": "Utilizador",
       "action_label": "Ação",
@@ -307,17 +317,20 @@
   },
   "DIRECTORIES_PAGE": {
     "LIST": {
-      "title": "Diretórios",
-      "subtitle": "Lista de todos os diretórios",
+      "title_list": "Directórios",
+      "subtitle_list": "Lista de directórios",
+      "title": "Dados Globais do Diretório \"{{directoryName}}\"",
+      "subtitle": "Lista de sítios web do directório \"{{directoryName}}\"",
       "delete_users": "Apagar utilizadores",
-      "delete_directories": "Apagar diretórios",
+      "delete_directories": "Apagar directórios",
       "re_evaluate_pages": "Re-avaliar",
       "delete_page":" Apagar páginas",
       "export_data": "Exportar dados",
-      "export_data_description": "Para exportar todos os dados do Observatório à data de hoje, pressione o botão 'Exportar CSV' abaixo.",
+      "export_data_description": "Para exportar todos os dados do Diretório {{directoryName}} à data de hoje, pressione o botão \"Exportar CSV\" abaixo.",
       "export_csv": "Exportar CSV",
       "global_indicators": "Indicadores globais do Diretório",
       "table": {
+        "title":"Listagem de directórios",
         "name_label": "Nome",
         "type_label": "Tipo",
         "observatory_label": "Observatório"
@@ -327,11 +340,11 @@
       "title": "Criar novo diretório",
       "description": "Criar um novo diretório para as aplicações Study Monitor ou My Monitor",
       "name_label": "Nome do diretório",
-      "show_in_observatory": "Mostrar este diretório no observatório",
-      "choose_format": "Escolha como formatar o diretório",
+      "show_in_observatory": "Mostrar Diretório no Observatório Público?",
+      "choose_format": "O Diretório resulta de que operação nas Categorias?",
       "intersection": "Intersecção",
       "union": "União",
-      "select_categories": "Selecione as categorias para formar o novo diretório",
+      "select_categories": "Indique as Categorias que vão formar o novo Diretório:",
       "create_button": "Criar diretório"
     }
   },
@@ -340,10 +353,11 @@
       "title": "Categorias",
       "subtitle": "Lista de todas as categorias",
       "re_evaluate_tags": "Re-avaliar categorias",
-      "crawler": "Crawler",
+      "crawler": "Crawling Sítio(s)",
       "delete_pages": "Apagar páginas",
       "delete_tags": "Apagar categorias",
       "table": {
+        "title":"Listagem de categorias",
         "id_label": "ID",
         "name_label": "Nome",
         "websites_label": "Nº de sítios web"
@@ -356,15 +370,23 @@
       "directories_label": "Diretórios",
       "websites_label": "Sítios web",
       "create_button": "Criar categoria",
+      "note": "Nota: as Categorias não serão publicadas no Observatório público. No Observatório público os sítios web são publicados por via das Diretorias aos quais pertencem. As Categorias ajudam a produzir e organizar os Diretórios.",
+      "description_category": "Uma Categoria é um agregador de sítios web. As Categorias têm por objetivo agregar os sítios web por classes. São exemplos de classes: área governativa da educação, área governativa da economia, administração pública central, escolas, institutos públics, etc. Desta forma é possível organizar a visualização da informação no AdminMonitorSuite por listas de sítios web que estão, de alguma forma, relacionados e observar estatísiticas globais dessas agregações. Uma categoria é muito similar ao classificador \"tag\" que se usa vulgarmente nos blogs.",
       "create_button_tooltip": "Criar uma nova categoria para as aplicações Study Monitor ou My Monitor"
     }
   },
   "ENTITIES_PAGE": {
     "LIST": {
+      "title_list": "Entidades",
+      "global_indicators": "Indicadores globais da Entidade",
+      "export_data": "Exportar dados",
+      "export_csv": "Exportar CSV",
+      "export_data_description": "Para exportar todos os dados da Entidade à data de hoje, pressione o botão 'Exportar CSV' abaixo.",
       "title": "Entidades",
       "subtitle": "Lista de todas as entidades",
       "delete_entities": "Apagar entidades",
       "table": {
+        "title":"Listagem de entidades",
         "short_name_label": "Nome abreviado",
         "long_name_label": "Nome completo",
         "creation_label": "Data de criação",
@@ -373,6 +395,7 @@
       }
     },
     "ADD": {
+      "description_entity": "Uma Entidade é um agregador de sítios web. As Entidades têm por objetivo agregar os sítios web por classes. São exemplos de classes: área governativa da educação, área governativa da economia, administração pública central, escolas, institutos públics, etc. Desta forma é possível organizar a visualização da informação no AdminMonitorSuite por listas de sítios web que estão, de alguma forma, relacionados e observar estatísiticas globais dessas agregações. Uma entidade é muito similar ao classificador \"tag\" que se usa vulgarmente nos blogs.",
       "title": "Criar nova entidade",
       "description": "Criar uma nova entidade para as aplicações Study Monitor ou My Monitor",
       "short_name_label": "Nome abreviado",
@@ -388,18 +411,24 @@
     }
   },
   "WEBSITES_PAGE": {
+
     "LIST": {
-      "title": "Sítios web",
-      "subtitle": "Lista de todos os sítios web",
+      "title_list": "Sítios web",
+      "subtitle_list": "Lista de sítios web",
+      "title": "Sítio web \"{{websiteName}}\"",
+      "subtitle": "Lista de páginas do sítio web \"{{websiteName}}\"",
       "delete_websites": "Apagar sítios web",
       "re_evaluate_websites": "Re-avaliar sítios web",
-      "crawler": "Crawler",
+      "authentication_gov": "Autenticação Gov",
+      "crawler": "Crawling Sítio(s)",
+      
       "pages_list_title": "Lista de páginas",
       "page_list_subtitle": "Lista de todas as páginas do sítio web",
       "export_data": "Exportar dados",
       "export_data_description": "Para exportar todos os dados do sítio web à data de hoje, pressione o botão 'Exportar CSV' abaixo.",
       "export_csv": "Exportar CSV",
       "table": {
+        "title":"Listagem de sítios web",
         "name_label": "Nome",
         "url_label": "Url",
         "pages_label": "Nº de páginas (avaliadas)",
@@ -410,7 +439,7 @@
         "title_label": "Título",
         "score_label": "Pontuação",
         "last_updated_label": "Última avaliação",
-        "elements_label": "Número de elementos",
+        "elements_label": "Nº de elementos",
         "a_label": "Nº erros A",
         "aa_label": "Nº erros AA",
         "aaa_label": "Nº erros AAA",
@@ -419,7 +448,8 @@
     },
     "ADD": {
       "title": "Criar novo sítio web",
-      "description": "Criar um novo sítio web para as aplicações Study Monitor ou My Monitor",
+      "description": "O sítio web é a unidade de análise mais relevante do Observatório. A análise das práticas de acessibilidade faz-se à amostra de páginas que fazem parte do sítio. Os sítios são agregados em Categorias e Diretórios e pertencem a Entidades.",
+      "description_website": "O sítio web é a unidade de análise mais relevante do Observatório. A análise das práticas de acessibilidade faz-se à amostra de páginas que fazem parte do sítio. Os sítios são agregados em Categorias e Diretórios e pertencem a Entidades.",
       "new_website": "Novo sítio web",
       "name_label": "Nome",
       "declaration_label": "Declaração de acessibilidade",
@@ -445,7 +475,34 @@
       "category_1": "Categoria 1",
       "category_2": "Categoria 2",
       "category_3": "Categoria 3"
-    }
+    },
+          "table_best_practices": {
+        "top_3_best_practices": "Distribuição detalhada das melhores práticas",
+        "top_3_bad_practices": "Distribuição detalhada das piores práticas",
+        "practice_label": "Prática",
+        "error_label": "Erro",
+        "n_errors_label": "Ocorrências",
+        "n_pages_label": "Páginas",
+        "details_practice_label": "Práticas por página",
+        "details_error_label": "Erros por página",
+        "double_a": "Duplo A",
+        "triple_a":"Triplo A",
+        "details": {
+          "single_practice": "ocorrência em",
+          "multi_practices": "ocorrências em",
+          "single_error": "erro em",
+          "multi_error": "erros em",
+          "single_page": "página",
+          "multi_page": "páginas",
+          "all_pages": "todas as páginas",
+          "from": "de",
+          "to": "a",
+          "multiDetailsTogether": "de {{lower}} a {{upper}} ocorrências em {{nPages}} páginas",
+          "oneDetailAllPagesTogether": "{{lower}} ocorrência em todas as páginas",
+          "sameDetailTogether": "{{lower}} ocorrências em {{nPages}} páginas"
+        },
+        "lvl_label": "Nível"
+      }
   },
   "MISC": {
     "filter": "Filtro",
@@ -471,6 +528,7 @@
       "subtitle": "Lista de todas as páginas",
       "delete_pages": "Apagar páginas",
       "table": {
+        "title":"Listagem de páginas",
         "id_label": "ID",
         "uri_label": "Uri",
         "score_label": "Pontuação",
@@ -499,6 +557,7 @@
     "LIST": {
       "title": "Lista de Crawlers",
       "table": {
+        "title":"Listagem de crawlers",
         "delete_crawlers": "Apagar crawlers",
         "title": "Resultados do Crawler",
         "select_label": "Selecionar",
@@ -523,6 +582,7 @@
     "export_data_description": "Para exportar todos os dados do sítio web à data de hoje, pressione o botão 'Exportar CSV' abaixo.",
     "export_csv": "Exportar CSV",
     "table": {
+      "title":"Listagem de estatísticas",
       "name_label": "Nome",
       "url_label": "Url",
       "pages_label": "Nº de páginas (avaliadas)",
@@ -538,6 +598,12 @@
       "aa_label": "Nº erros AA",
       "aaa_label": "Nº erros AAA",
       "observatory_label": "Observatório"
+    },
+    "gauge": {
+      "label": "Pontuação Média"
     }
+  },
+  "BREADCRUMB": {
+    "tag_here": "você está aqui"
   }
 } 

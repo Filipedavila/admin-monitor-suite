@@ -7,3 +7,7 @@
     background-color: var(--ama-color-background-white) !important;
     padding: 30px !important;
 }
+
+ul {
+    list-style: disc;
+}

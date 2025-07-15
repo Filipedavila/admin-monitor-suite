@@ -97,6 +97,17 @@ export const optionsHorizontalBar = {
       }
     },
   },
+  elements: {
+    bar: {
+      borderWidth: 0, // Remove border between bars
+    }
+  },
+  datasets: {
+    bar: {
+      categoryPercentage: 1.0,
+      barPercentage: 1.0,
+    }
+  },
   scales: {
     x: {
       title: {
@@ -106,7 +117,7 @@ export const optionsHorizontalBar = {
         font: {
           size: 14
         }
-      },
+      },  
       ticks: {
         color: theme === "light" ? 'rgba(0,0,0, 1)' : 'white' // Color of Text on X axis
       },
@@ -190,6 +201,17 @@ export const optionsHorizontalBarDark = {
         color: 'white', // Color of the legend text
       }
     },
+  },
+  elements: {
+    bar: {
+      borderWidth: 0, // Remove border between bars
+    }
+  },
+  datasets: {
+    bar: {
+      categoryPercentage: 1.0, // Bars take full category width
+      barPercentage: 1.0, // Bars take full available space
+    }
   },
   scales: {
     x: {

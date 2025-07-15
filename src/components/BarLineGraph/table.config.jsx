@@ -4,36 +4,20 @@ const theme = "light"
 
 export const dataHeaders = [
   [
-    { type: "Checkbox", nRow: 2, name: "Selecionar ", property: "id", label:"Selecionar" },
-    { type: "SortingText", nRow: 2, name: "Nome ", property: "name", justifyCenter: false },
-    { type: "SortingText", nRow: 2, name: "Tipo", property: "type", justifyCenter: true },
+    { type: "Text", nRow: 1, name: "Intervalo", property: "range" },
+    { type: "Text", nRow: 1, name: "Frequência (n.º de páginas)", property: "frequency", justifyCenter: true },
+    { type: "Text", nRow: 1, name: "Frequência (n.º de páginas) (%)", property: "frequency_percent", justifyCenter: true },
+    { type: "Text", nRow: 1, name: "Frequência acumulada", property: "cumulative", justifyCenter: true },
+    { type: "Text", nRow: 1, name: "Frequência acumulada (%)", property: "cumulative_percent", justifyCenter: true },
   ],
 ];
 
 export const columnsOptions = {
-  id: { 
-    type: "Checkbox", 
-    center: true, 
-    bold: false, 
-    decimalPlace: false,
-    property: "id",
-     label:"Selecionar"
-  },
-  name: {
-    type: "Link",
-    center: true,
-    bold: false,
-    decimalPlace: false,
-    property: "name",
-    href: (row) => apiUrl + "dashboard/pages/view",
-  },
-  type: { 
-    type: "Text", 
-    center: true, 
-    bold: false, 
-    decimalPlace: false,
-    property: "type"
-  },
+  range: { type: "Text", center: false, bold: false, decimalPlace: false, property: "range" },
+  frequency: { type: "Number", center: true, bold: false, decimalPlace: false, property: "frequency" },
+  frequency_percent: { type: "Text", center: true, bold: false, decimalPlace: false, property: "frequency_percent" },
+  cumulative: { type: "Number", center: true, bold: false, decimalPlace: false, property: "cumulative" },
+  cumulative_percent: { type: "Text", center: true, bold: false, decimalPlace: false, property: "cumulative_percent" },
 };
 
 const generateAccessibleId = (name, type) => {
@@ -49,25 +33,68 @@ const generateAccessibleId = (name, type) => {
 
 export const dataList = [
   {
-    id: generateAccessibleId("Portal Mais Transparência", "MyMonitor"),
-    name: "Portal Mais Transparência",
-    type: "MyMonitor",
+    range: '[1 - 2[',
+    frequency: 2,
+    frequency_percent: '5%',
+    cumulative: 2,
+    cumulative_percent: '5%'
   },
   {
-    id: generateAccessibleId("Instituto da Segurança Social", "MyMonitor"),
-    name: "Instituto da Segurança Social, I.P. - Portal Seg Social com o <title>",
-    type: "MyMonitor",
+    range: '[2 - 3[',
+    frequency: 5,
+    frequency_percent: '12.5%',
+    cumulative: 7,
+    cumulative_percent: '17.5%'
   },
   {
-    id: generateAccessibleId("Portal do SNS 24", "AcessMonitor"),
-    name: "Portal do SNS 24",
-    type: "AcessMonitor",
+    range: '[3 - 4[',
+    frequency: 8,
+    frequency_percent: '20%',
+    cumulative: 15,
+    cumulative_percent: '37.5%'
   },
   {
-    id: generateAccessibleId("Comissão Nacional de Eleições", "AcessMonitor"),
-    name: "Comissão Nacional de Eleições",
-    type: "AcessMonitor",
+    range: '[4 - 5[',
+    frequency: 10,
+    frequency_percent: '25%',
+    cumulative: 25,
+    cumulative_percent: '62.5%'
   },
+  {
+    range: '[5 - 6[',
+    frequency: 6,
+    frequency_percent: '15%',
+    cumulative: 31,
+    cumulative_percent: '77.5%'
+  },
+  {
+    range: '[6 - 7[',
+    frequency: 4,
+    frequency_percent: '10%',
+    cumulative: 35,
+    cumulative_percent: '87.5%'
+  },
+  {
+    range: '[7 - 8[',
+    frequency: 2,
+    frequency_percent: '5%',
+    cumulative: 37,
+    cumulative_percent: '92.5%'
+  },
+  {
+    range: '[8 - 9[',
+    frequency: 2,
+    frequency_percent: '5%',
+    cumulative: 39,
+    cumulative_percent: '97.5%'
+  },
+  {
+    range: '[9 - 10[',
+    frequency: 1,
+    frequency_percent: '2.5%',
+    cumulative: 40,
+    cumulative_percent: '100%'
+  }
 ];
 
 export const headersBarLine = ['[1 - 2[', '[2 - 3[', '[3 - 4[', '[4 - 5[', '[5 - 6[', '[6 - 7[', '[7 - 8[', '[8 - 9[', '[9 - 10[']
@@ -75,7 +102,7 @@ export const headersBarLine = ['[1 - 2[', '[2 - 3[', '[3 - 4[', '[4 - 5[', '[5 -
 export const barData = {
   labels: headersBarLine,
   datasets: [
-    {
+   /* {
       type: 'line',
       label: "Percentagem(nº de páginas)",
       data: [1, 2, 3, 0, 0, 0, 0, 0, 10],
@@ -86,25 +113,22 @@ export const barData = {
       tension: 0,
       pointBackgroundColor: 'red',
       pointBorderColor: 'red',
-    },
+    },*/
     {
       type: 'bar',
       label: "Frequência (nº de páginas)",
       data: [1, 2, 3, 1, 0, 0, 0, 0, 10],
-      backgroundColor: [
-        '#e90018',
-        '#e90018',
-        '#f38e10',
-        '#f38e10',
-        '#f3d609',
-        '#f3d609',
-        '#f3d609',
-        '#15ac51',
-        '#15ac51'
-      ],
-      borderWidth: 1,
+      backgroundColor: '#339', // All bars same color
+      categoryPercentage: 1,
+      barPercentage: 1,
+      grouped: true, // For Chart.js 4.x, ensures no grouping/spacing
     },
+   
   ],
+  options: {
+    responsive: false, // disables auto-resize
+    maintainAspectRatio: false, // allows custom aspect ratio
+  }
 };
 
 export const optionsHorizontalBar = {
@@ -118,6 +142,17 @@ export const optionsHorizontalBar = {
         color: theme === "light" ? 'rgba(0,0,0, 1)' : 'white', // Color of the legend text
       }
     },
+  },
+  elements: {
+    bar: {
+      borderWidth: 0, // Remove border between bars
+    }
+  },
+  datasets: {
+    bar: {
+      categoryPercentage: 1.0, // Bars take full category width
+      barPercentage: 1.0, // Bars take full available space
+    }
   },
   scales: {
     x: {

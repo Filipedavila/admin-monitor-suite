@@ -8,10 +8,12 @@ const CardAvaliation = ({ title, description, darkTheme }) => {
             <h3 className="mb-3">{title}</h3>
             <span className="text-start mb-3">{description}</span>
             
-            <p>Total de avaliações desde 28/09/2021: 4000000</p>
-            <p>Nº de páginas em avaliação no momento: 40</p>
-            <p>Nº de páginas em fila de espera para avaliar: 80</p>
-            <p>Nº de páginas sem avaliação devido a erro: 4</p>
+            <ul className="list-unstyled">
+                <li>Total de avaliações desde 28/09/2021: 4000000</li>
+                <li>Nº de páginas em avaliação no momento: 40</li>
+                <li>Nº de páginas em fila de espera para avaliar: 80</li>
+                <li>Nº de páginas sem avaliação devido a erro: 4</li>
+            </ul>
 
 <div className="d-flex gap-3">
 

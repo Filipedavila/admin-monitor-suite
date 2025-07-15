@@ -19,7 +19,7 @@ const WebSiteCreateForm = () => {
   };
   const { theme } = useTheme();
     const breadcrumbs = [
-        { children: <Link to="/">Início</Link> },
+        { children: <Link to="/dashboard/home">Início</Link> },
         {
             title: "Criar Sítio Web",
         }
@@ -62,13 +62,12 @@ const WebSiteCreateForm = () => {
     <div>
       <Breadcrumb data={breadcrumbs} />
       <h1>{t('WEBSITES_PAGE.ADD.title')}</h1>
-      <p className="w-50">
-        {t('WEBSITES_PAGE.ADD.description')}
-      </p>
+  
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form className="bg-white" onSubmit={handleSubmit(onSubmit)}>
         {/* Seção 1: Informações básicas */}
-        <div className="bg-white p-4">
+        <p>{t('WEBSITES_PAGE.ADD.description_website')}</p>
+        <div >
           
           <h2 className="mb-4">{t('WEBSITES_PAGE.ADD.new_website')}</h2>
           <div className="w-50 d-flex flex-column gap-4">
@@ -91,7 +90,7 @@ const WebSiteCreateForm = () => {
         </div>
 
         {/* Seção 2: Declaração e Selo */}
-        <div className="bg-white p-4 mt-5">
+        <div className=" mt-5">
             {TabsWithComponenets}
             <div className="d-flex justify-content-start gap-3 mt-4">
           <Button

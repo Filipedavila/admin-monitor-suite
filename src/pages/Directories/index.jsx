@@ -1,34 +1,43 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, InputSearch, SortingTable, Breadcrumb } from "ama-design-system";
 import { useTheme } from '../../context/ThemeContext';
 import "./style.users.css";
 import { directoriesHeaders, dataRows, columnsOptions, nameOfIcons, paginationButtonsTexts } from "./table.config.jsx";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 
 const DirectoriesList = () => {
   const { theme } = useTheme();
   const { t } = useTranslation();
-  const breadcrumbs = [
-    { children: <Link to="/">Home</Link> },
-    {
-      title: "Dashboard",
-    },
+  const location = useLocation();
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const lastPath = localStorage.getItem('currentPath');
+    if (lastPath && lastPath !== currentPath) {
+      localStorage.setItem('previousPath', lastPath);
+    }
+    localStorage.setItem('currentPath', currentPath);
+  }, [location.pathname]);
+ const breadcrumbs = [
+    { children: <Link to="/dashboard/home">Início</Link> },
+    { children: <Link to="/dashboard/directories">Diretórios</Link> },
+
   ];
   const [data, setData] = useState(dataRows);
   const [checkboxesSelected, setCheckboxesSelected] = useState([]);
-
+  useEffect(() => {
+    localStorage.setItem('openSubmenu', JSON.stringify({ id: "directories", label: "Diretórios", icon: "AMA-Pasta-Line", url: "/dashboard/directories" }));
+    localStorage.setItem('activeMenuItem', JSON.stringify({ id: "directories", label: "Diretórios", icon: "AMA-Pasta-Line", url: "/dashboard/directories" }));
+  }, []);
   return (
     <div>
-      <Breadcrumb data={breadcrumbs} />
+      <Breadcrumb data={breadcrumbs} tagHere={t('BREADCRUMB.tag_here')} />
 
-      <h1>{t('DIRECTORIES_PAGE.LIST.title')}</h1>
-      <p>
-        {t('DIRECTORIES_PAGE.LIST.subtitle')}
-      </p>
+      <h1>{t('DIRECTORIES_PAGE.LIST.title_list')}</h1>
+<p>Abaixo encontra a listagem de todos os diretórios registados no AdminMonitorSuite, num total de 38 diretórios.</p>
 
       <div className="content bg-white">
-        <h2>{t('DIRECTORIES_PAGE.LIST.title')}</h2>
+        <h2>{t('DIRECTORIES_PAGE.LIST.subtitle_list')}</h2>
         <div className="d-flex  gap-2 align-items-center mb-3">
           <span>{t('MISC.filter')}</span>
           <InputSearch
