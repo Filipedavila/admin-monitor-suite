@@ -40,7 +40,7 @@ const UsuabilitySeal = ({
               id="usability_seal_date"
               label={t('WEBSITES_PAGE.ADD.stamp_date_label')}
               type="date"
-              value={moment(watch("usability_seal_date")).format("YYYY-MM-DD")}
+              value={watch("usability_seal_date") ? moment(watch("usability_seal_date")).format("YYYY-MM-DD") : ""}
               {...register("usability_seal_date")}
               error={sealDateValidation?.isValid === false ? sealDateValidation.message : errors.usability_seal_date?.message}
               onChange={e => onDateFieldChange("usability_seal_date", e.target.value, "tab2")}

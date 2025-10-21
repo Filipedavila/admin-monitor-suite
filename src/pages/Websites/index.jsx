@@ -205,6 +205,7 @@ const WebSiteList = () => {
                     onReevaluateWebsites={() => setShowModal(true)}
                     onCrawlWebsites={() => setShowCrawlingModal(true)}
                     navigate={navigate}
+                    setItemsPerPage={setItemsPerPage}
                 />
             </div>
             <Modal

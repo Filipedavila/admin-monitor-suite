@@ -174,7 +174,7 @@ const DashboardLayout = () => {
         : <h2>AMS - <abbr title="Pré-produção">PREPROD</abbr></h2>
         }
         <DashboardMenu
-          basename="/ams-react"
+          basename="/ams"
           activeItem={activeItem}
           menuItems={propsDashboardMenu.menuItems}
           onMenuItemClick={handleMenuItemClick}

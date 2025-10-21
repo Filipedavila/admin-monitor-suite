@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Input, Button, RadioGroup, Breadcrumb } from 'ama-design-system';
+import { Input, Button, RadioGroup, Breadcrumb, MultiSelect } from 'ama-design-system';
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
@@ -16,6 +16,11 @@ const UsersCreateForm = () => {
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
     const [feedbackMessage, setFeedbackMessage] = useState("");
     const [role, setRole] = useState('1');
+    
+    // States for websites association
+    const [websiteOptions, setWebsiteOptions] = useState([]);
+    const [websites, setWebsites] = useState([]);
+    const [websiteSearch, setWebsiteSearch] = useState("");
 
     const watchedPassword = watch("password");
     const watchedConfirmPassword = watch("confirmPassword");
@@ -39,19 +44,62 @@ const UsersCreateForm = () => {
 
     const breadcrumbs = [
         { children: <Link to="/dashboard/home">Início</Link> },
-        { title: t('USERS_PAGE.ADD.title') },
+        { title: id ? t('USERS_PAGE.ADD.edit_title') : t('USERS_PAGE.ADD.title') },
     ];
 
+    // Function to fetch websites
+    const fetchWebsites = async (searchTerm = "") => {
+        try {
+            const response = await api.get(`/website/all/100000/0/sort=/direction=/search=${encodeURIComponent(searchTerm)}`);
+            const websitesData = response.data.result || [];
+            const formattedWebsites = websitesData.map(website => ({
+                value: website.WebsiteId,
+                label: website.Name
+            }));
+            setWebsiteOptions(formattedWebsites);
+        } catch (error) {
+            console.error("Error fetching websites:", error);
+            setWebsiteOptions([]);
+        }
+    };
+
+    // Load initial websites and user data
     useEffect(() => {
-        if (id) {
-            const fetchUser = async () => {
+        fetchWebsites("");
+        const fetchUser = async () => {
+            try {
                 const response = await api.get(`/user/info/${id}`);
-                setValue("username", response.data.result.Username);
-                setRole(response.data.result.Type === "nimda" ? "1" : "2");
-            };
+                const userData = response.data.result;
+                
+                setValue("username", userData.Username);
+                setRole(userData.Type === "nimda" ? "1" : "2");
+                
+                // Load user's associated websites if available
+                if (userData.websites && Array.isArray(userData.websites)) {
+                    const websiteIds = userData.websites.map(w => {
+                        // Handle different possible structures
+                        if (typeof w === 'object' && w.WebsiteId) {
+                            return w.WebsiteId;
+                        } else if (typeof w === 'number' || typeof w === 'string') {
+                            return w;
+                        }
+                        return null;
+                    }).filter(id => id !== null);
+                    
+                    setWebsites(websiteIds);
+                    setValue("websites", websiteIds);
+                } else {
+                    setWebsites([]);
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+                setWebsites([]);
+            }
+        };
+        if (id) {
             fetchUser();
         }
-    }, [id]);
+    }, [id, setValue]);
 
     useEffect(() => {
         if(role === '2'){
@@ -72,7 +120,24 @@ const UsersCreateForm = () => {
                 required: <div dangerouslySetInnerHTML={{__html: t('MISC.required_field')}} />  ,
             });
         }
-    }, [role]);
+        
+        // Clear websites when role is AMS (role === '1')
+        if (role === '1') {
+            setWebsites([]);
+            setValue("websites", []);
+        }
+    }, [role, setValue]);
+
+    // Handlers for website association
+    const handleWebsiteSearch = (value) => {
+        setWebsiteSearch(value || "");
+        fetchWebsites(value || "");
+    };
+
+    const handleWebsiteChange = (newWebsites) => {
+        setWebsites(newWebsites || []);
+        setValue("websites", newWebsites || []);
+    };
 
     const onSubmit = async (data) => {
  
@@ -92,7 +157,7 @@ const UsersCreateForm = () => {
                 type: role === '1' ? "nimda" : "monitor",
                 emails: "",
                 names: "",
-                websites: [],
+                websites: role === '1' ? [] : (websites || []),
                 tags: []
             };
             let response;
@@ -102,9 +167,9 @@ const UsersCreateForm = () => {
                     delete payload.confirmPassword;
                 }
                 delete payload.tags;
-                payload.websites = "[]";
+                payload.websites = JSON.stringify(role === '1' ? [] : (websites || []));
                 payload.app = role === '1' ? "nimda" : "monitor";
-                payload.defaultWebsites = "[]";
+                payload.defaultWebsites = JSON.stringify(role === '1' ? [] : (websites || []));
                 payload.userId = id;
                 response = await api.post('/user/update', payload);
             }else{
@@ -134,7 +199,7 @@ const UsersCreateForm = () => {
     return (
         <div>
             <Breadcrumb data={breadcrumbs} />
-            <h1>{t('USERS_PAGE.ADD.title')}</h1>
+            <h1>{id ? t('USERS_PAGE.ADD.edit_title') : t('USERS_PAGE.ADD.title')}</h1>
             <form className="bg-white" onSubmit={handleSubmit(onSubmit)}>
                 <p>{t('USERS_PAGE.ADD.description_user')}</p>
                 <p>{t('USERS_PAGE.ADD.description_user_ams')}</p>
@@ -149,8 +214,10 @@ const UsersCreateForm = () => {
                         {...register("username", usernameValidation)}
                         onChange={e => setValue("username", e.target.value)}
                         error={errors.username?.message}
+                        autoComplete="off"
                     />
                     <div>
+                        <label className="form-label">{t('USERS_PAGE.ADD.application_label')}</label>
                         <RadioGroup
                             darkTheme={theme}
                             data={[
@@ -163,6 +230,21 @@ const UsersCreateForm = () => {
                             value={role}
                         />
                     </div>
+
+                    {role !== '1' && (
+                        <MultiSelect
+                            id="websites"
+                            darkTheme={theme}
+                            label={t('USERS_PAGE.ADD.websites_label') + ` (${t('HEADER.optional')})`}
+                            name="websites"
+                            value={websites || []}
+                            onChange={handleWebsiteChange}
+                            onInputChange={handleWebsiteSearch}
+                            options={websiteOptions || []}
+                            placeholder="Selecione websites (opcional)"
+                            isValid={true}
+                        />
+                    )}
                 
                         <>
                             <Input
@@ -176,6 +258,7 @@ const UsersCreateForm = () => {
                                 {...register("password", passwordValidation)}
                                 onChange={e => setValue("password", e.target.value)}
                                 error={errors.password?.message}
+                                autoComplete="off"
                             />
                             <Input
                                 label={t('USERS_PAGE.ADD.confirm_password_label') + (role === '2' ? " (opcional)" : "")}
@@ -188,6 +271,7 @@ const UsersCreateForm = () => {
                                 {...register("confirmPassword", confirmPasswordValidation)}
                                 onChange={e => setValue("confirmPassword", e.target.value)}
                                 error={errors.confirmPassword?.message}
+                                autoComplete="off"
                             />
                         </>
                     

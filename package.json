@@ -1,6 +1,6 @@
 {
-  "name": "ams-react",
-  "homepage": "ams-react",
+  "name": "ams",
+  "homepage": "ams",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,7 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "ama-design-system": "file:./ama-design-system-1.1.88.tgz",
+    "ama-design-system": "file:../Storybook Design System AMA/ama-design-system-1.1.88.tgz",
     "axios": "^1.9.0",
     "bootstrap": "^5.3.6",
     "chart.js": "^4.4.9",

@@ -100,6 +100,7 @@ export default function ContentListPages ({
             " de ",    // of
             " itens "  // items
           ]}
+          paginationOptions={[50, 100, 250, 500]}
         />
           </div>
   )

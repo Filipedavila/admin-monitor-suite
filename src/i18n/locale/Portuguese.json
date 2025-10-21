@@ -15,7 +15,9 @@
     "submit": "Iniciar sessão",
     "loading_text": "A iniciar sessão...",
     "loading_error": "Erro ao iniciar sessão. Por favor tente novamente.",
+    "skip_link_label": "Saltar para o conteúdo principal",
     "skip_link_text": "Saltar para o conteúdo principal",
+    "alt":"AMS",
     "messages": {
       "password_match": "Utilizador ou palavra-chave incorretos",
       "no_user": "Utilizador ou palavra-chave incorretos",
@@ -152,6 +154,7 @@
       "description_user": "Para usar o AdminMonitorSuite (AMS) e o MyMonitor é necessário ter um utilizador",
       "description_user_ams": "No caso do AMS a autenticação do utilizador é feita por via de User/pass. No caso do MyMonitor a autenticação do utilizador é feita pelo processo oficial usado na Administração Pública Portuguesa e descrita no https://www.autenticacao.gov.pt .",
       "title": "Criar novo utilizador",
+      "edit_title": "Editar Utilizador",
       "subtitle": "Criar um novo utilizador para uma das seguintes aplicações: Study Monitor ou My Monitor",
       "user_data": "Dados do utilizador",
       "username_label": "Nome de utilizador",
@@ -170,13 +173,16 @@
       "emails_error": "O email é <strong>inválido</strong>",
       "choose_app": "Aplicação",
       "transfer_label": "Transferir páginas do observatório",
-      "websites_label": "Escolher sítios web",
+      "websites_label": "Associar sítios Web",
       "tags_label": "Escolher categorias",
+      "application_label": "Aplicação a que se destina",
       "reset": "Limpar",
       "submit": "Criar",
       "messages": {
         "success": "Utilizador criado com sucesso",
-        "error": "Erro ao criar utilizador"
+        "error": "Erro ao criar utilizador",
+        "update_success": "Utilizador atualizado com sucesso",
+        "update_error": "Erro ao atualizar utilizador"
       }
     },
     "UPDATE": {
@@ -449,6 +455,7 @@
         "elements_label": "Nº de elementos",
         "a_label": "Nº erros A",
         "aa_label": "Nº erros AA",
+        "import":"Importar",
         "aaa_label": "Nº erros AAA",
         "observatory_label": "Observatório"
       }

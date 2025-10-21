@@ -37,7 +37,7 @@ const AcessibilityDeclaration = ({
 
             <Input
               darkTheme={darkTheme}
-              value={moment(watch("accessibility_declaration_date")).format("YYYY-MM-DD")}
+              value={watch("accessibility_declaration_date") ? moment(watch("accessibility_declaration_date")).format("YYYY-MM-DD") : ""}
               id="accessibility_declaration_date"
               label={t('WEBSITES_PAGE.ADD.declaration_date_label')}
               type="date"

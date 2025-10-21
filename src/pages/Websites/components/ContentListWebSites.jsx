@@ -28,6 +28,7 @@ export default function ContentListWebSites({
   onReevaluateWebsites,
   onCrawlWebsites,
   navigate,
+  setItemsPerPage,
 }) {
   const { t } = useTranslation();
   const { theme } = useTheme();
@@ -112,6 +113,8 @@ export default function ContentListWebSites({
           " itens "  // items
         ]}
         rowKey="WebsiteId"
+        paginationOptions={[50, 100, 250, 500]}
+        setItemsPerPage={setItemsPerPage}
       />
     </div>
   );

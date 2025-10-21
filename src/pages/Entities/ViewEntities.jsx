@@ -57,7 +57,7 @@ const ViewEntitiesComponent = () => {
   const [search, setSearch] = useState("");
   const [totalItems, setTotalItems] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
   const [originalData, setOriginalData] = useState([]); 
   const [dataForCSV, setDataForCSV] = useState([]);
   const [counter, setCounter] = useState(0);
@@ -503,6 +503,8 @@ const ViewEntitiesComponent = () => {
         onDeletePagesWebsites={handleDeletePagesWebsites}
         onReevaluateWebsites={handleReevaluateWebsites}
         onCrawlWebsites={handleOpenCrawlingModal}
+        setItemsPerPage={setItemsPerPage}
+        
       />
       <div className="bg-white mt-5">
         <div>

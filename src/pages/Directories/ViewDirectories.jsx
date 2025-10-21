@@ -41,7 +41,7 @@ const ViewDirectoriesComponent = () => {
   const [search, setSearch] = useState("");
   const [totalItems, setTotalItems] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(30);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
   // Memoize initial empty states
   const initialSuccessCriteria = useMemo(() => ({}), []);
 

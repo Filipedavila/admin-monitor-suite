@@ -385,6 +385,27 @@ const WebSiteCreateForm = () => {
     return "tab1";
   };
 
+  // Helper function to format date to ISO format
+  const formatDateToISO = (dateString) => {
+    if (!dateString) return null;
+    
+    // Check if the date is in dd/mm/yyyy format
+    if (dateString.includes('/')) {
+      const [day, month, year] = dateString.split('/');
+      const date = new Date(year, month - 1, day); // month is 0-indexed
+      return date.toISOString();
+    }
+    
+    if (dateString.includes('-') && dateString.length === 10) {
+      const date = new Date(dateString + 'T00:00:00.000Z');
+      return date.toISOString();
+    }
+    
+    // Otherwise, assume it's in standard format
+    const date = new Date(dateString);
+    return date.toISOString();
+  };
+
   const onSubmit = async (data) => {
     setIsSubmitting(true);
   
@@ -429,21 +450,21 @@ const WebSiteCreateForm = () => {
         name: data.name,
         startingUrl: data.initial_url,
         declaration: data.compliance,
-        declaration_Update_Date: data.accessibility_declaration_date,
+        declaration_Update_Date: formatDateToISO(data.accessibility_declaration_date),
         stamp: data.type_seal,
-        stamp_Update_Date: data.usability_seal_date,
+        stamp_Update_Date: formatDateToISO(data.usability_seal_date),
         entities: (entityValue || []).map(e => e.value || e),
         users: null,
         categories: (categoryValue || []).map(c => c.value || c),
       } : {
         name: data.name,
         startingUrl: data.initial_url,
-        declaration: data.compliance,
-        declarationUpdateDate: data.accessibility_declaration_date,
-        stamp: data.type_seal,
-        stamp_Update_Date: data.usability_seal_date,
+        declaration: data.compliance === "" ? null : data.compliance ,
+        declarationUpdateDate: formatDateToISO(data.accessibility_declaration_date),
+        stamp: data.type_seal === "" ? null : data.type_seal,
+        stampUpdateDate: formatDateToISO(data.usability_seal_date),
         userId: null,
-        oldUserId: null,
+        olderUserId: null,
         entities: (entityValue || []).map(e => e.value || e),
         tags: (categoryValue || []).map(c => c.value || c),
         defaultTags: defaultCategories,

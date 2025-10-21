@@ -161,7 +161,7 @@ export const barOptions = {
     x: {
       title: {
         display: true,
-        text: "Teste de label 1",
+        text: "",
         color: theme === "light" ? 'rgba(0,0,0, 1)' : 'white',
         font: {
           size: 14
@@ -219,7 +219,7 @@ export const optionsHorizontalBarDark = {
     x: {
       title: {
         display: true,
-        text: "Teste de label 1",
+        text: "",
         color:  'white', // Color of Title on X axis
         font: {
           size: 14
@@ -266,7 +266,7 @@ export const barOptionsDark = {
     x: {
       title: {
         display: true,
-        text: "Teste de label 1",
+        text: "",
         color: 'white',
         font: {
           size: 14

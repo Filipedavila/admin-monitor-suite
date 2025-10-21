@@ -45,7 +45,7 @@ const PageList = () => {
       setData(response.data.result.map(item => ({
         id: item.PageId,
         Uri: item.Uri,
-        Score: item.Score,
+        Score: Number(item.Score),
         Evaluation_Date: moment(item.Evaluation_Date).format('DD/MM/YYYY'),
         Element_Count: 12,//item.Element_Count,
         A: item.A,

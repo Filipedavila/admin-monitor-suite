@@ -41,7 +41,7 @@ api.interceptors.response.use(
       if (!isOnLoginPage) {
         localStorage.removeItem('@AMS:user');
         localStorage.removeItem('@AMS:token');
-        window.location = '/ams-react/login';
+        window.location = '/ams/login';
       }
     }
     return Promise.reject(error);

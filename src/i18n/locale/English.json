@@ -16,6 +16,8 @@
     "loading_text": "Logging in...",
     "loading_error": "There was an error while logging in",
     "skip_link_text":"Skip to the main content",
+    "skip_link_label":"Skip to the main content",
+    "alt":"AMS",
     "messages": {
       "password_match": "Wrong username or password",
       "no_user": "Wrong username or password",

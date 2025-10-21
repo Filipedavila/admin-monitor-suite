@@ -146,9 +146,9 @@ const ViewWebSitesComponent = () => {
   const [dataListBar, setDataListBar] = useState([]);
   const [radarWebsites, setRadarWebsites] = useState([]);
   const [search, setSearch] = useState("");
-  const [totalItems, setTotalItems] = useState(0);
+  const [totalItems, setTotalItems] = useState(100);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(30);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
   const [originalData, setOriginalData] = useState([]);
   const [horizontalDataGood, setHorizontalDataGood] = useState(
     {
@@ -235,7 +235,7 @@ const ViewWebSitesComponent = () => {
       ]);
     }
   }, [websiteName]);
-  const fetchWebsitesPages = async () => {
+  /*const fetchWebsitesPages = async () => {
     const responsePages = await api.get(`/website/${websiteName}/user/admin/pages`);
     const pagesData = responsePages.data.result
     setData(pagesData.map(page => ({
@@ -251,20 +251,38 @@ const ViewWebSitesComponent = () => {
       OPAW: page.Show_In.split("")[2] === "1" ? "Sim" : "Não"
     })));
   
-  }
+  }*/
   
   useEffect(() => {
     const fetchData = async () => {
-      const responsePagesPag = await api.get(`/website/${websiteName}/user/admin/pages/all/10/0/sort=/direction=/search=`);
+      const responsePagesPag = await api.get(`/website/${websiteName}/user/admin/pages/all/${itemsPerPage}/0/sort=/direction=/search=`);
       setOriginalData(responsePagesPag.data.result.map(page => ({
         id: page.PageId,
         Uri: page.Uri,
         Score: page.Score,
         Evaluation_Date: moment(page.Evaluation_Date).format('DD/MM/YYYY'),
         Element_Count: calculateTotalElements(page.Element_Count),
+        A: page.A,
+        AA: page.AA,
+        AAA: page.AAA,
+        e: "?",
+        OPAW: page.Show_In.split("")[2] === "1" ? "Sim" : "Não",
+      })));
+      setData(responsePagesPag.data.result.map(page => ({
+        id: page.PageId,
+        Uri: page.Uri,
+        Score: page.Score,
+        Evaluation_Date: moment(page.Evaluation_Date).format('DD/MM/YYYY'),
+        Element_Count: calculateTotalElements(page.Element_Count),
+        A: page.A,
+        AA: page.AA,
+        AAA: page.AAA,
+        e: "?",
+        OPAW: page.Show_In.split("")[2] === "1" ? "Sim" : "Não",
       })));
       const responsePages = await api.get(`/website/${websiteName}/user/admin/pages`);
       const pagesData = responsePages.data.result || [];
+      setTotalItems(pagesData.length);
       const response = await api.get(`/website/info/${id}`);
       const website = response.data.result || [];
 
@@ -466,26 +484,9 @@ const ViewWebSitesComponent = () => {
 
       setSuccessCriteriaSuccess(formattedSuccessData);
       setSuccessCriteriaErrors(formattedErrorData);
-
-      // Set pages data for the table
-      const pageDataFormatted = pagesData.map(page => ({
-        id: page.PageId,
-        Uri: page.Uri,
-        Score: page.Score,
-        Evaluation_Date: moment(page.Evaluation_Date).format('DD/MM/YYYY'),
-        Element_Count: calculateTotalElements(page.Element_Count),
-        A: page.A,
-        AA: page.AA,
-        AAA: page.AAA,
-        e: "?",
-        OPAW: page.Show_In.split("")[2] === "1" ? "Sim" : "Não",
-      }));
-      setData(pageDataFormatted);
-      setOriginalData(pageDataFormatted);
-      setTotalItems(pageDataFormatted.length);
     };
     fetchData();
-  }, [websiteName]);
+  }, []);
 
   // Server-side pagination and search for pages table
   useEffect(() => {
@@ -635,8 +636,8 @@ const ViewWebSitesComponent = () => {
         <ContentListPages
           checkboxesSelected={checkboxesSelected}
           setCheckboxesSelected={setCheckboxesSelected}
-          data={data}
-          setData={setData}
+          data={originalData}
+          setData={setOriginalData}
           totalItems={totalItems}
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}

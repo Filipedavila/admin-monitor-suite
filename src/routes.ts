@@ -29,6 +29,8 @@ import ViewEntities from "./pages/Entities/ViewEntities";
 import DetailsPage from "./pages/Pages/DetailsPage";
 import DetailsCrawler from "./pages/Crawler/DetailsCrawler";
 import EvaluationWithErrors from "./pages/EvaluationWithErrors";
+import WebsitesForUsers from "./pages/Users/WebsitesForUsers";
+import PagesForUsers from "./pages/Users/PagesForUsers";
 const router = createBrowserRouter([
   {
     path: "/login",
@@ -48,7 +50,9 @@ const router = createBrowserRouter([
         children: [
           { path: "", element: React.createElement(UsersList) },
           { path: "create", element: React.createElement(UsersCreateForm) },
-          { path: "edit/:id", element: React.createElement(UsersCreateForm)}
+          { path: "edit/:id", element: React.createElement(UsersCreateForm)},
+          { path: "websites/:name", element: React.createElement(WebsitesForUsers)},
+          { path: "websites/pages/:username/:name", element: React.createElement(PagesForUsers)}
        ],
       },
       { path: "entities",
@@ -126,6 +130,6 @@ const router = createBrowserRouter([
       }
     ],
   },
-], { basename: "/ams-react" });
+], { basename: "/ams" });
 
 export default router;

@@ -28,7 +28,7 @@ const ViewCategoriesComponent = () => {
   const { categoryName } = useParams();
   const { theme } = useTheme();
   const location = useLocation();
-
+  const navigate = useNavigate();
   // Breadcrumbs
   const [breadcrumbs, setBreadcrumbs] = useState([]);
 
@@ -39,7 +39,7 @@ const ViewCategoriesComponent = () => {
   const [search, setSearch] = useState("");
   const [totalItems, setTotalItems] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(30);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
 
   // Charts & indicators
   const [radarWebsites, setRadarWebsites] = useState([]);
@@ -507,13 +507,14 @@ const ViewCategoriesComponent = () => {
             setCheckboxesSelected={setCheckboxesSelected}
             data={data}
             setData={setData}
-            /* Novas props esperadas */
             search={search}
             handleSearchChange={(e) => setSearch(e.target.value)}
             onDeleteWebsites={handleDeleteWebsites}
             onDeletePagesWebsites={handleDeletePagesWebsites}
             onReevaluateWebsites={handleOpenReevaluateModal}
             onCrawlWebsites={handleOpenCrawlingModal}
+            setItemsPerPage={setItemsPerPage}
+            navigate={navigate}
           />
         </div>
 
@@ -568,17 +569,38 @@ const ViewCategoriesComponent = () => {
             dataList={dataListDetails.filter(item => !item.occurrences.toString().includes("lang"))}
             columnsOptions={columnsOptionsDetails || {}}
             darkTheme={theme}
-            pagination={false}
+            pagination={true}
             links={false}
             ariaLabels={ariaLabels || {}}
             caption="Distribuição detalhada das melhores práticas"
             setDataList={() => {}}
             nextPage={() => {}}
             itemsPaginationTexts={[]}
-            nItemsPerPageTexts={[]}
+            nItemsPerPageTexts={[
+              "Ver",           // see
+              "por página",    // per_page
+              "Selector de itens por página", // selectorAria
+              "Navegação do seletor de itens por página" // selectorNav
+            ]}
             iconsAltTexts={[]}
-            paginationButtonsTexts={[]}
+            paginationButtonsTexts={[
+              "Primeira página",
+              "Página anterior",
+              "Página seguinte",
+              "Última página"
+            ]}
             project=""
+            itemsPerPage={itemsPerPage}
+            setItemsPerPage={setItemsPerPage}
+            paginationOptions={[
+                50,
+                60,
+                70,
+                80,
+                90,
+                100,            
+     
+            ]}
             setCheckboxesSelected={() => {}}
           />
         </div>

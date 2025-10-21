@@ -59,7 +59,7 @@
       "x": {
         "title": {
           "display": true,
-          "text": "Teste de label 1",
+          "text": "",
           "color": "rgba(0,0,0, 1)",
           "font": { "size": 14 }
         },

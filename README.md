@@ -40,7 +40,7 @@ Aplicação web em React para gestão e visualização de métricas de acessibil
 - API e Autenticação: ver `src/config/api.js`.
   - A base da API é lida de `localStorage.getItem('@AMS:apiUrl') + '/api'`.
   - Tokens são geridos em `localStorage` (`@AMS:token`, `@AMS:user`).
-  - Em respostas 401/403, a app limpa sessão e redireciona para `/ams-react/login`.
+  - Em respostas 401/403, a app limpa sessão e redireciona para `/ams/login`.
 - i18n e locale de datas: ver `src/i18n/index.jsx`.
   - O idioma é detetado automaticamente (fallback para `en`).
   - O Moment acompanha o idioma do i18n.
@@ -63,8 +63,8 @@ Aplicação web em React para gestão e visualização de métricas de acessibil
    ```bash
    npm run preview
    ```
-3. Caminho base: o `package.json` define `"homepage": "ams-react"`.
-   - Se servir em subpath (ex.: `https://dominio/ams-react/`), mantenha-o.
+3. Caminho base: o `package.json` define `"homepage": "ams"`.
+   - Se servir em subpath (ex.: `https://dominio/ams/`), mantenha-o.
    - Se servir na raiz, poderá ajustar a configuração conforme necessário.
 
 ### Boas práticas / Qualidade
