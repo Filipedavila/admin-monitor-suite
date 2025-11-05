@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { Breadcrumb, Button, InputSearch } from "ama-design-system";
 import { useTranslation } from "react-i18next";
 import { api } from "../../config/api";
+import { isRequestSuccessful } from "../../utils/apiHelpers.js";
 import moment from "moment";
 import { Modal } from "../../components/Modal";
 
@@ -66,7 +67,7 @@ const EvaluationWithErrors = () => {
     const response = await api.post("/page/reEvaluateMulti", {
       pages: pagesUrls,
     })
-    if(response.data.success){
+    if (isRequestSuccessful(response)) {
       setFeedbackMessage("As páginas que selecionou estão a ser reavaliadas pelo sistema. Pode fechar a janela e prosseguir o seu trabalho.!");
       await fetchData();
       setCheckboxesSelected([]);
@@ -84,7 +85,7 @@ const EvaluationWithErrors = () => {
     const response = await api.post("/page/evaluationList/error/delete", {
       pages: pagesIds,
     })
-    if(response.data.success){
+    if (isRequestSuccessful(response)) {
       setFeedbackMessage("Páginas removidas da lista com sucesso!");
       await fetchData();
       setCheckboxesSelected([]);
@@ -103,7 +104,7 @@ const EvaluationWithErrors = () => {
     const response = await api.post("/page/delete", {   
       pages: pagesIds,
     })
-    if(response.data.success){
+    if (isRequestSuccessful(response)) {
       setFeedbackMessage("Páginas apagadas com sucesso!");
       await fetchData();
       setCheckboxesSelected([]);

@@ -19,7 +19,7 @@ import {
 import { useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import { api } from "../../config/api";
 import moment from "moment";
 import { Modal } from "../../components/Modal";
@@ -37,37 +37,45 @@ const PagesForUsers = () => {
   const [pagesData, setPagesData] = useState([]);
   const [checkboxesSelected, setCheckboxesSelected] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
   const [searchTerm, setSearchTerm] = useState("");
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
 
   useEffect(() => {
     const currentPath = location.pathname;
-    const lastPath = localStorage.getItem('currentPath');
+    const lastPath = localStorage.getItem("currentPath");
     if (lastPath && lastPath !== currentPath) {
-      localStorage.setItem('previousPath', lastPath);
+      localStorage.setItem("previousPath", lastPath);
     }
-    localStorage.setItem('currentPath', currentPath);
+    localStorage.setItem("currentPath", currentPath);
   }, [location.pathname]);
   const { name, username } = useParams();
   const breadcrumbs = [
     { children: <Link to="/dashboard/home">Início</Link> },
     { children: <Link to="/dashboard/users">Utilizadores</Link> },
-    { children: <Link to={`/dashboard/users/websites/${username}`}>Sítios Web do Utilizador {username}</Link> },
-    { title: name }
+    {
+      children: (
+        <Link to={`/dashboard/users/websites/${username}`}>
+          Sítios Web do Utilizador {username}
+        </Link>
+      ),
+    },
+    { title: name },
   ];
 
   const fetchData = async () => {
-    const response = await api.get(`/tag/null/website/${name}/user/${username}/pages`);
-    const mappedData = response.data.result.map(item => ({
+    const response = await api.get(
+      `/tag/null/website/${name}/user/${username}/pages`
+    );
+    const mappedData = response.data.result.map((item) => ({
       id: item.PageId,
       Url: item.Uri,
       Score: item.Score,
       Username: username,
       Name: name,
       ShowIn: item.Show_In,
-      Evaluation_Date: moment(item.Evaluation_Date).format('DD/MM/YYYY'),
+      Evaluation_Date: moment(item.Evaluation_Date).format("DD/MM/YYYY"),
       import: "Importar",
     }));
     console.log("Fetched pages data:", mappedData);
@@ -83,7 +91,7 @@ const PagesForUsers = () => {
     if (!searchTerm.trim()) {
       return pagesData;
     }
-    return pagesData.filter(page =>
+    return pagesData.filter((page) =>
       page.Uri.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [pagesData, searchTerm]);
@@ -104,16 +112,18 @@ const PagesForUsers = () => {
   // Handle delete users
   const handleDeleteUsers = async () => {
     if (checkboxesSelected.length === 0) {
-      setFeedbackMessage("Por favor, selecione pelo menos um utilizador para eliminar.");
+      setFeedbackMessage(
+        "Por favor, selecione pelo menos um utilizador para eliminar."
+      );
       setShowFeedbackModal(true);
       return;
     }
 
     try {
-      const userIds = checkboxesSelected.map(async item => {
-        const response = await api.post('/user/delete', {
+      const userIds = checkboxesSelected.map(async (item) => {
+        const response = await api.post("/user/delete", {
           userId: item.id,
-          app: "nimda"
+          app: "nimda",
         });
         return response.data.result.UserId;
       });
@@ -121,7 +131,6 @@ const PagesForUsers = () => {
       setCheckboxesSelected([]);
       setSearchTerm("");
       fetchData();
-
     } catch (error) {
       setFeedbackMessage("Erro ao eliminar utilizadores. Tente novamente.");
     }
@@ -134,35 +143,40 @@ const PagesForUsers = () => {
   };
 
   // Handle import page
-  const handleImportPage = React.useCallback(async (page) => {
-    console.log("Importing page:", page);
-    console.log("User:", username, "Website:", name);
-    console.log("ShowIn value:", page.ShowIn);
-    
-    // Check if button should be disabled
-    if (page.ShowIn === "010") {
-      console.log("Button is disabled for this page");
-      setFeedbackMessage("Esta página não pode ser importada (ShowIn = 010).");
+  const handleImportPage = React.useCallback(
+    async (page) => {
+      console.log("Importing page:", page);
+      console.log("User:", username, "Website:", name);
+      console.log("ShowIn value:", page.ShowIn);
+
+      // Check if button should be disabled
+      if (page.ShowIn === "010") {
+        console.log("Button is disabled for this page");
+        setFeedbackMessage(
+          "Esta página não pode ser importada (ShowIn = 010)."
+        );
+        setShowFeedbackModal(true);
+        return;
+      }
+
+      try {
+        const response = await api.post("/page/import", {
+          pageId: page.id,
+          user: username,
+          website: name,
+        });
+
+        console.log("Import response:", response);
+        setFeedbackMessage("Página importada com sucesso!");
+        fetchData(); // Refresh the data
+      } catch (error) {
+        console.error("Import error:", error);
+        setFeedbackMessage("Erro ao importar página. Tente novamente.");
+      }
       setShowFeedbackModal(true);
-      return;
-    }
-    
-    try {
-      const response = await api.post('/page/import', {
-        pageId: page.id,
-        user: username,
-        website: name
-      });
-      
-      console.log("Import response:", response);
-      setFeedbackMessage("Página importada com sucesso!");
-      fetchData(); // Refresh the data
-    } catch (error) {
-      console.error("Import error:", error);
-      setFeedbackMessage("Erro ao importar página. Tente novamente.");
-    }
-    setShowFeedbackModal(true);
-  }, [username, name, fetchData]);
+    },
+    [username, name, fetchData]
+  );
 
   // Check if page can be imported
   const canImportPage = (page) => {
@@ -171,30 +185,34 @@ const PagesForUsers = () => {
 
   return (
     <div>
-      <Breadcrumb data={breadcrumbs} tagHere={t('BREADCRUMB.tag_here')} />
+      <Breadcrumb data={breadcrumbs} tagHere={t("BREADCRUMB.tag_here")} />
       <h1>Páginas do Sítio Web - {name}</h1>
 
       <div className="content bg-white">
         <h2>Utilizador: {username} </h2>
-          <div className="d-flex gap-2 align-items-center mb-4">
-            <span>{t('MISC.filter')}</span>
-            <InputSearch
-              darkTheme={theme}
-              placeholder={t('MISC.filter') + ' utilizadores...'}
-              label={t('MISC.filter') + ' utilizadores'}
-              value={searchTerm}
-              onChange={handleSearchChange}
-            />
-          </div>
+        <div className="d-flex gap-2 align-items-center mb-4">
+          <span>{t("MISC.filter")}</span>
+          <InputSearch
+            darkTheme={theme}
+            placeholder={t("MISC.filter") + " utilizadores..."}
+            label={t("MISC.filter") + " utilizadores"}
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+        </div>
 
         <SortingTable
           darkTheme={theme}
           headers={pagesUsersHeaders}
           setDataList={setPagesData}
           dataList={filteredPages}
-          columnsOptions={pagesUsersColumnsOptions(navigate, handleImportPage, canImportPage)}
+          columnsOptions={pagesUsersColumnsOptions(
+            navigate,
+            handleImportPage,
+            canImportPage
+          )}
           nextPage={() => null}
-          caption={t( 'PAGES_PAGE.LIST.table.title')}
+          caption={t("PAGES_PAGE.LIST.table.title")}
           iconsAltTexts={nameOfIcons}
           project=""
           setCheckboxesSelected={setCheckboxesSelected}
@@ -208,22 +226,20 @@ const PagesForUsers = () => {
             "Primeira página",
             "Página anterior",
             "Página seguinte",
-            "Última página"
+            "Última página",
           ]}
           nItemsPerPageTexts={[
-            "Ver",           // see
-            "por página",    // per_page
+            "Ver", // see
+            "por página", // per_page
             "Selector de itens por página", // selectorAria
-            "Navegação do seletor de itens por página" // selectorNav
+            "Navegação do seletor de itens por página", // selectorNav
           ]}
           itemsPaginationTexts={[
-            " de ",    // of
-            " itens "  // items
+            " de ", // of
+            " itens ", // items
           ]}
           rowKey="id"
         />
-        
-
       </div>
 
       <Modal

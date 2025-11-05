@@ -15,7 +15,7 @@ import {
 import { useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import { api } from "../../config/api";
 import moment from "moment";
 import { Modal } from "../../components/Modal";
@@ -33,18 +33,18 @@ const UserList = () => {
   const [allUsers, setAllUsers] = useState([]);
   const [checkboxesSelected, setCheckboxesSelected] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
   const [searchTerm, setSearchTerm] = useState("");
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
 
   useEffect(() => {
     const currentPath = location.pathname;
-    const lastPath = localStorage.getItem('currentPath');
+    const lastPath = localStorage.getItem("currentPath");
     if (lastPath && lastPath !== currentPath) {
-      localStorage.setItem('previousPath', lastPath);
+      localStorage.setItem("previousPath", lastPath);
     }
-    localStorage.setItem('currentPath', currentPath);
+    localStorage.setItem("currentPath", currentPath);
   }, [location.pathname]);
 
   const breadcrumbs = [
@@ -53,16 +53,18 @@ const UserList = () => {
   ];
 
   const fetchData = async () => {
-    const response = await api.get('/user/all');
-    setAllUsers(response.data.result.map(item => ({
-      id: item.UserId,
-      Username: item.Username,
-      Type: item.Type === "nimda" ? "AMS": "MyMonitor",
-      Websites: item.Websites + "",
-      Last_Login: moment(item.Last_Login).format('DD/MM/YYYY'),
-      Register_Date: moment(item.Register_Date).format('DD/MM/YYYY'),
-      edit: "Editar",
-    })));
+    const response = await api.get("/user/all");
+    setAllUsers(
+      response.data.result.map((item) => ({
+        id: item.UserId,
+        Username: item.Username,
+        Type: item.Type === "nimda" ? "AMS" : "MyMonitor",
+        Websites: item.Websites + "",
+        Last_Login: moment(item.Last_Login).format("DD/MM/YYYY"),
+        Register_Date: moment(item.Register_Date).format("DD/MM/YYYY"),
+        edit: "Editar",
+      }))
+    );
   };
 
   useEffect(() => {
@@ -74,7 +76,7 @@ const UserList = () => {
     if (!searchTerm.trim()) {
       return allUsers;
     }
-    return allUsers.filter(user =>
+    return allUsers.filter((user) =>
       user.Username.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [allUsers, searchTerm]);
@@ -100,16 +102,18 @@ const UserList = () => {
   // Handle delete users
   const handleDeleteUsers = async () => {
     if (checkboxesSelected.length === 0) {
-      setFeedbackMessage("Por favor, selecione pelo menos um utilizador para eliminar.");
+      setFeedbackMessage(
+        "Por favor, selecione pelo menos um utilizador para eliminar."
+      );
       setShowFeedbackModal(true);
       return;
     }
 
     try {
-      const userIds = checkboxesSelected.map(async item => {
-        const response = await api.post('/user/delete', {
+      const userIds = checkboxesSelected.map(async (item) => {
+        const response = await api.post("/user/delete", {
           userId: item.id,
-          app: "nimda"
+          app: "nimda",
         });
         return response.data.result.UserId;
       });
@@ -117,7 +121,6 @@ const UserList = () => {
       setCheckboxesSelected([]);
       setSearchTerm("");
       fetchData();
-
     } catch (error) {
       setFeedbackMessage("Erro ao eliminar utilizadores. Tente novamente.");
     }
@@ -131,29 +134,29 @@ const UserList = () => {
 
   return (
     <div>
-      <Breadcrumb data={breadcrumbs} tagHere={t('BREADCRUMB.tag_here')} />
-      <h1>{t('USERS_PAGE.LIST.title')}</h1>
+      <Breadcrumb data={breadcrumbs} tagHere={t("BREADCRUMB.tag_here")} />
+      <h1>{t("USERS_PAGE.LIST.title")}</h1>
       <p>
-        {t('USERS_PAGE.LIST.subtitle')} num total de {totalItems} utilizadores.
+        {t("USERS_PAGE.LIST.subtitle")} num total de {totalItems} utilizadores.
       </p>
 
       <div className="content bg-white">
-        <h2>{t('USERS_PAGE.LIST.title')}</h2>
-          <div className="d-flex gap-2 align-items-center mb-4">
-            <span>{t('MISC.filter')}</span>
-            <InputSearch
-              darkTheme={theme}
-              placeholder={t('MISC.filter') + ' utilizadores...'}
-              label={t('MISC.filter') + ' utilizadores'}
-              value={searchTerm}
-              onChange={handleSearchChange}
-            />
-          </div>
- <Button
+        <h2>{t("USERS_PAGE.LIST.title")}</h2>
+        <div className="d-flex gap-2 align-items-center mb-4">
+          <span>{t("MISC.filter")}</span>
+          <InputSearch
+            darkTheme={theme}
+            placeholder={t("MISC.filter") + " utilizadores..."}
+            label={t("MISC.filter") + " utilizadores"}
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+        </div>
+        <Button
           darkTheme={theme}
-          text={t('USERS_PAGE.LIST.delete_users')}
+          text={t("USERS_PAGE.LIST.delete_users")}
           icon={"AMA-Adicionar-Line"}
-          className="btn-primary mb-3" 
+          className="btn-primary mb-3"
           onClick={handleDeleteUsers}
           disabled={checkboxesSelected.length === 0}
         />
@@ -165,7 +168,7 @@ const UserList = () => {
           dataList={paginatedData}
           columnsOptions={columnsOptions(navigate)}
           nextPage={() => null}
-          caption={t( 'USERS_PAGE.LIST.table.title')}
+          caption={t("USERS_PAGE.LIST.table.title")}
           iconsAltTexts={nameOfIcons}
           project=""
           setCheckboxesSelected={setCheckboxesSelected}
@@ -179,17 +182,17 @@ const UserList = () => {
             "Primeira página",
             "Página anterior",
             "Página seguinte",
-            "Última página"
+            "Última página",
           ]}
           nItemsPerPageTexts={[
-            "Ver",           // see
-            "por página",    // per_page
+            "Ver", // see
+            "por página", // per_page
             "Selector de itens por página", // selectorAria
-            "Navegação do seletor de itens por página" // selectorNav
+            "Navegação do seletor de itens por página", // selectorNav
           ]}
           itemsPaginationTexts={[
-            " de ",    // of
-            " itens "  // items
+            " de ", // of
+            " itens ", // items
           ]}
           rowKey="id"
         />

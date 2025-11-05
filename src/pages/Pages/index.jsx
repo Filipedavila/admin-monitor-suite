@@ -8,6 +8,7 @@ import ContentListPages from "./components/ContentListPage";
 import { Breadcrumb, Button } from "ama-design-system";
 import { useTranslation } from "react-i18next";
 import { api } from "../../config/api";
+import { isRequestSuccessful } from "../../utils/apiHelpers.js";
 import moment from "moment";
 import { Modal } from "../../components/Modal";
 import { useTheme } from '../../context/ThemeContext';
@@ -71,12 +72,13 @@ const PageList = () => {
     const response = await api.post("/page/delete", {
       pages: pagesIds,
     })
-    if(response.data.success){
+    if (isRequestSuccessful(response)) {
+      const deletedIds = new Set(checkboxesSelected.map(item => item.id));
       setFeedbackMessage("Páginas excluídas com sucesso!");
       setShowFeedbackModal(true);
       setCheckboxesSelected([]);
-      setData(data.filter(item => !checkboxesSelected.includes(item.id)));
-      setTotalItems(totalItems - checkboxesSelected.length);
+      setData(prevData => prevData.filter(item => !deletedIds.has(item.id)));
+      setTotalItems(prevTotal => Math.max(prevTotal - deletedIds.size, 0));
     } else {
       setFeedbackMessage("Erro ao excluir páginas!");
       setShowFeedbackModal(true);

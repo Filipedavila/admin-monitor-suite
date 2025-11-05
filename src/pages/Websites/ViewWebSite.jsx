@@ -32,6 +32,7 @@ import { api } from "../../config/api";
 import moment from "moment";
 import tests from "../../utils/tests.js";
 import { downloadCSV, downloadWebsiteCSV, getData, getSimplifiedPracticesData } from "../../utils/utils.js";
+import { isRequestSuccessful } from "../../utils/apiHelpers.js";
 import { Modal } from "../../components/Modal";
 
 // Function to calculate total elements from JSON string
@@ -545,7 +546,7 @@ const ViewWebSitesComponent = () => {
         pages: pagesIds,
       });
       
-      if (response.data.success) {
+      if (isRequestSuccessful(response)) {
         setFeedbackMessage("Páginas excluídas com sucesso!");
         setCheckboxesSelected([]);
         
