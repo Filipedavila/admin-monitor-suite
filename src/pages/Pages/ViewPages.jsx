@@ -17,6 +17,7 @@ import {
 import { useTheme } from '../../context/ThemeContext';
 import { api } from "../../config/api";
 import moment from "moment";
+import { extractWebsiteContextFromPath } from "../../utils/navigation";
 
 const ViewPages = () => {
   const { theme } = useTheme();
@@ -52,24 +53,26 @@ const ViewPages = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (localStorage.getItem('previousPath')?.includes('websites')) {
-      const previousWebsite = localStorage.getItem('previousPath').split('/').pop();
+    const previousPath = localStorage.getItem('previousPath') || '';
+    const websiteContext = extractWebsiteContextFromPath(previousPath);
+    if (websiteContext) {
+      const slugOrName = websiteContext.websiteSlug || encodeURIComponent(websiteContext.websiteName || "");
       setBreadcrumbs([
         { children: <Link to="/dashboard/global">Global</Link> },
-        { children: <Link to="/dashboard/directories">Diretórios</Link> },
-        { children: <Link to={`/dashboard/websites/view/${previousWebsite}`}>Sítio Web</Link> },
-        { title: "Página" }
+        { children: <Link to="/dashboard/websites">Sítios Web</Link> },
+        { children: <Link to={`/dashboard/websites/view/${websiteContext.websiteId}/${slugOrName}`}>{websiteContext.websiteName || "Sítio Web"}</Link> },
+        { title: "Páginas" }
       ]);
     } else {
       setBreadcrumbs([
         { children: <Link to="/dashboard/global">Global</Link> },
-        { children: <Link to="/dashboard/websites">Sítios Web</Link> },
-        { title: "Página" }
+        { children: <Link to="/dashboard/pages">Páginas</Link> },
+        { title: "Páginas" }
       ]);
     }
 
     const fetchData = async () => {
-      const response = await api.get(`/evaluation/admin/page/${encodeURIComponent(pageUrl)}`); 
+      const response = await api.get(`/evaluation/admin/page/${encodeURIComponent(pageUrl)}`);
       setData(response.data.result.map(item => ({
         id: item.EvaluationId,
         date_avaliation: moment(item.Evaluation_Date).format('DD/MM/YYYY'),
@@ -80,10 +83,9 @@ const ViewPages = () => {
         AAA: item.AAA,
         state: "Relatório",
       })));
-
-    }
+    };
     fetchData();
-  }, []);
+  }, [pageUrl]);
   return (
     <div>
       <Breadcrumb data={breadcrumbs} />

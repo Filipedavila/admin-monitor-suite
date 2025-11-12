@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, memo } from "react";
+import { useState, useEffect, useMemo, useCallback, memo } from "react";
 import { Button, StatisticsHeader, Breadcrumb, SortingTable } from "ama-design-system";
 import "./style.users.css";
 import { RadarGraph } from "../../components/RadarGraph/index.jsx";
@@ -490,35 +490,34 @@ const ViewWebSitesComponent = () => {
   }, []);
 
   // Server-side pagination and search for pages table
-  useEffect(() => {
-    const fetchPaginated = async () => {
-      try {
-      
-
-        // Fetch current page
-        const offset = currentPage - 1; // API expects page index
-        const listRes = await api.get(`/website/${websiteName}/user/admin/pages/all/${itemsPerPage}/${offset}/sort=/direction=/search=${encodeURIComponent(search || '')}`);
-        const rows = (listRes.data.result || []).map(page => ({
-          id: page.PageId,
-          Uri: page.Uri,
-          Score: page.Score,
-          Evaluation_Date: moment(page.Evaluation_Date).format('DD/MM/YYYY'),
-          Element_Count: calculateTotalElements(page.Element_Count),
-          A: page.A,
-          AA: page.AA,
-          AAA: page.AAA,
-          e: "?",
-          OPAW: (page.Show_In || '').toString().split("")[2] === "1" ? "Sim" : "Não",
-        }));
-        setData(rows);
-        setOriginalData(rows);
-      } catch (err) {
-        // Fallback: keep current data if endpoint not available
-        console.error('Error fetching paginated pages:', err);
-      }
-    };
-    fetchPaginated();
+  const fetchWebsitePages = useCallback(async () => {
+    try {
+      // Fetch current page
+      const offset = currentPage - 1; // API expects page index
+      const listRes = await api.get(`/website/${websiteName}/user/admin/pages/all/${itemsPerPage}/${offset}/sort=/direction=/search=${encodeURIComponent(search || '')}`);
+      const rows = (listRes.data.result || []).map(page => ({
+        id: page.PageId,
+        Uri: page.Uri,
+        Score: page.Score,
+        Evaluation_Date: moment(page.Evaluation_Date).format('DD/MM/YYYY'),
+        Element_Count: calculateTotalElements(page.Element_Count),
+        A: page.A,
+        AA: page.AA,
+        AAA: page.AAA,
+        e: "?",
+        OPAW: (page.Show_In || '').toString().split("")[2] === "1" ? "Sim" : "Não",
+      }));
+      setData(rows);
+      setOriginalData(rows);
+    } catch (err) {
+      // Fallback: keep current data if endpoint not available
+      console.error('Error fetching paginated pages:', err);
+    }
   }, [websiteName, currentPage, itemsPerPage, search]);
+
+  useEffect(() => {
+    fetchWebsitePages();
+  }, [fetchWebsitePages]);
 
   // Handle search change
   const handleSearchChange = (e) => {
@@ -545,8 +544,13 @@ const ViewWebSitesComponent = () => {
       const response = await api.post("/page/delete", {
         pages: pagesIds,
       });
-      
-      if (isRequestSuccessful(response)) {
+
+      const deletedSuccessfully =
+        isRequestSuccessful(response) ||
+        response?.status === 200 ||
+        response?.status === 201;
+
+      if (deletedSuccessfully) {
         setFeedbackMessage("Páginas excluídas com sucesso!");
         setCheckboxesSelected([]);
         

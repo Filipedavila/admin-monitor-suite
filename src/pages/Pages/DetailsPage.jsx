@@ -20,6 +20,7 @@ import moment from "moment";
 import Indicators from "../../components/Indicators/index.jsx";
 import tests from "../../utils/tests.js";
 import { useTranslation } from "react-i18next";
+import { extractWebsiteContextFromPath } from "../../utils/navigation";
 
 const calculateMatrix = (data) => {
   const matrix = {
@@ -129,19 +130,23 @@ const DetailsPage = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (localStorage.getItem('previousPath')?.includes('websites')) {
-      const previousWebsite = localStorage.getItem('previousPath').split('/').pop();
+    const previousPath = localStorage.getItem('previousPath') || '';
+    const websiteContext = extractWebsiteContextFromPath(previousPath);
+    const pageLink = `/dashboard/pages/view/${encodeURIComponent(pageUrl)}`;
+    if (websiteContext) {
+      const slugOrName = websiteContext.websiteSlug || encodeURIComponent(websiteContext.websiteName || "");
       setBreadcrumbs([
         { children: <Link to="/dashboard/global">Global</Link> },
-        { children: <Link to="/dashboard/directories">Diretórios</Link> },
-        { children: <Link to={`/dashboard/websites/view/${previousWebsite}`}>Sítio Web</Link> },
-        { title: "Página" }
+        { children: <Link to="/dashboard/websites">Sítios Web</Link> },
+        { children: <Link to={`/dashboard/websites/view/${websiteContext.websiteId}/${slugOrName}`}>{websiteContext.websiteName || "Sítio Web"}</Link> },
+        { children: <Link to={pageLink}>Páginas</Link> },
+        { title: "Detalhes da página" }
       ]);
     } else {
       setBreadcrumbs([
         { children: <Link to="/dashboard/global">Global</Link> },
-        { children: <Link to="/dashboard/websites">Sítios Web</Link> },
-        { title: "Página" }
+        { children: <Link to="/dashboard/pages">Páginas</Link> },
+        { title: "Detalhes da página" }
       ]);
     }
 
