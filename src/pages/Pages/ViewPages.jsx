@@ -17,7 +17,7 @@ import {
 import { useTheme } from '../../context/ThemeContext';
 import { api } from "../../config/api";
 import moment from "moment";
-import { extractWebsiteContextFromPath } from "../../utils/navigation";
+import { getEffectiveNavigationContext } from "../../utils/navigation";
 
 const ViewPages = () => {
   const { theme } = useTheme();
@@ -54,18 +54,46 @@ const ViewPages = () => {
 
   useEffect(() => {
     const previousPath = localStorage.getItem('previousPath') || '';
-    const websiteContext = extractWebsiteContextFromPath(previousPath);
-    if (websiteContext) {
-      const slugOrName = websiteContext.websiteSlug || encodeURIComponent(websiteContext.websiteName || "");
-      setBreadcrumbs([
-        { children: <Link to="/dashboard/global">Global</Link> },
-        { children: <Link to="/dashboard/websites">Sítios Web</Link> },
-        { children: <Link to={`/dashboard/websites/view/${websiteContext.websiteId}/${slugOrName}`}>{websiteContext.websiteName || "Sítio Web"}</Link> },
-        { title: "Páginas" }
-      ]);
+    const navContext = getEffectiveNavigationContext(previousPath);
+    
+    if (navContext) {
+      if (navContext.type === 'website') {
+        const { websiteId, websiteSlug, websiteName } = navContext.data;
+        const slugOrName = websiteSlug || encodeURIComponent(websiteName || "");
+        setBreadcrumbs([
+          { children: <Link to="/dashboard/home">Início</Link> },
+          { children: <Link to="/dashboard/websites">Sítios Web</Link> },
+          { children: <Link to={`/dashboard/websites/view/${websiteId}/${slugOrName}`}>{websiteName || "Sítio Web"}</Link> },
+          { title: "Páginas" }
+        ]);
+      } else if (navContext.type === 'directory') {
+        const { directoryName } = navContext.data;
+        setBreadcrumbs([
+          { children: <Link to="/dashboard/home">Início</Link> },
+          { children: <Link to="/dashboard/directories">Diretórios</Link> },
+          { children: <Link to={`/dashboard/directories/view/${encodeURIComponent(directoryName)}`}>{directoryName}</Link> },
+          { title: "Páginas" }
+        ]);
+      } else if (navContext.type === 'entity') {
+        const { entityName } = navContext.data;
+        setBreadcrumbs([
+          { children: <Link to="/dashboard/home">Início</Link> },
+          { children: <Link to="/dashboard/entities">Entidades</Link> },
+          { children: <Link to={`/dashboard/entities/view/${encodeURIComponent(entityName)}`}>{entityName}</Link> },
+          { title: "Páginas" }
+        ]);
+      } else if (navContext.type === 'category') {
+        const { categoryName } = navContext.data;
+        setBreadcrumbs([
+          { children: <Link to="/dashboard/home">Início</Link> },
+          { children: <Link to="/dashboard/categories">Categorias</Link> },
+          { children: <Link to={`/dashboard/categories/view/${encodeURIComponent(categoryName)}`}>{categoryName}</Link> },
+          { title: "Páginas" }
+        ]);
+      }
     } else {
       setBreadcrumbs([
-        { children: <Link to="/dashboard/global">Global</Link> },
+        { children: <Link to="/dashboard/home">Início</Link> },
         { children: <Link to="/dashboard/pages">Páginas</Link> },
         { title: "Páginas" }
       ]);

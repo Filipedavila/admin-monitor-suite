@@ -24,7 +24,7 @@ const UsersGovCreateForm = () => {
     const { id } = useParams();
     const breadcrumbs = [
         { children: <Link to="/dashboard/home">Início</Link> },
-        { children: <Link to="/dashboard/users-gov">Utilizadores Gov</Link> },
+        { children: <Link to="/dashboard/usersgov">Utilizadores Gov</Link> },
         { title: t('GOV_USERS_PAGE.ADD.title') },
     ];
 

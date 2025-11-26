@@ -20,7 +20,7 @@ export default function CrawlerList() {
 
   const breadcrumbs = [
     { children: <Link to="/dashboard/home">Início</Link> },
-    { title: "Crawler" },
+    { title: "Crawlers" },
   ];
 
   const fetchData = async () => {

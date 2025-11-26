@@ -25,6 +25,7 @@ import { api } from "../../config/api";
 import moment from "moment";
 import { Modal } from "../../components/Modal";
 import CrawlingModal from "../../components/CrawlingModal";
+import { setRootNavigationContext } from "../../utils/navigation";
 import { set } from "lodash";
 
 const ViewDirectoriesComponent = () => {
@@ -340,12 +341,20 @@ const ViewDirectoriesComponent = () => {
     };
 
     fetchData();
+    
+    // Set root context when viewing a directory
+    if (directoryName) {
+      setRootNavigationContext({
+        type: 'directory',
+        data: { directoryName }
+      });
+    }
   }, [directoryName]);
 
   const breadcrumbs = [
     { children: <Link to="/dashboard/home">Início</Link> },
     { children: <Link to="/dashboard/directories">Diretórios</Link> },
-    { title: "Directório" }
+    { title: directoryName }
   ];
 
   const [barDataDynamic, setBarDataDynamic] = useState(barData);

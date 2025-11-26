@@ -22,6 +22,7 @@ import { downloadCSV, getSimplifiedPracticesData } from "../../utils/utils.js";
 import tests from "../../utils/tests.js";
 import { Modal } from "../../components/Modal";
 import CrawlingModal from "../../components/CrawlingModal";
+import { setRootNavigationContext } from "../../utils/navigation";
 
 const ViewCategoriesComponent = () => {
   const { t } = useTranslation();
@@ -65,10 +66,18 @@ const ViewCategoriesComponent = () => {
   // -------- Breadcrumbs / Path memory ----------
   useEffect(() => {
     setBreadcrumbs([
-      { children: <Link to="/dashboard/global">Global</Link> },
+      { children: <Link to="/dashboard/home">Início</Link> },
       { children: <Link to="/dashboard/categories">Categorias</Link> },
       { title: categoryName }
     ]);
+    
+    // Set root context when viewing a category
+    if (categoryName) {
+      setRootNavigationContext({
+        type: 'category',
+        data: { categoryName }
+      });
+    }
   }, [categoryName]);
 
   useEffect(() => {

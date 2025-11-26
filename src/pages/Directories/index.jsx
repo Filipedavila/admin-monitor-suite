@@ -7,6 +7,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import { api } from "../../config/api";
 import { Modal } from "../../components/Modal";
+import { setRootNavigationContext } from "../../utils/navigation";
 
 const DirectoriesList = () => {
   const { theme } = useTheme();
@@ -48,12 +49,15 @@ const DirectoriesList = () => {
 
   const breadcrumbs = [
     { children: <Link to="/dashboard/home">Início</Link> },
-    { children: <Link to="/dashboard/directories">Diretórios</Link> },
+    { title: "Diretórios" },
   ];
 
   useEffect(() => {
     localStorage.setItem('openSubmenu', JSON.stringify({ id: "directories", label: "Diretórios", icon: "AMA-Pasta-Line", url: "/dashboard/directories" }));
     localStorage.setItem('activeMenuItem', JSON.stringify({ id: "directories", label: "Diretórios", icon: "AMA-Pasta-Line", url: "/dashboard/directories" }));
+    
+    // Clear root context when viewing directory list
+    setRootNavigationContext(null);
   }, []);
 
   // Filter directories based on search term

@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
 import { api } from '../../config/api';
 import { Modal } from '../../components/Modal';
+import { extractNavigationContext } from '../../utils/navigation';
 import debounce from 'lodash/debounce';
 
 const EntitiesCreateForm = () => {
@@ -73,11 +74,26 @@ const EntitiesCreateForm = () => {
         trigger("websites");
     };
 
-    const breadcrumbs = [
+    // Dynamic breadcrumbs based on navigation context
+    const previousPath = localStorage.getItem('previousPath') || '';
+    const navContext = extractNavigationContext(previousPath);
+    
+    let breadcrumbs = [
         { children: <Link to="/dashboard/home">Início</Link> },
         { children: <Link to="/dashboard/entities">Entidades</Link> },
-        { title: "Criar Entidade" },
+        { title: id ? "Editar Entidade" : "Criar Entidade" },
     ];
+
+    // If editing from a specific entity view
+    if (id && navContext && navContext.type === 'entity') {
+        const { entityName } = navContext.data;
+        breadcrumbs = [
+            { children: <Link to="/dashboard/home">Início</Link> },
+            { children: <Link to="/dashboard/entities">Entidades</Link> },
+            { children: <Link to={`/dashboard/entities/view/${encodeURIComponent(entityName)}`}>{entityName}</Link> },
+            { title: "Editar Entidade" },
+        ];
+    }
 
     const onSubmit = async (data) => {
         // Validate entity name

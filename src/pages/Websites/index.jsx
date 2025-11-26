@@ -22,6 +22,7 @@ import moment from "moment";
 import { Modal } from "../../components/Modal";
 import { useTheme } from "../../context/ThemeContext";
 import CrawlingModal from "../../components/CrawlingModal";
+import { setRootNavigationContext } from "../../utils/navigation";
 
 const WebSiteList = () => {
   const { t } = useTranslation();
@@ -42,9 +43,14 @@ const WebSiteList = () => {
   const breadcrumbs = [
     { children: <Link to="/dashboard/home">Início</Link> },
     {
-      title: "Sítio Web",
+      title: "Sítios Web",
     },
   ];
+
+  useEffect(() => {
+    // Clear root context when viewing website list
+    setRootNavigationContext(null);
+  }, []);
 
   useEffect(() => {
     const currentPath = location.pathname;

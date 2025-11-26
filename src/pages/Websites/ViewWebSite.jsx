@@ -34,6 +34,7 @@ import tests from "../../utils/tests.js";
 import { downloadCSV, downloadWebsiteCSV, getData, getSimplifiedPracticesData } from "../../utils/utils.js";
 import { isRequestSuccessful } from "../../utils/apiHelpers.js";
 import { Modal } from "../../components/Modal";
+import { getEffectiveNavigationContext } from "../../utils/navigation";
 
 // Function to calculate total elements from JSON string
 const calculateTotalElements = (elementCountJson) => {
@@ -136,7 +137,7 @@ const ViewWebSitesComponent = () => {
   const { theme } = useTheme();
   const location = useLocation();
   const [breadcrumbs, setBreadcrumbs] = useState([
-    { children: <Link to="/dashboard/global">Global</Link> },
+    { children: <Link to="/dashboard/home">Início</Link> },
   ]);
   const [data, setData] = useState([]);
   const [dataBad, setDataBad] = useState(dataRowsBad);
@@ -204,33 +205,44 @@ const ViewWebSitesComponent = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (localStorage.getItem('previousPath')?.includes('directories')) {
-      const previousDirectory = localStorage.getItem('previousPath').split('/').pop();
-      setBreadcrumbs([
-        { children: <Link to="/dashboard/global">Global</Link> },
-        { children: <Link to="/dashboard/directories">Diretórios</Link> },
-        { children: <Link to={`/dashboard/directories/view/${previousDirectory}`}>Diretório</Link> },
-        { title: websiteName }
-      ]);
-    } else if (localStorage.getItem('previousPath')?.includes('entities')) {
-      const previousEntity = localStorage.getItem('previousPath').split('/').pop();
-      setBreadcrumbs([
-        { children: <Link to="/dashboard/global">Global</Link> },
-        { children: <Link to="/dashboard/entities">Entidades</Link> },
-        { children: <Link to={`/dashboard/entities/view/${previousEntity}`}>Entidade</Link> },
-        { title: websiteName }
-      ]);
-    } else if (localStorage.getItem('previousPath')?.includes('categories')) {
-      const previousCategory = localStorage.getItem('previousPath').split('/').pop();
-      setBreadcrumbs([
-        { children: <Link to="/dashboard/global">Global</Link> },
-        { children: <Link to="/dashboard/categories">Categorias</Link> },
-        { children: <Link to={`/dashboard/categories/view/${previousCategory}`}>Categoria</Link> },
-        { title: websiteName }
-      ]);
+    const previousPath = localStorage.getItem('previousPath') || '';
+    const navContext = getEffectiveNavigationContext(previousPath);
+    
+    if (navContext) {
+      if (navContext.type === 'directory') {
+        const { directoryName } = navContext.data;
+        setBreadcrumbs([
+          { children: <Link to="/dashboard/home">Início</Link> },
+          { children: <Link to="/dashboard/directories">Diretórios</Link> },
+          { children: <Link to={`/dashboard/directories/view/${encodeURIComponent(directoryName)}`}>{directoryName}</Link> },
+          { title: websiteName }
+        ]);
+      } else if (navContext.type === 'entity') {
+        const { entityName } = navContext.data;
+        setBreadcrumbs([
+          { children: <Link to="/dashboard/home">Início</Link> },
+          { children: <Link to="/dashboard/entities">Entidades</Link> },
+          { children: <Link to={`/dashboard/entities/view/${encodeURIComponent(entityName)}`}>{entityName}</Link> },
+          { title: websiteName }
+        ]);
+      } else if (navContext.type === 'category') {
+        const { categoryName } = navContext.data;
+        setBreadcrumbs([
+          { children: <Link to="/dashboard/home">Início</Link> },
+          { children: <Link to="/dashboard/categories">Categorias</Link> },
+          { children: <Link to={`/dashboard/categories/view/${encodeURIComponent(categoryName)}`}>{categoryName}</Link> },
+          { title: websiteName }
+        ]);
+      } else {
+        setBreadcrumbs([
+          { children: <Link to="/dashboard/home">Início</Link> },
+          { children: <Link to="/dashboard/websites">Sítios Web</Link> },
+          { title: websiteName }
+        ]);
+      }
     } else {
       setBreadcrumbs([
-        { children: <Link to="/dashboard/global">Global</Link> },
+        { children: <Link to="/dashboard/home">Início</Link> },
         { children: <Link to="/dashboard/websites">Sítios Web</Link> },
         { title: websiteName }
       ]);

@@ -27,6 +27,7 @@ import { downloadCSV, getSimplifiedPracticesData } from "../../utils/utils.js";
 import tests from "../../utils/tests.js";
 import CrawlingModal from "../../components/CrawlingModal";
 import { Modal } from "../../components/Modal";
+import { setRootNavigationContext } from "../../utils/navigation";
 
 const ViewEntitiesComponent = () => {
   const location = useLocation();
@@ -63,10 +64,18 @@ const ViewEntitiesComponent = () => {
   const [counter, setCounter] = useState(0);
   useEffect(() => {
     setBreadcrumbs([
-      { children: <Link to="/dashboard/global">Global</Link> },
+      { children: <Link to="/dashboard/home">Início</Link> },
       { children: <Link to="/dashboard/entities">Entidades</Link> },
       { title: entityName }
     ]);
+    
+    // Set root context when viewing an entity
+    if (entityName) {
+      setRootNavigationContext({
+        type: 'entity',
+        data: { entityName }
+      });
+    }
   }, [entityName]);
 
   useEffect(() => {

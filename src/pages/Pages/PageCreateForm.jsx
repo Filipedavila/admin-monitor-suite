@@ -31,7 +31,8 @@ const PageCreateForm = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [breadcrumbs, setBreadcrumbs] = React.useState([
-    { children: <Link to="/">Início</Link> },
+    { children: <Link to="/dashboard/home">Início</Link> },
+    { children: <Link to="/dashboard/pages">Páginas</Link> },
     {
       title: "Criar Página",
     },

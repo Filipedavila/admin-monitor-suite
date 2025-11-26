@@ -39,7 +39,7 @@ export const directoriesHeaders = [
       property: "Creation_Date",
       justifyCenter: true,
     },
-    // { type: "SortingText", nRow: 2, name: i18n.t('WEBSITES_PAGE.LIST.table.stamp_label'), property: "Declaration" },
+     { type: "SortingText", nRow: 2, name: i18n.t('WEBSITES_PAGE.LIST.table.stamp_label'), property: "Declaration" },
     {
       type: "SortingText",
       nRow: 2,

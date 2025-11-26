@@ -69,10 +69,10 @@ const DetailsPageUsers = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [breadcrumbs, setBreadcrumbs] = useState([
     { children: <Link to="/dashboard/home">Início</Link> },
-    { title: "Utilizadores", children: <Link to="/dashboard/users">Utilizadores</Link> },
-    { title: "Sítios Web do Utilizador " +  username, children: <Link to={`/dashboard/users/websites/${username}`}>Sítios Web do Utilizador {username}</Link> },
-    { title: name, children: <Link to={`/dashboard/users/websites/pages/${username}/${encodeURIComponent(name)}`}>{name}</Link> },
-    {title: "Relatório de acessibilidade da página"}
+    { children: <Link to="/dashboard/users">Utilizadores</Link> },
+    { children: <Link to={`/dashboard/users/websites/${username}`}>Sítios Web do Utilizador {username}</Link> },
+    { children: <Link to={`/dashboard/users/websites/pages/${username}/${encodeURIComponent(name)}`}>{name}</Link> },
+    { title: "Relatório de acessibilidade da página" }
   ]);
   const [data, setData] = useState([
     {

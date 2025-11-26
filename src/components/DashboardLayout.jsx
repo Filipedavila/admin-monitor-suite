@@ -36,7 +36,7 @@ const DashboardLayout = () => {
           { id: "/dashboard/directories", label: "Diretórios", icon: "AMA-Pasta-Line", url: "/dashboard/directories" },
           { id: "/dashboard/categories", label: "Categorias/Tags", icon: "AMA-MarcadorGrande-Line", url: "/dashboard/categories" },
           { id: "/dashboard/entities", label: "Entidades", icon: "AMA-Edificio-Line", url: "/dashboard/entities" },
-          { id: "/dashboard/websites", label: "Sítio web", icon: "AMA-Globo-Line", url: "/dashboard/websites" },
+          { id: "/dashboard/websites", label: "Sítios web", icon: "AMA-Globo-Line", url: "/dashboard/websites" },
           { id: "/dashboard/pages", label: "Páginas", icon: "AMA-Paginas-Line", url: "/dashboard/pages" },
           { id: "/dashboard/users", label: "Utilizadores", icon: "AMA-Pessoa-Line", url: "/dashboard/users" },
           { id: "/dashboard/usersgov", label: "Utilizadores Gov", icon: "AMA-DuasPessoas-Line", url: "/dashboard/usersgov" },
