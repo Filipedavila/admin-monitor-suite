@@ -1384,7 +1384,7 @@ export async function downloadCSV(websites, fileBaseName = "websites") {
 
     // Add BOM (Byte Order Mark) for UTF-8 to ensure Excel recognizes encoding correctly
     const BOM = "\uFEFF";
-    const blob = new Blob([BOM + data], { type: "text/csv;charset=utf-8" });
+    const blob = new Blob([BOM + data], { type: "text/csv;charset=utf-8;" });
     saveAs(blob, `${fileBaseName}.csv`);
   } catch (error) {
     console.error("Error downloading CSV:", error);
@@ -1509,7 +1509,7 @@ export async function downloadWebsiteCSV(website, fileBaseName = "evaluation", t
 
     // Add BOM (Byte Order Mark) for UTF-8 to ensure Excel recognizes encoding correctly
     const BOM = "\uFEFF";
-    const blob = new Blob([BOM + csv], { type: "text/csv;charset=utf-8" });
+    const blob = new Blob([BOM + csv], { type: "text/csv;charset=utf-8;" });
     saveAs(blob, `${fileBaseName}.csv`);
   } else {
     return null;
@@ -1558,7 +1558,7 @@ export function exportDirectoryEvaluationCSV(rows, directory, opts = {}) {
   // final exatamente como requereste
   // Add BOM (Byte Order Mark) for UTF-8 to ensure Excel recognizes encoding correctly
   const BOM = "\uFEFF";
-  const blob = new Blob([BOM + data], { type: "text/csv;charset=utf-8" });
+  const blob = new Blob([BOM + data], { type: "text/csv;charset=utf-8;" });
   $saveAs(blob, `${directory}_evaluation.csv`);
 }
 
@@ -1643,7 +1643,7 @@ export async function downloadCSVBackup(websites, allPages, directory, t, deps =
   console.log(`\nGenerating CSV file with ${data.split('\n').length} lines`);
   // Add BOM (Byte Order Mark) for UTF-8 to ensure Excel recognizes encoding correctly
   const BOM = "\uFEFF";
-  const blob = new Blob([BOM + data], { type: "text/csv;charset=utf-8" });
+  const blob = new Blob([BOM + data], { type: "text/csv;charset=utf-8;" });
   $saveAs(blob, `${directory}_evaluation.csv`);
 
   console.log(`Successfully downloaded CSV for ${websites.length} websites in directory: ${directory}`);

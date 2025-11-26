@@ -57,10 +57,27 @@ const UsersCreateForm = () => {
             const websitesData = response.data.result || [];
             const formattedWebsites = websitesData.map(website => ({
                 value: website.WebsiteId,
-                label: website.Name
+                label: website.StartingUrl
             }));
             
-            setWebsiteOptions(formattedWebsites);
+            // Merge search results with selected websites to ensure selected ones are always visible
+            const selectedWebsiteIds = websites || [];
+            const searchResultIds = formattedWebsites.map(w => w.value);
+            
+            // Find selected websites that are not in the search results
+            const missingSelectedWebsites = websiteOptions.filter(opt => 
+                selectedWebsiteIds.includes(opt.value) && !searchResultIds.includes(opt.value)
+            );
+            
+            // Combine: selected websites that are missing + search results
+            const mergedOptions = [...missingSelectedWebsites, ...formattedWebsites];
+            
+            // Remove duplicates based on value
+            const uniqueOptions = mergedOptions.filter((option, index, self) =>
+                index === self.findIndex((t) => t.value === option.value)
+            );
+            
+            setWebsiteOptions(uniqueOptions);
         } catch (error) {
             console.error("Error fetching websites:", error);
             setWebsiteOptions([]);
@@ -138,7 +155,40 @@ const UsersCreateForm = () => {
     // Handlers for website association
     const handleWebsiteSearch = (value) => {
         setWebsiteSearch(value || "");
-        fetchWebsites(value || "");
+        // Don't update websites state here, just search
+        // The fetchWebsites function will be called with the updated websites state
+        (async () => {
+            try {
+                const response = await api.get(`/website/all/100000/0/sort=/direction=/search=${encodeURIComponent(value || "")}`);
+                const websitesData = response.data.result || [];
+                const formattedWebsites = websitesData.map(website => ({
+                    value: website.WebsiteId,
+                    label: website.StartingUrl
+                }));
+                
+                // Merge search results with selected websites to ensure selected ones are always visible
+                const selectedWebsiteIds = websites || [];
+                const searchResultIds = formattedWebsites.map(w => w.value);
+                
+                // Find selected websites that are not in the search results
+                const missingSelectedWebsites = websiteOptions.filter(opt => 
+                    selectedWebsiteIds.includes(opt.value) && !searchResultIds.includes(opt.value)
+                );
+                
+                // Combine: selected websites that are missing + search results
+                const mergedOptions = [...missingSelectedWebsites, ...formattedWebsites];
+                
+                // Remove duplicates based on value
+                const uniqueOptions = mergedOptions.filter((option, index, self) =>
+                    index === self.findIndex((t) => t.value === option.value)
+                );
+                
+                setWebsiteOptions(uniqueOptions);
+            } catch (error) {
+                console.error("Error fetching websites:", error);
+                setWebsiteOptions([]);
+            }
+        })();
     };
 
     const handleWebsiteChange = (newWebsites) => {

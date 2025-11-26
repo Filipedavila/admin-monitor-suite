@@ -58,6 +58,7 @@ const Login = () => {
           <img src={Logo} alt={t('LOGIN.logo_alt')} className="login-logo" />
           <form onSubmit={handleSubmit(onSubmit)}>
             <Input
+              id="machineIP"
               name="machineIP"
               label={t('LOGIN.machineIP_label')}
               type="url"
@@ -66,6 +67,7 @@ const Login = () => {
               error={errors.machineIP?.message}
             />
             <Input
+              id="username"
               name="username"
               label={t('LOGIN.email_label')}
               type="text"
@@ -73,6 +75,7 @@ const Login = () => {
            error={errors.email?.message}
             />
             <Input
+              id="password"
               name="password"
               label={t('LOGIN.password_label')}
               type="password"
