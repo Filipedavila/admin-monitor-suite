@@ -62,6 +62,10 @@ const ViewEntitiesComponent = () => {
   const [originalData, setOriginalData] = useState([]); 
   const [dataForCSV, setDataForCSV] = useState([]);
   const [counter, setCounter] = useState(0);
+  const [isLoadingWebsites, setIsLoadingWebsites] = useState(true);
+  const [isProcessingStats, setIsProcessingStats] = useState(true);
+  const [websitesError, setWebsitesError] = useState(null);
+  const [hasInitialLoad, setHasInitialLoad] = useState(false);
   useEffect(() => {
     setBreadcrumbs([
       { children: <Link to="/dashboard/home">Início</Link> },
@@ -88,13 +92,43 @@ const ViewEntitiesComponent = () => {
   }, [location.pathname]);
 
   useEffect(() => {
+    let isCancelled = false;
+
     const fetchData = async () => {
+      try {
+        // Reset flags for new entity
+        setHasInitialLoad(false);
+        
+        // Phase 1: Load websites quickly
+        setIsLoadingWebsites(true);
+        setWebsitesError(null);
+        const response = await api.get(`/entity/websites/${entityName}`);
+        const websites = response.data.result || [];
 
-      const response = await api.get(`/entity/websites/${entityName}`);
-      const responsePages = await api.get(`/entity/websites/pages/${entityName}`);
+        if (isCancelled) return;
 
-      const pages = responsePages.data.result || [];
-      const websites = response.data.result || [];
+        const websitesRows = websites.map(item => ({
+          id: item.WebsiteId,
+          Name: item.Name,
+          StartingUrl: item.StartingUrl,
+          Pages: item.Pages + "(" + item.Evaluated_Pages + ")",
+          Creation_Date: moment(item.Creation_Date).format('DD/MM/YYYY'),
+          Declaration: item.Declaration === null ? "Não avaliado" : item.Declaration === 1 ? "Selo de Ouro" : item.Declaration === 2 ? "Selo de Prata" : item.Declaration === 3 ? "Selo de Bronze" : "Declaração não conforme",
+          edit: "Editar",
+        }));
+
+        setData(websitesRows);
+        setOriginalData(websitesRows);
+        setDataForCSV(websites.map(item => ({WebsiteId: item.WebsiteId, Name: item.Name})));
+        setIsLoadingWebsites(false);
+        setHasInitialLoad(true); // Mark initial load complete
+
+        // Phase 2: Load pages and compute metrics
+        setIsProcessingStats(true);
+        const responsePages = await api.get(`/entity/websites/pages/${entityName}`);
+        const pages = responsePages.data.result || [];
+
+        if (isCancelled) return;
       const simplifiedPracticesData = getSimplifiedPracticesData(pages)
       setDataListDetails(simplifiedPracticesData.success.map(item => ({
         practice: t(`ELEMS.${item.practice}`),
@@ -294,28 +328,23 @@ const ViewEntitiesComponent = () => {
           ]
         },
       ]);
-      setData(websites.map(item => ({
-        id: item.WebsiteId,
-        Name: item.Name,
-        StartingUrl: item.StartingUrl,
-        Pages: item.Pages + "(" + item.Evaluated_Pages + ")",
-        Creation_Date: moment(item.Creation_Date).format('DD/MM/YYYY'),
-        Declaration: item.Declaration === null ? "Não avaliado" : item.Declaration === 1 ? "Selo de Ouro" : item.Declaration === 2 ? "Selo de Prata" : item.Declaration === 3 ? "Selo de Bronze" : "Declaração não conforme",
-        edit: "Editar",
-      })));
-      setOriginalData(websites.map(item => ({
-        id: item.WebsiteId,
-        Name: item.Name,
-        StartingUrl: item.StartingUrl,
-        Pages: item.Pages + "(" + item.Evaluated_Pages + ")",
-        Creation_Date: moment(item.Creation_Date).format('DD/MM/YYYY'),
-        Declaration: item.Declaration === null ? "Não avaliado" : item.Declaration === 1 ? "Selo de Ouro" : item.Declaration === 2 ? "Selo de Prata" : item.Declaration === 3 ? "Selo de Bronze" : "Declaração não conforme",
-        edit: "Editar",
-      })));
-      setDataForCSV(websites.map(item => ({WebsiteId: item.WebsiteId, Name: item.Name})));
+      // Don't overwrite table data - already set in Phase 1
+      setIsProcessingStats(false);
+      } catch (error) {
+        console.error("Error loading entity data:", error);
+        setWebsitesError('Erro ao carregar dados da entidade');
+        setIsLoadingWebsites(false);
+        setIsProcessingStats(false);
+        setHasInitialLoad(true); // Mark as complete even on error
+      }
     };
+    
     fetchData();
-  }, [entityName]);
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [entityName, t]);
   const fetchDataWebsite = async () => {
     const response = await api.get(`/directory/${directoryName}/websites`);
     const websites = response.data.result || [];
@@ -402,6 +431,9 @@ const ViewEntitiesComponent = () => {
 
   // -------- Server-side pagination & search for websites list ----------
   useEffect(() => {
+    // Only run after initial load is complete
+    if (!hasInitialLoad) return;
+    
     const fetchPaginated = async () => {
       try {
    
@@ -501,6 +533,8 @@ const ViewEntitiesComponent = () => {
     <div>
       <Breadcrumb data={breadcrumbs || []} />
       <h1>{t('ENTITIES_PAGE.LIST.title', { entityName })}</h1>
+
+
       <ContentListWebSites
         title={t('WEBSITES_PAGE.LIST.subtitle_list', { entityName })}
         checkboxesSelected={checkboxesSelected}
@@ -532,73 +566,100 @@ const ViewEntitiesComponent = () => {
       </div>
       <div className="mt-5 bg-white p-4">
         <h2 className="mb-4">{t('ENTITIES_PAGE.LIST.global_indicators')}</h2>
-        <Indicators listItems={listItems} />
+        {isProcessingStats ? (
+          <p className="text-muted">A calcular indicadores...</p>
+        ) : (
+          <Indicators listItems={listItems} />
+        )}
       </div>
       <div className="mt-5 bg-white p-4">
         <h2 className="mb-4">Conformidade global da Entidade</h2>
-        <Indicators listItems={listItemsGlobal} />
+        {isProcessingStats ? (
+          <p className="text-muted">A calcular conformidade...</p>
+        ) : (
+          <Indicators listItems={listItemsGlobal} />
+        )}
       </div>
       <div className="mt-5 bg-white p-4">
         <h2 className="mb-4">Distribuição das pontuações AccessMonitor no universo da Entidade</h2>
-        <BarLineGraphTabs
-          columnsOptions={columnsOptionsBar}
-          barData={barDataDynamic}
-          barOptions={theme === "light" ? barOptionsCopy : barOptionsDark}
-          dataHeaders={dataHeadersBar}
-          dataList={dataListBar}
-          darkTheme={theme}
-        />
+        {isProcessingStats ? (
+          <p className="text-muted">A preparar distribuição...</p>
+        ) : (
+          <BarLineGraphTabs
+            columnsOptions={columnsOptionsBar}
+            barData={barDataDynamic}
+            barOptions={theme === "light" ? barOptionsCopy : barOptionsDark}
+            dataHeaders={dataHeadersBar}
+            dataList={dataListBar}
+            darkTheme={theme}
+          />
+        )}
       </div>
       <div className="mt-5 bg-white p-4">
         <h2 className="mb-4">Mancha Gráfica da Acessibilidade</h2>
-        <RadarGraph darkTheme={theme} labelDataSet="Pontuação por sítio Web" websites={radarWebsites} showTabs={true} />
+        {isProcessingStats ? (
+          <p className="text-muted">A preparar gráfico radar...</p>
+        ) : (
+          <RadarGraph darkTheme={theme} labelDataSet="Pontuação por sítio Web" websites={radarWebsites} showTabs={true} />
+        )}
       </div>
       <div className="mt-5 bg-white p-4">
         <h2 className="mb-4">Distribuição detalhada das melhores práticas</h2>
-        <SortingTable
-          hasSort={false}
-          headers={detailsTableHeaders || []}
-          dataList={dataListDetails || []}
-          columnsOptions={columnsOptionsDetails || {}}
-          darkTheme={theme}
-          pagination={false}
-          ariaLabels={ariaLabels || {}}
-          links={false}
-          caption="Distribuição detalhada das melhores práticas"
-          setDataList={() => { }}
-          nextPage={() => { }}
-          itemsPaginationTexts={[]}
-          nItemsPerPageTexts={[]}
-          iconsAltTexts={[]}
-          paginationButtonsTexts={[]}
-          project=""
-          setCheckboxesSelected={() => { }}
-        />
+        {isProcessingStats ? (
+          <p className="text-muted">A calcular práticas...</p>
+        ) : (
+          <SortingTable
+            hasSort={false}
+            headers={detailsTableHeaders || []}
+            dataList={dataListDetails || []}
+            columnsOptions={columnsOptionsDetails || {}}
+            darkTheme={theme}
+            pagination={false}
+            ariaLabels={ariaLabels || {}}
+            links={false}
+            caption="Distribuição detalhada das melhores práticas"
+            setDataList={() => { }}
+            nextPage={() => { }}
+            itemsPaginationTexts={[]}
+            nItemsPerPageTexts={[]}
+            iconsAltTexts={[]}
+            paginationButtonsTexts={[]}
+            project=""
+            setCheckboxesSelected={() => { }}
+          />
+        )}
       </div>
       <div className="mt-5 bg-white p-4">
         <h2 className="mb-4">Distribuição detalhada das piores práticas</h2>
-        <SortingTable
-          hasSort={false}
-          headers={detailsTableHeaders || []}
-          dataList={dataListDetailsBad || []}
-          columnsOptions={columnsOptionsDetails || {}}
-          darkTheme={theme}
-          pagination={false}
-          links={false}
-          ariaLabels={ariaLabels || {}}
-          caption="Distribuição detalhada das piores práticas"
-          setDataList={() => { }}
-          nextPage={() => { }}
-          itemsPaginationTexts={[]}
-          nItemsPerPageTexts={[]}
-          iconsAltTexts={[]}
-          paginationButtonsTexts={[]}
-          project=""
-          setCheckboxesSelected={() => { }}
-        />
+        {isProcessingStats ? (
+          <p className="text-muted">A calcular más práticas...</p>
+        ) : (
+          <SortingTable
+            hasSort={false}
+            headers={detailsTableHeaders || []}
+            dataList={dataListDetailsBad || []}
+            columnsOptions={columnsOptionsDetails || {}}
+            darkTheme={theme}
+            pagination={false}
+            links={false}
+            ariaLabels={ariaLabels || {}}
+            caption="Distribuição detalhada das piores práticas"
+            setDataList={() => { }}
+            nextPage={() => { }}
+            itemsPaginationTexts={[]}
+            nItemsPerPageTexts={[]}
+            iconsAltTexts={[]}
+            paginationButtonsTexts={[]}
+            project=""
+            setCheckboxesSelected={() => { }}
+          />
+        )}
       </div>
       <div className="mt-5 bg-white p-4">
         <h2 className="mb-4">Práticas por Critério de Sucesso WCAG 2.1</h2>
+        {isProcessingStats ? (
+          <p className="text-muted">A processar critérios de sucesso...</p>
+        ) : (
         <div>
           <h3 style={{ fontWeight: 700, marginTop: 32 }}>Boas práticas</h3>
           {Object.keys(successCriteriaSuccess).length > 0 ? (
@@ -648,6 +709,7 @@ const ViewEntitiesComponent = () => {
             </div>
           )}
         </div>
+        )}
       </div>
       <Modal
         isOpen={showModal}

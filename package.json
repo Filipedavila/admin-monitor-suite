@@ -12,7 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "ama-design-system": "./ama-design-system-1.1.88 7.tgz",
+    "ama-design-system": "^1.1.90",
     "axios": "^1.9.0",
     "bootstrap": "^5.3.6",
     "chart.js": "^4.4.9",

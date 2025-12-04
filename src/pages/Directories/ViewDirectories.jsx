@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, memo } from "react";
+import React, { useState, useEffect, useMemo, memo, useTransition, useRef } from "react";
 import { Button, StatisticsHeader, Breadcrumb, SortingTable, RadioGroup } from "ama-design-system";
 import "./style.users.css";
 import { RadarGraph } from "../../components/RadarGraph/index.jsx";
@@ -27,6 +27,177 @@ import { Modal } from "../../components/Modal";
 import CrawlingModal from "../../components/CrawlingModal";
 import { setRootNavigationContext } from "../../utils/navigation";
 import { set } from "lodash";
+
+const buildPracticesData = (simplifiedPracticesData, t) => {
+  const practicesBySuccessCriteria = {
+    success: {},
+    errors: {}
+  };
+
+  const mapPractice = (target, item) => {
+    const scs = item.scs;
+    if (!scs || scs === '') return;
+    scs.split(',').forEach(criteria => {
+      const trimmed = criteria.trim();
+      if (!target[trimmed]) target[trimmed] = [];
+      target[trimmed].push({
+        practice: t(`ELEMS.${item.practice}`),
+        pages: item.pages,
+        occurrences: item.occurrences,
+        level: item.level.toUpperCase(),
+        websiteCount: item.pages
+      });
+    });
+  };
+
+  (simplifiedPracticesData.success || []).forEach(item => mapPractice(practicesBySuccessCriteria.success, item));
+  (simplifiedPracticesData.errors || []).forEach(item => mapPractice(practicesBySuccessCriteria.errors, item));
+
+  const formatSuccessCriteriaData = (practicesData) => {
+    const formatted = {};
+    Object.keys(practicesData).sort().forEach(criteria => {
+      const practices = practicesData[criteria];
+      formatted[criteria] = {
+        criteriaCode: criteria,
+        practiceCount: practices.length,
+        practices: practices
+      };
+    });
+    return formatted;
+  };
+
+  return {
+    details: (simplifiedPracticesData.success || []).map(item => ({
+      practice: t(`ELEMS.${item.practice}`),
+      pages: item.pages,
+      occurrences: item.occurrences,
+      level: item.level.toUpperCase()
+    })),
+    detailsBad: (simplifiedPracticesData.errors || []).map(item => ({
+      practice: t(`ELEMS.${item.practice}`),
+      pages: item.pages,
+      occurrences: item.occurrences,
+      level: item.level.toUpperCase()
+    })),
+    successCriteriaSuccess: formatSuccessCriteriaData(practicesBySuccessCriteria.success),
+    successCriteriaErrors: formatSuccessCriteriaData(practicesBySuccessCriteria.errors)
+  };
+};
+
+const buildDirectoryMetrics = (pages = [], websites = [], barDataTemplate = barData) => {
+  const scoreBuckets = Array(9).fill(0);
+  const websiteStats = {};
+  let evaluatedCount = 0;
+  let scoreSum = 0;
+  let oldestDate = null;
+  let newestDate = null;
+
+  pages.forEach(page => {
+    const score = Number(page.Score || 0);
+    const hasEvaluation = page.Evaluation_Date !== null && page.Evaluation_Date !== undefined;
+    const hasScore = !Number.isNaN(score) && hasEvaluation;
+    const websiteId = page.WebsiteId;
+
+    if (!websiteStats[websiteId]) {
+      websiteStats[websiteId] = {
+        hasA: false,
+        hasAA: false,
+        hasAAA: false,
+        evaluatedCount: 0,
+        scoreSum: 0
+      };
+    }
+
+    const stats = websiteStats[websiteId];
+    stats.hasA = stats.hasA || (page.A || 0) > 0;
+    stats.hasAA = stats.hasAA || (page.AA || 0) > 0;
+    stats.hasAAA = stats.hasAAA || (page.AAA || 0) > 0;
+
+    if (hasScore) {
+      evaluatedCount += 1;
+      scoreSum += score;
+      stats.evaluatedCount += 1;
+      stats.scoreSum += score;
+
+      const evalDate = new Date(page.Evaluation_Date);
+      if (!oldestDate || evalDate < oldestDate) oldestDate = evalDate;
+      if (!newestDate || evalDate > newestDate) newestDate = evalDate;
+
+      const bucketIndex = Math.min(Math.max(Math.floor(score) - 1, 0), 8);
+      scoreBuckets[bucketIndex] += 1;
+    }
+  });
+
+  const totalPages = pages.length;
+  const totalWebsites = Object.keys(websiteStats).length;
+  const totalEvaluatedPages = evaluatedCount;
+  const averageScore = evaluatedCount ? scoreSum / evaluatedCount : 0;
+
+  let conformantWebsites = 0;
+  let nonConformantWebsites = 0;
+  let conformCounts = { A: 0, AA: 0, AAA: 0 };
+
+  Object.values(websiteStats).forEach(stat => {
+    const hasErrors = stat.hasA || stat.hasAA || stat.hasAAA;
+    if (hasErrors) {
+      nonConformantWebsites += 1;
+    } else {
+      conformantWebsites += 1;
+      conformCounts.A += 1;
+      conformCounts.AA += 1;
+      conformCounts.AAA += 1;
+    }
+  });
+
+  const safeTotalPages = totalPages || 1;
+  const dataListBar = scoreBuckets.map((count, index) => {
+    const cumulative = scoreBuckets.slice(0, index + 1).reduce((acc, curr) => acc + curr, 0);
+    return {
+      range: `[${index + 1} - ${index + 2}[`,
+      frequency: count,
+      frequency_percent: `${((count / safeTotalPages) * 100).toFixed(2)}%`,
+      cumulative: cumulative,
+      cumulative_percent: `${((cumulative / safeTotalPages) * 100).toFixed(2)}%`
+    };
+  });
+
+  const radarWebsites = Object.entries(websiteStats).map(([websiteId, stat]) => {
+    const website = websites.find(w => w.WebsiteId?.toString() === websiteId.toString());
+    if (!website) return null;
+    const average = stat.evaluatedCount ? stat.scoreSum / stat.evaluatedCount : 0;
+    return {
+      url: website.StartingUrl,
+      averageScore: average.toFixed(2)
+    };
+  }).filter(Boolean);
+
+  return {
+    scoreBuckets,
+    radarWebsites,
+    dataListBar,
+    listItems: [
+      { title: 'Pontuação média', value: Math.round(averageScore) },
+      { title: 'Avaliação mais antiga de uma página', value: oldestDate ? moment(oldestDate).format('DD/MM/YY') : '-' },
+      { title: 'Avaliação mais recente de uma página', value: newestDate ? moment(newestDate).format('DD/MM/YY') : '-' },
+      { title: 'Nº de Sítios Web', value: totalWebsites },
+      { title: 'Nº de páginas(Avaliadas)', value: `${totalPages} (${totalEvaluatedPages})` },
+      { title: 'Nº médio de páginas por Sítios', value: totalWebsites ? Math.round(totalPages / totalWebsites) : 0 },
+    ],
+    listItemsGlobal: [
+      { title: 'Sítios Web', value: totalWebsites },
+      { title: 'Sítios Web não conformes', value: nonConformantWebsites },
+      {
+        title: 'Sítios Web conformes', value: conformantWebsites,
+        itemsList: [
+          { title: 'A', value: `${conformCounts.A} (${totalWebsites ? ((conformCounts.A / totalWebsites) * 100).toFixed(2) : '0.00'}%)` },
+          { title: 'AA', value: `${conformCounts.AA} (${totalWebsites ? ((conformCounts.AA / totalWebsites) * 100).toFixed(2) : '0.00'}%)` },
+          { title: 'AAA', value: `${conformCounts.AAA} (${totalWebsites ? ((conformCounts.AAA / totalWebsites) * 100).toFixed(2) : '0.00'}%)` },
+        ]
+      },
+    ],
+    barDataTemplate
+  };
+};
 
 const ViewDirectoriesComponent = () => {
   const location = useLocation();
@@ -65,6 +236,12 @@ const ViewDirectoriesComponent = () => {
     cumulative: 2,
     cumulative_percent: '5%'
   }]);
+  const [isPending, startTransition] = useTransition();
+  const pagesCacheRef = useRef({});
+  const [isLoadingWebsites, setIsLoadingWebsites] = useState(true);
+  const [isProcessingStats, setIsProcessingStats] = useState(true);
+  const [websitesError, setWebsitesError] = useState(null);
+  const [hasInitialLoad, setHasInitialLoad] = useState(false);
   useEffect(() => {
     const currentPath = location.pathname;
     const lastPath = localStorage.getItem('currentPath');
@@ -74,270 +251,106 @@ const ViewDirectoriesComponent = () => {
     localStorage.setItem('currentPath', currentPath);
   }, [location.pathname]);
 
-  const fetchDataWebsite = async () => {
-    const response = await api.get(`/directory/${directoryName}/websites`);
-    
-    const websites = response.data.result || [];
-    setData(websites.map(item => ({
-      id: item.WebsiteId,
-      Name: item.Name,
-      StartingUrl: item.StartingUrl,
-      Pages: item.Pages + "(" + item.Evaluated_Pages + ")",
-      Creation_Date: moment(item.Creation_Date).format('DD/MM/YYYY'),
-      Declaration: item.Declaration === null ? "Não avaliado" : item.Declaration === 1 ? "Selo de Ouro" : item.Declaration === 2 ? "Selo de Prata" : item.Declaration === 3 ? "Selo de Bronze" : "Declaração não conforme",
-      edit: "Editar",
-    })));
-    setOriginalData(websites.map(item => ({
-      id: item.WebsiteId,
-      Name: item.Name,
-      StartingUrl: item.StartingUrl,
-      Pages: item.Pages + "(" + item.Evaluated_Pages + ")",
-      Creation_Date: moment(item.Creation_Date).format('DD/MM/YYYY'),
-      Declaration: item.Declaration === null ? "Não avaliado" : item.Declaration === 1 ? "Selo de Ouro" : item.Declaration === 2 ? "Selo de Prata" : item.Declaration === 3 ? "Selo de Bronze" : "Declaração não conforme",
-      edit: "Editar",
-    })));
+  const clearDirectoryPagesCache = () => {
+    delete pagesCacheRef.current[directoryName];
+  };
 
+  const loadDirectoryPages = async () => {
+    // Use only in-memory cache to avoid sessionStorage quota issues
+    if (pagesCacheRef.current[directoryName]) {
+      return pagesCacheRef.current[directoryName];
+    }
+
+    const responsePages = await api.get(`/directory/${encodeURIComponent(directoryName)}/websites/pages`);
+    const pages = responsePages.data.result || [];
+    pagesCacheRef.current[directoryName] = pages;
+    return pages;
+  };
+
+  const fetchDataWebsite = async (shouldUpdateState = true) => {
+    const response = await api.get(`/directory/${directoryName}/websites`);
+    const websites = response.data.result || [];
+    const mappedWebsites = websites.map(item => ({
+      id: item.WebsiteId,
+      Name: item.Name,
+      StartingUrl: item.StartingUrl,
+      Pages: item.Pages + "(" + item.Evaluated_Pages + ")",
+      Creation_Date: moment(item.Creation_Date).format('DD/MM/YYYY'),
+      Declaration: item.Declaration === null ? "Nao avaliado" : item.Declaration === 1 ? "Selo de Ouro" : item.Declaration === 2 ? "Selo de Prata" : item.Declaration === 3 ? "Selo de Bronze" : "Declaracao nao conforme",
+      edit: "Editar",
+    }));
+
+    if (shouldUpdateState) {
+      setData(mappedWebsites);
+      setOriginalData(mappedWebsites);
+    }
+
+    return { response, websites, mappedWebsites };
   }
   useEffect(() => {
+    let isCancelled = false;
+
     const fetchData = async () => {
-      const response = await api.get(`/directory/${encodeURIComponent(directoryName)}/websites`);
-      const responsePages = await api.get(`/directory/${encodeURIComponent(directoryName)}/websites/pages`);
+      try {
+        // Reset flags for new directory
+        setHasInitialLoad(false);
+        
+        // Phase 1: Load websites first (fast)
+        setIsLoadingWebsites(true);
+        setWebsitesError(null);
+        const { websites, mappedWebsites } = await fetchDataWebsite(false);
+        
+        if (isCancelled) return;
+        
+        // Show websites immediately
+        setData(mappedWebsites);
+        setOriginalData(mappedWebsites);
+        setIsLoadingWebsites(false);
+        setHasInitialLoad(true); // Mark initial load complete
 
-      const pages = responsePages.data.result || [];
-      const websites = response.data.result || [];
+        // Phase 2: Load pages and compute metrics (slow)
+        setIsProcessingStats(true);
+        const pages = await loadDirectoryPages();
+        
+        if (isCancelled) return;
 
-      const simplifiedPracticesData = getSimplifiedPracticesData(pages)
-      setDataListDetails(simplifiedPracticesData.success?.map(item => ({
-        practice: t(`ELEMS.${item.practice}`),
-        pages: item.pages,
-        occurrences: item.occurrences,
-        level: item.level.toUpperCase()
-      })))
-      setDataListDetailsBad(simplifiedPracticesData.errors?.map(item => ({
-        practice: t(`ELEMS.${item.practice}`),
-        pages: item.pages,
-        occurrences: item.occurrences,
-        level: item.level.toUpperCase()
-      })))
+        const simplifiedPracticesData = getSimplifiedPracticesData(pages);
+        const practicesData = buildPracticesData(simplifiedPracticesData, t);
+        const metrics = buildDirectoryMetrics(pages, websites, barData);
 
-      // Process practices by WCAG Success Criteria
-      const practicesBySuccessCriteria = {
-        success: {},
-        errors: {}
-      };
-
-      // Process successful practices
-      simplifiedPracticesData.success.forEach(item => {
-        const scs = item.scs;
-        if (scs && scs !== '') {
-          const criteriaList = scs.split(',');
-          criteriaList.forEach(criteria => {
-            const trimmedCriteria = criteria.trim();
-            if (!practicesBySuccessCriteria.success[trimmedCriteria]) {
-              practicesBySuccessCriteria.success[trimmedCriteria] = [];
-            }
-            practicesBySuccessCriteria.success[trimmedCriteria].push({
-              practice: t(`ELEMS.${item.practice}`),
-              pages: item.pages,
-              occurrences: item.occurrences,
-              level: item.level.toUpperCase(),
-              websiteCount: item.pages
-            });
+        // Defer heavy state updates to keep UI responsive
+        startTransition(() => {
+          setDataListDetails(practicesData.details);
+          setDataListDetailsBad(practicesData.detailsBad);
+          setSuccessCriteriaSuccess(practicesData.successCriteriaSuccess);
+          setSuccessCriteriaErrors(practicesData.successCriteriaErrors);
+          setRadarWebsites(metrics.radarWebsites);
+          setDataListBar(metrics.dataListBar);
+          setListItems(metrics.listItems);
+          setListItemsGlobal(metrics.listItemsGlobal);
+          setBarDataDynamic({
+            ...barData,
+            datasets: [
+              {
+                type: 'bar',
+                label: "Frequência (nº de páginas)",
+                data: metrics.scoreBuckets,
+                backgroundColor: '#339',
+                categoryPercentage: 1,
+                barPercentage: 1,
+                grouped: true,
+              }
+            ]
           });
-        }
-      });
-
-      // Process error practices
-      simplifiedPracticesData.errors.forEach(item => {
-        const scs = item.scs;
-        if (scs && scs !== '') {
-          const criteriaList = scs.split(',');
-          criteriaList.forEach(criteria => {
-            const trimmedCriteria = criteria.trim();
-            if (!practicesBySuccessCriteria.errors[trimmedCriteria]) {
-              practicesBySuccessCriteria.errors[trimmedCriteria] = [];
-            }
-
-            practicesBySuccessCriteria.errors[trimmedCriteria].push({
-              practice: t(`ELEMS.${item.practice}`),
-              pages: item.pages,
-              occurrences: item.occurrences,
-              level: item.level.toUpperCase(),
-              websiteCount: item.pages
-            });
-          });
-        }
-      });
-
-      // Format data for WCAG Success Criteria display
-      const formatSuccessCriteriaData = (practicesData) => {
-        const formatted = {};
-        Object.keys(practicesData).sort().forEach(criteria => {
-          const practices = practicesData[criteria];
-          formatted[criteria] = {
-            criteriaCode: criteria,
-            practiceCount: practices.length,
-            practices: practices
-          };
+          setIsProcessingStats(false);
         });
-        return formatted;
-      };
-
-      const formattedSuccessData = formatSuccessCriteriaData(practicesBySuccessCriteria.success);
-      const formattedErrorData = formatSuccessCriteriaData(practicesBySuccessCriteria.errors);
-
-      setSuccessCriteriaSuccess(formattedSuccessData);
-      setSuccessCriteriaErrors(formattedErrorData);
-
-
-      const evaluatedPages = pages.filter(page => page.Evaluation_Date !== null);
-      const averageScore = evaluatedPages.reduce((acc, page) => acc + Number(page.Score || 0), 0) / (evaluatedPages.length || 1);
-      const oldestPage = moment(
-        evaluatedPages.reduce((a, b) => new Date(a.Evaluation_Date) < new Date(b.Evaluation_Date) ? a : b)
-          .Evaluation_Date
-      ).format('DD/MM/YY');
-
-      const newestPage = moment(
-        evaluatedPages.reduce((a, b) => new Date(a.Evaluation_Date) > new Date(b.Evaluation_Date) ? a : b)
-          .Evaluation_Date
-      ).format('DD/MM/YY');
-
-      const totalPages = pages.length;
-
-
-      const websitePageMap = {};
-      pages.forEach(page => {
-        if (!websitePageMap[page.WebsiteId]) websitePageMap[page.WebsiteId] = [];
-        websitePageMap[page.WebsiteId].push(page);
-      });
-
-      const totalWebsites = Object.keys(websitePageMap).length;
-      const totalEvaluatedPages = Object.keys(websitePageMap).reduce((acc, websiteId) => acc + websitePageMap[websiteId].filter(page => page.Evaluation_Date !== null).length, 0);
-
-      let conformantWebsites = 0;
-      let nonConformantWebsites = 0;
-      let conformCounts = { A: 0, AA: 0, AAA: 0 };
-
-      Object.entries(websitePageMap).forEach(([websiteId, pageList]) => {
-        const isNonConform = pageList.some(p => p.A > 0 || p.AA > 0 || p.AAA > 0);
-
-        if (isNonConform) {
-          nonConformantWebsites++;
-        } else {
-          conformantWebsites++;
-
-          if (pageList.every(p => p.A === 0)) conformCounts.A++;
-          if (pageList.every(p => p.AA === 0)) conformCounts.AA++;
-          if (pageList.every(p => p.AAA === 0)) conformCounts.AAA++;
-        }
-
-      });
-
-
-      const barDataDynamic = [
-        pages.filter(page => page.Score >= 1 && page.Score < 2).length,
-        pages.filter(page => page.Score >= 2 && page.Score < 3).length,
-        pages.filter(page => page.Score >= 3 && page.Score < 4).length,
-        pages.filter(page => page.Score >= 4 && page.Score < 5).length,
-        pages.filter(page => page.Score >= 5 && page.Score < 6).length,
-        pages.filter(page => page.Score >= 6 && page.Score < 7).length,
-        pages.filter(page => page.Score >= 7 && page.Score < 8).length,
-        pages.filter(page => page.Score >= 8 && page.Score < 9).length,
-        pages.filter(page => page.Score >= 9 && page.Score < 10).length,
-      ]
-
-      const websiteAverageScores = Object.values(websitePageMap).map(pageList => {
-        const scores = pageList
-          .filter(p => p.Evaluation_Date !== null)
-          .map(p => Number(p.Score));
-        const average = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
-        return average.toFixed(1);
-      });
-     
-      
-      // Build radar websites data with domain and averageScore
-      const websitesWithScores = Object.entries(websitePageMap).map(([websiteId, pageList]) => {
-        const website = websites.find(w => w.WebsiteId.toString() === websiteId.toString());
-        if(!website) {
-          return null 
-        }
-        // Calculate average score for this website
-        const scores = pageList
-          .filter(p => p.Evaluation_Date !== null)
-          .map(p => Number(p.Score));
-        const averageScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
-        return {
-          url: website.StartingUrl,
-          averageScore: averageScore.toFixed(2)
-        };
-      });
-
-      setRadarWebsites(websitesWithScores.filter(item => item !== null));
-      setDataListBar(
-        barDataDynamic.map((item, index) => ({
-          range: `[${index + 1} - ${index + 2}[`,
-          frequency: barDataDynamic[index],
-          frequency_percent: `${((barDataDynamic[index] / totalPages) * 100).toFixed(2)}%`,
-          cumulative: barDataDynamic.slice(0, index + 1).reduce((acc, curr) => acc + curr, 0),
-          cumulative_percent: `${((barDataDynamic.slice(0, index + 1).reduce((acc, curr) => acc + curr, 0) / totalPages) * 100).toFixed(2)}%`
-        }))
-      )
-
-      setBarDataDynamic({
-        ...barData,
-        datasets: [
-          {
-            type: 'bar',
-            label: "Frequência (nº de páginas)",
-            data: barDataDynamic,
-            backgroundColor: '#339', // All bars same color
-            categoryPercentage: 1,
-            barPercentage: 1,
-            grouped: true,
-          }
-        ]
-      })
-      setListItems([
-        { title: 'Pontuação média', value: Math.round(averageScore) },
-        { title: 'Avaliação mais antiga de uma página', value: oldestPage },
-        { title: 'Avaliação mais recente de uma página', value: newestPage },
-        { title: 'Nº de Sítios Web', value: totalWebsites },
-        { title: 'Nº de Páginas(Avaliadas)', value: `${totalPages} (${totalEvaluatedPages})` },
-        { title: 'Nº médio de Páginas por Sítio', value: Math.round(totalPages / totalWebsites) },
-      ]);
-
-      setListItemsGlobal([
-        { title: 'Sítios Web', value: totalWebsites },
-        { title: 'Sítios Web não conformes', value: nonConformantWebsites },
-        {
-          title: 'Sítios Web conformes', value: conformantWebsites,
-          itemsList: [
-            { title: 'A', value: `${conformCounts.A} (${((conformCounts.A / totalWebsites) * 100).toFixed(2)}%)` },
-            { title: 'AA', value: `${conformCounts.AA} (${((conformCounts.AA / totalWebsites) * 100).toFixed(2)}%)` },
-            { title: 'AAA', value: `${conformCounts.AAA} (${((conformCounts.AAA / totalWebsites) * 100).toFixed(2)}%)` },
-          ]
-        },
-      ]);
-      setData(websites.map(item => ({
-        id: item.WebsiteId,
-        Name: item.Name,
-        StartingUrl: item.StartingUrl,
-        Pages: item.Pages + "(" + item.Evaluated_Pages + ")",
-        Creation_Date: moment(item.Creation_Date).format('DD/MM/YYYY'),
-        Declaration: item.Declaration === null ? "Não avaliado" : item.Declaration === 1 ? "Selo de Ouro" : item.Declaration === 2 ? "Selo de Prata" : item.Declaration === 3 ? "Selo de Bronze" : "Declaração não conforme",
-        edit: "Editar",
-      })));
-      setOriginalData(
-        websites.map(item => ({
-          id: item.WebsiteId,
-          Name: item.Name,
-          StartingUrl: item.StartingUrl,
-          Pages: item.Pages + "(" + item.Evaluated_Pages + ")",
-          Creation_Date: moment(item.Creation_Date).format('DD/MM/YYYY'),
-          Declaration: item.Declaration === null ? "Não avaliado" : item.Declaration === 1 ? "Selo de Ouro" : item.Declaration === 2 ? "Selo de Prata" : item.Declaration === 3 ? "Selo de Bronze" : "Declaração não conforme",
-          edit: "Editar",
-        }))
-      )
+      } catch (error) {
+        console.error("Error fetching directory data:", error);
+        setWebsitesError('Erro ao carregar dados do diretório');
+        setIsLoadingWebsites(false);
+        setIsProcessingStats(false);
+        setHasInitialLoad(true); // Mark as complete even on error
+      }
     };
 
     fetchData();
@@ -349,7 +362,11 @@ const ViewDirectoriesComponent = () => {
         data: { directoryName }
       });
     }
-  }, [directoryName]);
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [directoryName, t]);
 
   const breadcrumbs = [
     { children: <Link to="/dashboard/home">Início</Link> },
@@ -361,6 +378,9 @@ const ViewDirectoriesComponent = () => {
   const barOptionsCopy = JSON.parse(JSON.stringify(barOptions || {}));
   // Server-side pagination & search for directory websites
   useEffect(() => {
+    // Only run after initial load is complete
+    if (!hasInitialLoad) return;
+    
     const fetchPaginated = async () => {
       try {
         const countRes = await api.get(`/directory/${encodeURIComponent(directoryName)}/websites/count/search=${encodeURIComponent(search || '')}`);
@@ -373,7 +393,7 @@ const ViewDirectoriesComponent = () => {
           StartingUrl: item.StartingUrl,
           Pages: item.Pages + "(" + item.Evaluated_Pages + ")",
           Creation_Date: moment(item.Creation_Date).format('DD/MM/YYYY'),
-          Declaration: item.Declaration === null ? "Não avaliado" : item.Declaration === 1 ? "Selo de Ouro" : item.Declaration === 2 ? "Selo de Prata" : item.Declaration === 3 ? "Selo de Bronze" : "Declaração não conforme",
+          Declaration: item.Declaration === null ? "Nao avaliado" : item.Declaration === 1 ? "Selo de Ouro" : item.Declaration === 2 ? "Selo de Prata" : item.Declaration === 3 ? "Selo de Bronze" : "Declaracao nao conforme",
           edit: "Editar",
         }));
         setData(rows);
@@ -437,6 +457,7 @@ const ViewDirectoriesComponent = () => {
         setFeedbackMessage("Sítios web eliminados com sucesso!");
         setCheckboxesSelected([]);
         setSearch("");
+        clearDirectoryPagesCache();
       }
     } catch (error) {
       setFeedbackMessage("Erro ao eliminar sítios web. Tente novamente.");
@@ -461,6 +482,7 @@ const ViewDirectoriesComponent = () => {
         setFeedbackMessage("Páginas dos sítios web eliminadas com sucesso!");
         setCheckboxesSelected([]);
         setSearch("");
+        clearDirectoryPagesCache();
         await fetchDataWebsite();
       }
     } catch (error) {
@@ -484,6 +506,7 @@ const ViewDirectoriesComponent = () => {
         setCheckboxesSelected([]);
         setShowModal(false);
         setSearch("");
+        clearDirectoryPagesCache();
         await fetchDataWebsite();
       }
     } catch (error) {
@@ -548,75 +571,99 @@ const ViewDirectoriesComponent = () => {
 
       <div className="mt-5 bg-white p-4">
         <h2 className="mb-4">{t('DIRECTORIES_PAGE.LIST.global_indicators')}</h2>
-        <Indicators listItems={listItems} />
+        {isProcessingStats ? (
+          <p className="text-muted">A calcular indicadores...</p>
+        ) : (
+          <Indicators listItems={listItems} />
+        )}
       </div>
 
       <div className="mt-5 bg-white p-4">
         <h2 className="mb-4">Conformidade global do Diretório</h2>
-        <Indicators listItems={listItemsGlobal} />
+        {isProcessingStats ? (
+          <p className="text-muted">A calcular conformidade...</p>
+        ) : (
+          <Indicators listItems={listItemsGlobal} />
+        )}
       </div>
 
       <div className="mt-5 bg-white p-4">
         <h2 className="mb-4">Distribuição das pontuações AccessMonitor no universo do Diretório</h2>
-        <BarLineGraphTabs
-          columnsOptions={columnsOptionsBar}
-          barData={barDataDynamic}
-          barOptions={theme === "light" ? barOptionsCopy : barOptionsDark}
-          dataHeaders={dataHeadersBar}
-          dataList={dataListBar}
-          darkTheme={theme}
-        />
+        {isProcessingStats ? (
+          <p className="text-muted">A preparar distribuição...</p>
+        ) : (
+          <BarLineGraphTabs
+            columnsOptions={columnsOptionsBar}
+            barData={barDataDynamic}
+            barOptions={theme === "light" ? barOptionsCopy : barOptionsDark}
+            dataHeaders={dataHeadersBar}
+            dataList={dataListBar}
+            darkTheme={theme}
+          />
+        )}
       </div>
 
       <div className="mt-5 bg-white p-4">
         <h2 className="mb-4">Mancha Gráfica da Acessibilidade</h2>
-        <RadarGraph darkTheme={theme} labelDataSet="Pontuação por sítio Web" websites={radarWebsites}showTabs={true} />
+        {isProcessingStats ? (
+          <p className="text-muted">A preparar gráfico radar...</p>
+        ) : (
+          <RadarGraph darkTheme={theme} labelDataSet="Pontuação por sítio Web" websites={radarWebsites}showTabs={true} />
+        )}
       </div>
 
       <div className="mt-5 bg-white p-4">
         <h2 className="mb-4">Distribuição detalhada das melhores práticas</h2>
-        <SortingTable
-          hasSort={false}
-          headers={detailsTableHeaders}
-          dataList={dataListDetails?.filter(e => !e.occurrences.toString()?.includes("lang"))}
-          columnsOptions={columnsOptionsDetails}
-          darkTheme={theme}
-          pagination={false}
-          links={false}
-          ariaLabels={ariaLabels}
-          caption="Distribuição detalhada das melhores práticas"
-          setDataList={() => { }}
-          nextPage={() => { }}
-          itemsPaginationTexts={[]}
-          nItemsPerPageTexts={[]}
-          iconsAltTexts={[]}
-          paginationButtonsTexts={[]}
-          project=""
-          setCheckboxesSelected={() => { }}
-        />
+        {isProcessingStats ? (
+          <p className="text-muted">A calcular práticas...</p>
+        ) : (
+          <SortingTable
+            hasSort={false}
+            headers={detailsTableHeaders}
+            dataList={dataListDetails?.filter(e => !e.occurrences.toString()?.includes("lang"))}
+            columnsOptions={columnsOptionsDetails}
+            darkTheme={theme}
+            pagination={false}
+            links={false}
+            ariaLabels={ariaLabels}
+            caption="Distribuição detalhada das melhores práticas"
+            setDataList={() => { }}
+            nextPage={() => { }}
+            itemsPaginationTexts={[]}
+            nItemsPerPageTexts={[]}
+            iconsAltTexts={[]}
+            paginationButtonsTexts={[]}
+            project=""
+            setCheckboxesSelected={() => {}}
+          />
+        )}
       </div>
 
       <div className="mt-5 bg-white p-4">
         <h2 className="mb-4">Distribuição detalhada das piores práticas</h2>
-        <SortingTable
-          hasSort={false}
-          headers={detailsTableHeaders}
-          dataList={dataListDetailsBad?.filter(e => !e.occurrences.toString()?.includes("lang"))}
-          columnsOptions={columnsOptionsDetails}
-          darkTheme={theme}
-          pagination={false}
-          links={false}
-          ariaLabels={ariaLabels}
-          caption="Distribuição detalhada das piores práticas"
-          setDataList={() => { }}
-          nextPage={() => { }}
-          itemsPaginationTexts={[]}
-          nItemsPerPageTexts={[]}
-          iconsAltTexts={[]}
-          paginationButtonsTexts={[]}
-          project=""
-          setCheckboxesSelected={() => { }}
-        />
+        {isProcessingStats ? (
+          <p className="text-muted">A calcular más práticas...</p>
+        ) : (
+          <SortingTable
+            hasSort={false}
+            headers={detailsTableHeaders}
+            dataList={dataListDetailsBad?.filter(e => !e.occurrences.toString()?.includes("lang"))}
+            columnsOptions={columnsOptionsDetails}
+            darkTheme={theme}
+            pagination={false}
+            links={false}
+            ariaLabels={ariaLabels}
+            caption="Distribuição detalhada das piores práticas"
+            setDataList={() => { }}
+            nextPage={() => { }}
+            itemsPaginationTexts={[]}
+            nItemsPerPageTexts={[]}
+            iconsAltTexts={[]}
+            paginationButtonsTexts={[]}
+            project=""
+            setCheckboxesSelected={() => {}}
+          />
+        )}
       </div>
 
       <div className="mt-5 bg-white p-4">

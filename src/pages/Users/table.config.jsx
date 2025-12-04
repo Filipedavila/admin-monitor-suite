@@ -127,6 +127,7 @@ export const websiteUsersHeaders = [
 export const websiteUsersColumnsOptions = (navigate, handleImportWebsite)=>({
   Username: { type: "Skip", center: false, bold: false, decimalPlace: false },
   id: { type: "Skip", center: false, bold: false, decimalPlace: false },
+  StartingUrl: { type: "Skip", center: false, bold: false, decimalPlace: false },
   Name: { type: "Link", center: false, bold: false, decimalPlace: false,
    href: (row)=>`.${import.meta.env.VITE_ROUTE_URL}pages/${row.Username}/${row.Name}` },
   Creation_Date: { type: "Text", center: true, bold: false, decimalPlace: false},

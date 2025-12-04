@@ -1,7 +1,7 @@
 // ⚠️ This version replaces your debounced local processing with a Web Worker
 // Make sure to create a file: `src/workers/aggregation.worker.js` (see below)
 
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { Button, StatisticsHeader, SortingTable } from "ama-design-system";
 import { BarLineGraphTabs } from "../../../components/BarLineGraph/index.jsx";
 import { RadarGraph } from "../../../components/RadarGraph/index.jsx";
@@ -71,17 +71,10 @@ const TabGlobalAMS = ({
   const [initialDataListDetailsBad, setInitialDataListDetailsBad] = useState([]);
   const [initialSuccessCriteriaSuccess, setInitialSuccessCriteriaSuccess] = useState([]);
   const [initialSuccessCriteriaErrors, setInitialSuccessCriteriaErrors] = useState([]);
-  const [isLoadingDirectories, setIsLoadingDirectories] = useState(true);
-  const [isLoadingData, setIsLoadingData] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    
-  }, []);
-
-  useEffect(() => {
-    const fetchDataGlobalAMS = async () => {
-      try {
+  const fetchDataGlobalAMS = useCallback(async () => {
+    try {
         const response = await api.get('/totals');
         const indicators = response.data.result;
         setInitialListItems([
@@ -138,18 +131,13 @@ const TabGlobalAMS = ({
         setDirectories(directoriesKeys);
         const radarData = Object.values(indicators.directoryAverageScores).map((directory, index) => ({averageScore: directory, domain: directoriesKeys[index]}));
         setInitialDataRadar(radarData);
-        console.log(radarData);
-        setIsLoadingData(true);
-
       } catch (err) {
         console.log(err);
         setError('Erro ao carregar diretórios');
-      } finally {
-        setIsLoadingData(false);
-        setIsLoadingDirectories(false);
       }
-    };
-    const fetchPratices = async () => {
+  }, []);
+
+  const fetchPratices = useCallback(async () => {
       try {
         const response = await api.get('/totals/practices');
         const practices = response.data.result.practiceTable;
@@ -180,10 +168,18 @@ const TabGlobalAMS = ({
       } catch (err) {
         console.log(err);
       }
-    };
+  }, [t]);
+
+  useEffect(() => {
     fetchDataGlobalAMS();
     fetchPratices();
-  }, []);
+
+    return () => {
+      if (workerRef.current) {
+        workerRef.current.terminate();
+      }
+    };
+  }, [fetchDataGlobalAMS, fetchPratices]);
 
   const handleExportCSV = async () => {
     try {
@@ -196,22 +192,15 @@ const TabGlobalAMS = ({
     }
   }
 
-  if (error) {
-    return <div className="alert alert-danger">Erro: {error}</div>;
-  }
-
-  if (isLoadingData) {
-    return <div className="text-center mt-4">Processando diretórios...</div>;
-  } 
-
   return (
     <div>
       <h2>AMS</h2>
       <p>
         Abaixo encontra a listagem de todos os Directórios registados no AdminMonitorSuite,
         num total de {directories.length} diretórios.
-        {isLoadingData && <span className="ml-2 badge badge-info">Processando dados...</span>}
       </p>
+
+      {error && <div className="alert alert-danger">Erro: {error}</div>}
 
       <div className="content bg-white">
         <h2>Exportação de dados</h2>
@@ -220,6 +209,7 @@ const TabGlobalAMS = ({
           text="Exportar CSV"
           className="btn-primary"
           onClick={handleExportCSV}
+          disabled={directories.length === 0}
         />
       </div>
 
