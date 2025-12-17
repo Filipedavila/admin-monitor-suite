@@ -44,8 +44,8 @@ const UserGovList = () => {
       id: item.id,
       name: item.name,
       ccNumber: item.ccNumber,
-      registerDate: moment(item.creation_date).format('DD/MM/YYYY HH:mm:ss'),
-      lastLogin: moment(item.last_login).format('DD/MM/YYYY HH:mm:ss'),
+      registerDate: moment(item.registerDate).format('DD/MM/YYYY HH:mm:ss'),
+      lastLogin: moment(item.lastLogin).format('DD/MM/YYYY HH:mm:ss'),
       edit: "Editar",
     })));
   };
