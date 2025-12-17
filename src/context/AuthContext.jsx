@@ -1,5 +1,4 @@
 import React, { createContext, useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { api } from '../config/api';
 
 
@@ -9,11 +8,10 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
 
-
   const login = async (username, password, machineIP) => {
     setLoading(true);
     try {
-      const response = await api.post(localStorage.getItem("@AMS:apiUrl") + '/api/auth/login', { username, password, type:"nimda" });
+      const response = await api.post('/auth/login', { username, password, type:"nimda" });
 
       if (response.status === 200 || response.status === 201) {
         const { password, ...userWithoutPassword } = response.data;
@@ -38,7 +36,8 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('@AMS:user');
-    navigate('/');
+    localStorage.removeItem('@AMS:token');
+    window.location.href = '/ams/login';
   };
 
   // Check if user is authenticated

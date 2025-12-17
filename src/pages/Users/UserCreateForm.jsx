@@ -42,21 +42,32 @@ const UsersCreateForm = () => {
         maxLength: { value: 50, message: "O nome não pode exceder 50 caracteres" },
 
     };
-    const [passwordValidation, setPasswordValidation] = useState({
-        required: <div dangerouslySetInnerHTML={{__html: t('MISC.required_field')}} />,
-        minLength: { value: 8, message: "A palavra-passe deve ter pelo menos 8 caracteres" },
-        maxLength: { value: 100, message: "A palavra-passe não pode exceder 100 caracteres" },
-        validate: {
-            hasUpperCase: (value) => /[A-Z]/.test(value) || "A palavra-passe deve conter pelo menos uma letra maiúscula",
-            hasLowerCase: (value) => /[a-z]/.test(value) || "A palavra-passe deve conter pelo menos uma letra minúscula",
-            hasNumber: (value) => /\d/.test(value) || "A palavra-passe deve conter pelo menos um número",
-            hasSpecialChar: (value) => /[!@#$%^&*(),.?":{}|<>]/.test(value) || "A palavra-passe deve conter pelo menos um caractere especial (!@#$%^&*...)"
+    // Dynamic password validation based on role
+    const getPasswordValidation = () => {
+        if (role === '2') {
+            return {}; // No validation for MyMonitor
         }
-    });
+        return {
+            required: <div dangerouslySetInnerHTML={{__html: t('MISC.required_field')}} />,
+            minLength: { value: 8, message: "A palavra-passe deve ter pelo menos 8 caracteres" },
+            maxLength: { value: 100, message: "A palavra-passe não pode exceder 100 caracteres" },
+            validate: {
+                hasUpperCase: (value) => !value || /[A-Z]/.test(value) || "A palavra-passe deve conter pelo menos uma letra maiúscula",
+                hasLowerCase: (value) => !value || /[a-z]/.test(value) || "A palavra-passe deve conter pelo menos uma letra minúscula",
+                hasNumber: (value) => !value || /\d/.test(value) || "A palavra-passe deve conter pelo menos um número",
+                hasSpecialChar: (value) => !value || /[!@#$%^&*(),.?":{}|<>]/.test(value) || "A palavra-passe deve conter pelo menos um caractere especial (!@#$%^&*...)"
+            }
+        };
+    };
 
-    const [confirmPasswordValidation, setConfirmPasswordValidation] = useState({
-        required: <div dangerouslySetInnerHTML={{__html: t('MISC.required_field')}} />,
-    });
+    const getConfirmPasswordValidation = () => {
+        if (role === '2') {
+            return {}; // No validation for MyMonitor
+        }
+        return {
+            required: <div dangerouslySetInnerHTML={{__html: t('MISC.required_field')}} />,
+        };
+    };
 
     // Dynamic breadcrumbs - Users flow is linear, no dynamic context needed
     const breadcrumbs = [
@@ -102,6 +113,7 @@ const UsersCreateForm = () => {
     // Load initial websites and user data
     useEffect(() => {
         fetchWebsites("");
+        
         const fetchUser = async () => {
             try {
                 const response = await api.get(`/user/info/${id}`);
@@ -141,37 +153,17 @@ const UsersCreateForm = () => {
     }, [id, setValue]);
 
     useEffect(() => {
-        if(role === '2'){
-            setPasswordValidation({
-                required: false,
-            });
-            setConfirmPasswordValidation({
-                required: false,
-                validate: false
-            });
-        } else {
-            setPasswordValidation({
-                required: <div dangerouslySetInnerHTML={{__html: t('MISC.required_field')}} />,
-                minLength: { value: 8, message: "A palavra-passe deve ter pelo menos 8 caracteres" },
-                maxLength: { value: 100, message: "A palavra-passe não pode exceder 100 caracteres" },
-                validate: {
-                    hasUpperCase: (value) => /[A-Z]/.test(value) || "A palavra-passe deve conter pelo menos uma letra maiúscula",
-                    hasLowerCase: (value) => /[a-z]/.test(value) || "A palavra-passe deve conter pelo menos uma letra minúscula",
-                    hasNumber: (value) => /\d/.test(value) || "A palavra-passe deve conter pelo menos um número",
-                    hasSpecialChar: (value) => /[!@#$%^&*(),.?":{}|<>]/.test(value) || "A palavra-passe deve conter pelo menos um caractere especial (!@#$%^&*...)"
-                }
-            });
-            setConfirmPasswordValidation({
-                required: <div dangerouslySetInnerHTML={{__html: t('MISC.required_field')}} />  ,
-            });
-        }
-        
         // Clear websites when role is AMS (role === '1')
         if (role === '1') {
             setWebsites([]);
             setValue("websites", []);
         }
-    }, [role, setValue]);
+        
+        // Clear password values and errors when switching roles
+        setValue("password", "");
+        setValue("confirmPassword", "");
+        trigger(['password', 'confirmPassword']);
+    }, [role, setValue, trigger]);
 
     // Handlers for website association
     const handleWebsiteSearch = (value) => {
@@ -228,32 +220,36 @@ const UsersCreateForm = () => {
         setIsSubmitting(true);
 
         try {
-            const payload = {
+            let payload;
+            payload = {
                 username: data.username,
-                password: data.password ?? "",
-                confirmPassword: data.confirmPassword ?? "",
+                password: data.password === "" ? "defaultAdmin123@" : data.password,
+                confirmPassword: data.confirmPassword === "" ? "defaultAdmin123@" : data.confirmPassword,
                 type: role === '1' ? "nimda" : "monitor",
                 emails: "",
                 names: "",
                 websites: role === '1' ? [] : (websites || []),
                 tags: []
             };
+
             let response;
             if(id){
                 if(payload.password === ""){
                     delete payload.password;
                     delete payload.confirmPassword;
                 }
+           
                 delete payload.tags;
                 payload.websites = JSON.stringify(role === '1' ? [] : (websites || [])); // Current selection (original + new)
                 payload.app = role === '1' ? "nimda" : "monitor";
                 payload.defaultWebsites = JSON.stringify(role === '1' ? [] : (defaultWebsites || [])); // Only original websites
                 payload.userId = Number(id);
-                console.log(payload);
                 response = await api.post('/user/update', payload);
             }else{
                 response = await api.post('/user/create', payload);
             }
+
+         
             
             if (response.status === 201 || response.status === 200) {
                 setFeedbackMessage(id ? "Utilizador atualizado com sucesso!" : "Utilizador criado com sucesso!");
@@ -327,6 +323,7 @@ const UsersCreateForm = () => {
                 
                         <>
                             <Input
+                                key={`password-${role}`}
                                 label={t('USERS_PAGE.ADD.password_label') + (role === '2' ? " (opcional)" : "")}
                                 name="password"
                                 type="password"
@@ -334,7 +331,7 @@ const UsersCreateForm = () => {
                                 hidePassTextAria={t('LOGIN.hide_password')}
                                 darkTheme={theme}
                                 placeholder="Palavra-passe"
-                                {...register("password", passwordValidation)}
+                                {...register("password", getPasswordValidation())}
                                 onChange={e => setValue("password", e.target.value)}
                                 error={errors.password?.message}
                                 autoComplete="off"
@@ -403,6 +400,7 @@ const UsersCreateForm = () => {
                             )}
                             
                             <Input
+                                key={`confirmPassword-${role}`}
                                 label={t('USERS_PAGE.ADD.confirm_password_label') + (role === '2' ? " (opcional)" : "")}
                                 name="confirmPassword"
                                 type="password"
@@ -410,7 +408,7 @@ const UsersCreateForm = () => {
                                 hidePassTextAria={t('LOGIN.hide_password')}
                                 darkTheme={theme}
                                 placeholder="Confirmar palavra-passe"
-                                {...register("confirmPassword", confirmPasswordValidation)}
+                                {...register("confirmPassword", getConfirmPasswordValidation())}
                                 onChange={e => setValue("confirmPassword", e.target.value)}
                                 error={errors.confirmPassword?.message}
                                 autoComplete="off"

@@ -37,7 +37,7 @@ const UsersGovCreateForm = () => {
             };
             let response;
             if(id){
-                payload.id = id;
+                payload.id = Number(id);
                 const result = associatedUsersOptions.filter(item => associatedUser.includes(item.value));
                 payload.entities = result.map(item => ({
                     UserId: item.value,
@@ -49,9 +49,13 @@ const UsersGovCreateForm = () => {
             }
             if (response.status === 201 || response.status === 200) {
                 setFeedbackMessage(id ? "Utilizador Gov atualizado com sucesso!" : "Utilizador Gov criado com sucesso!");
+                setTimeout(() => {
+                    navigate('/dashboard/usersgov');
+                }, 2000);
             } else {
                 setFeedbackMessage(id ? "Erro ao atualizar utilizador Gov. Tente novamente." : "Erro ao criar utilizador Gov. Tente novamente.");
             }
+            
         } catch (error) {
             if (error.response?.status === 409) {
                 setFeedbackMessage(id ? "Já existe um utilizador com este nome ou cartão de cidadão." : "Já existe um utilizador com este nome ou cartão de cidadão.");

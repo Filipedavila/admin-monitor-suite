@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const normalizeBaseUrl = (url) => {
-  if (!url || typeof url !== 'string') {
+  if (!url || typeof url !== 'string' || url === 'undefined') {
     return '';
   }
   return url.replace(/\/+$/, '');
@@ -9,7 +9,7 @@ const normalizeBaseUrl = (url) => {
 
 const resolveBaseUrl = () => {
   if (typeof window === 'undefined') {
-    return '';
+    return '/api';
   }
 
   const storedUrl = localStorage.getItem('@AMS:apiUrl');
@@ -43,7 +43,8 @@ export const createApiInstance = (token) => {
 
 api.interceptors.request.use(
   (config) => {
-    config.baseURL = config.baseURL || refreshApiBaseUrl();
+    // Always refresh the baseURL from localStorage before each request
+    config.baseURL = refreshApiBaseUrl();
     const token = localStorage.getItem('@AMS:token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
