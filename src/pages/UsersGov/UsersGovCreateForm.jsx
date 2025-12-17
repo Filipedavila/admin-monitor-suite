@@ -35,6 +35,7 @@ const UsersGovCreateForm = () => {
                 name: data.username,
                 ccNumber: data.citizen_card_number
             };
+            let response;
             if(id){
                 payload.id = id;
                 const result = associatedUsersOptions.filter(item => associatedUser.includes(item.value));
@@ -42,14 +43,12 @@ const UsersGovCreateForm = () => {
                     UserId: item.value,
                     Username: item.label
                 }));
-                const response = await api.post('/gov-user/update', payload);
+                response = await api.post('/gov-user/update', payload);
             } else {
-                const response = await api.post('/gov-user/create', payload);
+                response = await api.post('/gov-user/create', payload);
             }
-            
             if (response.status === 201 || response.status === 200) {
                 setFeedbackMessage(id ? "Utilizador Gov atualizado com sucesso!" : "Utilizador Gov criado com sucesso!");
-                reset();
             } else {
                 setFeedbackMessage(id ? "Erro ao atualizar utilizador Gov. Tente novamente." : "Erro ao criar utilizador Gov. Tente novamente.");
             }
