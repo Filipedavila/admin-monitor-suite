@@ -183,12 +183,15 @@ const TabGlobalAMS = ({
 
   const handleExportCSV = async () => {
     try {
-      downloadCSVByDirectory(
+      console.log("🚀 EXPORT BUTTON CLICKED - Starting CSV export...");
+      console.log("Directories to export:", directories);
+      await downloadCSVByDirectory(
         directories.map((d) => d),
         "Global AMS - " + new Date().toLocaleDateString()
       );
+      console.log("✓ CSV export completed");
     } catch (error) {
-      console.error("Error exporting CSV:", error);
+      console.error("❌ Error exporting CSV:", error);
     }
   }
 
