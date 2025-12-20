@@ -1,6 +1,5 @@
 import i18n from "../../i18n";
 // headers da tabela
-const apiUrl = import.meta.env.VITE_API_URL + import.meta.env.VITE_ROUTE_URL;
 
 const theme = "light";
 
@@ -66,7 +65,7 @@ export const columnsOptions = (navigate) => ({
     isCheckboxLabel: true,
     decimalPlace: false,
     href: (row) => {
-      return `${apiUrl}dashboard/websites/view/${row.id}/${row.Name}`;
+      return `${import.meta.env.VITE_ROUTE_URL}dashboard/websites/view/${row.id}/${row.Name}`;
     },
   },
   StartingUrl: {
