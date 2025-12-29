@@ -1304,6 +1304,7 @@ export async function downloadCSV(websites, fileBaseName = "websites") {
       "Creation_Date",
       "Entity",
       "Tags",
+      "Directories",
       "numberOfPages",
       "averagePoints",
     ];
@@ -1351,6 +1352,12 @@ export async function downloadCSV(websites, fileBaseName = "websites") {
             .filter(Boolean)
             .join(";") || websiteData.tags || "";
 
+        const directories =
+          (websiteData.directories || [])
+            .map((d) => d?.Name || d)
+            .filter(Boolean)
+            .join(";") || websiteData.directories || "";
+
         const numberOfPages = websiteData?.Pages ?? websiteData?.numberOfPages ?? "";
         const avgRaw = websiteData?.AverageScore ?? websiteData?.averagePoints ?? 0;
         // Convert NaN to 0 for CSV export
@@ -1367,6 +1374,7 @@ export async function downloadCSV(websites, fileBaseName = "websites") {
           esc(websiteData?.Creation_Date),
           esc(entity),
           esc(tags),
+          esc(directories),
           esc(numberOfPages),
           esc(avg),
         ].join(";");
