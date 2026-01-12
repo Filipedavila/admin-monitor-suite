@@ -60,7 +60,7 @@ const TabGlobalObservatoryComponent = ({ theme, statsTitle, columnsOptionsBar, b
                   { title: 'Nº de Entidades', value:indicators.nEntities },
                   { title: 'Nº de Sítios Web', value:indicators.nWebsites },
                   { title: 'Nº de Páginas', value: indicators.nPages },
-                  { title: 'Nº médio de Páginas por Sítio', value: indicators.nPages / indicators.nWebsites },
+                  { title: 'Nº médio de Páginas por Sítio', value: (indicators.nPages / indicators.nWebsites).toFixed(1) },
 
                 ]);
                 setDirectories(Object.values(indicators.directories));

@@ -252,13 +252,13 @@ export const aggregateDirectoriesData = async (directoryNames, api) => {
     return {
       // Main indicators
       listItems: [
-        { title: 'Pontuação média', value: Math.round(averageScore) },
+        { title: 'Pontuação média', value: averageScore.toFixed(1) },
         { title: 'Avaliação mais antiga de uma página', value: oldestPage },
         { title: 'Avaliação mais recente de uma página', value: newestPage },
         { title: 'Nº de Sítios Web', value: totalWebsites },
         { title: 'Nº de Diretórios', value: directoriesData.length },
         { title: 'Nº de Páginas(Avaliadas)', value: `${totalPages} (${totalEvaluatedPages})` },
-        { title: 'Nº médio de Páginas por Sítio', value: Math.round(totalPages / totalWebsites) },
+        { title: 'Nº médio de Páginas por Sítio', value: (totalPages / totalWebsites).toFixed(1) },
       ],
       
       // Global conformance indicators
@@ -268,9 +268,9 @@ export const aggregateDirectoriesData = async (directoryNames, api) => {
         {
           title: 'Sítios Web conformes', value: conformantWebsites,
           itemsList: [
-            { title: 'Conformidade A: sem erros de nível A', value: `${conformCounts.A} (${((conformCounts.A / totalWebsites) * 100).toFixed(2)}%)` },
-            { title: 'Conformidade AA: sem erros de nível A + AA', value: `${conformCounts.AA} (${((conformCounts.AA / totalWebsites) * 100).toFixed(2)}%)` },
-            { title: 'Conformidade AAA: sem erros de nível A + AA + AAA', value: `${conformCounts.AAA} (${((conformCounts.AAA / totalWebsites) * 100).toFixed(2)}%)` },
+            { title: 'Conformidade A: sem erros de nível A', value: `${conformCounts.A} (${((conformCounts.A / totalWebsites) * 100).toFixed(1)}%)` },
+            { title: 'Conformidade AA: sem erros de nível A + AA', value: `${conformCounts.AA} (${((conformCounts.AA / totalWebsites) * 100).toFixed(1)}%)` },
+            { title: 'Conformidade AAA: sem erros de nível A + AA + AAA', value: `${conformCounts.AAA} (${((conformCounts.AAA / totalWebsites) * 100).toFixed(1)}%)` },
           ]
         },
       ],

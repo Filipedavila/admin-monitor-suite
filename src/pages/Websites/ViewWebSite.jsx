@@ -268,32 +268,33 @@ const ViewWebSitesComponent = () => {
   
   useEffect(() => {
     const fetchData = async () => {
-      const responsePagesPag = await api.get(`/website/${websiteName}/user/admin/pages/all/${itemsPerPage}/0/sort=/direction=/search=`);
-      setOriginalData(responsePagesPag.data.result.map(page => ({
+      const responsePagesPag = await api.get(`/website/${encodeURIComponent(websiteName)}/user/admin/pages/all/${itemsPerPage}/0/sort=/direction=/search=`);
+      console.log('Pages API Response:', responsePagesPag.data);
+      setOriginalData((responsePagesPag.data.result || []).map(page => ({
         id: page.PageId,
         Uri: page.Uri,
-        Score: page.Score,
-        Evaluation_Date: moment(page.Evaluation_Date).format('DD/MM/YYYY'),
+        Score: page.Score ?? 0,
+        Evaluation_Date: page.Evaluation_Date ? moment(page.Evaluation_Date).format('DD/MM/YYYY') : 'Pendente',
         Element_Count: calculateTotalElements(page.Element_Count),
-        A: page.A,
-        AA: page.AA,
-        AAA: page.AAA,
+        A: page.A ?? 0,
+        AA: page.AA ?? 0,
+        AAA: page.AAA ?? 0,
         e: "?",
-        OPAW: page.Show_In.split("")[2] === "1" ? "Sim" : "Não",
+        OPAW: page.Show_In ? (page.Show_In.split("")[2] === "1" ? "Sim" : "Nao") : "Nao",
       })));
-      setData(responsePagesPag.data.result.map(page => ({
+      setData((responsePagesPag.data.result || []).map(page => ({
         id: page.PageId,
         Uri: page.Uri,
-        Score: page.Score,
-        Evaluation_Date: moment(page.Evaluation_Date).format('DD/MM/YYYY'),
+        Score: page.Score ?? 0,
+        Evaluation_Date: page.Evaluation_Date ? moment(page.Evaluation_Date).format('DD/MM/YYYY') : 'Pendente',
         Element_Count: calculateTotalElements(page.Element_Count),
-        A: page.A,
-        AA: page.AA,
-        AAA: page.AAA,
+        A: page.A ?? 0,
+        AA: page.AA ?? 0,
+        AAA: page.AAA ?? 0,
         e: "?",
-        OPAW: page.Show_In.split("")[2] === "1" ? "Sim" : "Não",
+        OPAW: page.Show_In ? (page.Show_In.split("")[2] === "1" ? "Sim" : "Nao") : "Nao",
       })));
-      const responsePages = await api.get(`/website/${websiteName}/user/admin/pages`);
+      const responsePages = await api.get(`/website/${encodeURIComponent(websiteName)}/user/admin/pages`);
       const pagesData = responsePages.data.result || [];
       setTotalItems(pagesData.length);
       const response = await api.get(`/website/info/${id}`);
@@ -309,7 +310,7 @@ const ViewWebSitesComponent = () => {
       getData(website, pagesData, websiteList, websiteListForWebsitePage, moment);
       websiteListForWebsitePage = websiteListForWebsitePage[0];
       setListItems([
-        { title: 'Pontuação média', value: Math.round(websiteListForWebsitePage.score) },
+        { title: 'Pontuação média', value: websiteListForWebsitePage.score.toFixed(1) },
         { title: 'Avaliação mais antiga de uma página', value: websiteListForWebsitePage.oldestPage ? moment(websiteListForWebsitePage.oldestPage).format('DD/MM/YYYY') : 'N/A' },
         { title: 'Avaliação mais recente de uma página', value: websiteListForWebsitePage.recentPage ? moment(websiteListForWebsitePage.recentPage).format('DD/MM/YYYY') : 'N/A' },
         { title: 'Nº de páginas recolhidas(avaliadas)', value: `${websiteListForWebsitePage.nPages}(${evaluatedPages.length})` },
@@ -320,9 +321,9 @@ const ViewWebSitesComponent = () => {
         {
           title: 'Páginas Conformes', value: websiteListForWebsitePage.pagesWithoutErrors,
           itemsList: [
-            { title: 'Conformidade A', value: `${websiteListForWebsitePage.pagesWithoutErrorsA} (${((websiteListForWebsitePage.pagesWithoutErrorsA / totalPages) * 100).toFixed(2)}%)` },
-            { title: 'Conformidade AA', value: `${websiteListForWebsitePage.pagesWithoutErrorsAA} (${((websiteListForWebsitePage.pagesWithoutErrorsAA / totalPages) * 100).toFixed(2)}%)` },
-            { title: 'Conformidade AAA', value: `${websiteListForWebsitePage.pagesWithoutErrorsAAA} (${((websiteListForWebsitePage.pagesWithoutErrorsAAA / totalPages) * 100).toFixed(2)}%)` },
+            { title: 'Conformidade A', value: `${websiteListForWebsitePage.pagesWithoutErrorsA} (${((websiteListForWebsitePage.pagesWithoutErrorsA / totalPages) * 100).toFixed(1)}%)` },
+            { title: 'Conformidade AA', value: `${websiteListForWebsitePage.pagesWithoutErrorsAA} (${((websiteListForWebsitePage.pagesWithoutErrorsAA / totalPages) * 100).toFixed(1)}%)` },
+            { title: 'Conformidade AAA', value: `${websiteListForWebsitePage.pagesWithoutErrorsAAA} (${((websiteListForWebsitePage.pagesWithoutErrorsAAA / totalPages) * 100).toFixed(1)}%)` },
           ]
         },
       ]);

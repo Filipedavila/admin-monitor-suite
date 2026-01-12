@@ -18,6 +18,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { api } from "../../config/api";
 import { Modal } from "../../components/Modal";
 import CrawlingModal from "../../components/CrawlingModal";
+
 const PageCreateForm = () => {
   const {
     register,
@@ -31,10 +32,10 @@ const PageCreateForm = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [breadcrumbs, setBreadcrumbs] = React.useState([
-    { children: <Link to="/dashboard/home">Início</Link> },
-    { children: <Link to="/dashboard/pages">Páginas</Link> },
+    { children: <Link to="/dashboard/home">Inicio</Link> },
+    { children: <Link to="/dashboard/pages">Paginas</Link> },
     {
-      title: "Criar Página",
+      title: "Criar Pagina",
     },
   ]);
   const { theme } = useTheme();
@@ -46,6 +47,8 @@ const PageCreateForm = () => {
   const [activeTab, setActiveTab] = React.useState("tab1");
   const [feedbackMessage, setFeedbackMessage] = React.useState("");
   const [showCrawlingModal, setShowCrawlingModal] = React.useState(false);
+  const [shouldClearForm, setShouldClearForm] = React.useState(false);
+
   // Function to fetch websites with search term
   const fetchWebsites = React.useCallback(async (search = '') => {
     try {
@@ -93,147 +96,151 @@ const PageCreateForm = () => {
 
   // Function to trigger form submission programmatically
   const triggerSubmit = async () => {
-
       const formData = getValues();
       onSubmit(formData);
-
   };
 
-    const handleInsertPages = async (data) => {
-     // Validate that we have a website selected
-     if (selectedWebsites.length === 0) {
-       setFeedbackMessage("Por favor, selecione pelo menos um sítio web.");
-       return;
-     }
+  const handleInsertPages = async (data) => {
+    // Validate that we have a website selected
+    if (selectedWebsites.length === 0) {
+      setFeedbackMessage("Por favor, selecione pelo menos um sitio web.");
+      return;
+    }
 
-     // Validate that we have URLs
-     if (!data.urls || data.urls.trim() === "") {
-       setFeedbackMessage("Por favor, insira pelo menos um URL.");
-       return;
-     }
+    // Validate that we have URLs
+    if (!data.urls || data.urls.trim() === "") {
+      setFeedbackMessage("Por favor, insira pelo menos um URL.");
+      return;
+    }
 
-     // Process URLs: split by newline, trim whitespace, filter empty lines
-     const urls = data.urls
-       .split("\n")
-       .map(url => url.trim())
-       .filter(url => url.length > 0);
+    // Process URLs: split by newline, trim whitespace, filter empty lines
+    const urls = data.urls
+      .split("\n")
+      .map(url => url.trim())
+      .filter(url => url.length > 0);
 
-     if (urls.length === 0) {
-       setFeedbackMessage("Por favor, insira pelo menos um URL válido.");
-       return;
-     }
+    if (urls.length === 0) {
+      setFeedbackMessage("Por favor, insira pelo menos um URL valido.");
+      return;
+    }
 
-     try {
-       const response = await api.post('/page/add', {
-         websiteId: selectedWebsites[0],
-         uris: JSON.stringify(urls),
-         observatory: "[]"
-       });
-       
-       if(response.status === 200 || response.status === 201) {
-         setFeedbackMessage(`${urls.length} página(s) adicionada(s) com sucesso`);
-         setSelectedWebsites([]);
-         navigate("/dashboard/pages");
-       } else {
-         setFeedbackMessage("Erro ao adicionar páginas");
-       }
-     } catch (error) {
-       console.error("Error adding pages:", error);
-       setFeedbackMessage("Erro ao adicionar páginas. Tente novamente.");
-     }
-   };
+    try {
+      const response = await api.post('/page/add', {
+        websiteId: selectedWebsites[0].value,
+        uris: JSON.stringify(urls),
+        observatory: "[]"
+      });
+      
+      if(response.status === 200 || response.status === 201) {
+        setFeedbackMessage(`${urls.length} pagina(s) adicionada(s) com sucesso. As paginas serao avaliadas em segundo plano.`);
+        setShouldClearForm(true); // Mark form to be cleared when modal closes
+      } else {
+        setFeedbackMessage("Erro ao adicionar paginas");
+      }
+    } catch (error) {
+      console.error("Error adding pages:", error);
+      setFeedbackMessage("Erro ao adicionar paginas. Tente novamente.");
+    }
+  };
 
-   const handleInsertSiteMap = async (data) => {
-     console.log("handleInsertSiteMap called with data:", data);
-     
-     if (selectedWebsites.length === 0) {
-       setFeedbackMessage("Por favor, selecione pelo menos um sítio web.");
-       return;
-     }
+  const handleInsertSiteMap = async (data) => {
+    console.log("handleInsertSiteMap called with data:", data);
+    
+    if (selectedWebsites.length === 0) {
+      setFeedbackMessage("Por favor, selecione pelo menos um sitio web.");
+      return;
+    }
 
-     // Get the file input element directly
-     const fileInput = document.getElementById('sitemap');
-     console.log("File input element:", fileInput);
-     console.log("File input files:", fileInput?.files);
-     
-     if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-       console.log("No file selected");
-       setFeedbackMessage("Por favor, selecione um ficheiro sitemap.");
-       return;
-     }
+    // Get the file input element directly
+    const fileInput = document.getElementById('sitemap');
+    console.log("File input element:", fileInput);
+    console.log("File input files:", fileInput?.files);
+    
+    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+      console.log("No file selected");
+      setFeedbackMessage("Por favor, selecione um ficheiro sitemap.");
+      return;
+    }
 
-     const file = fileInput.files[0];
-     console.log("Selected file:", file);
-     
-     try {
-       // Read the file content
-       const fileContent = await new Promise((resolve, reject) => {
-         const reader = new FileReader();
-         reader.onload = (e) => resolve(e.target.result);
-         reader.onerror = reject;
-         reader.readAsText(file);
-       });
+    const file = fileInput.files[0];
+    console.log("Selected file:", file);
+    
+    try {
+      // Read the file content
+      const fileContent = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsText(file);
+      });
 
-       // Extract URLs from file content (one URL per line)
-       const urls = fileContent
-         .split('\n')
-         .map(url => url.trim())
-         .filter(url => url.length > 0);
+      // Extract URLs from file content (one URL per line)
+      const urls = fileContent
+        .split('\n')
+        .map(url => url.trim())
+        .filter(url => url.length > 0);
 
-       if (urls.length === 0) {
-         setFeedbackMessage("O ficheiro não contém URLs válidos.");
-         return;
-       }
+      if (urls.length === 0) {
+        setFeedbackMessage("O ficheiro nao contem URLs validos.");
+        return;
+      }
 
-       // Use the same logic as handleInsertPages
-       const response = await api.post('/page/add', {
-         websiteId: selectedWebsites[0],
-         uris: JSON.stringify(urls),
-         observatory: "[]"
-       });
+      // Use the same logic as handleInsertPages
+      const response = await api.post('/page/add', {
+        websiteId: selectedWebsites[0].value,
+        uris: JSON.stringify(urls),
+        observatory: "[]"
+      });
 
-       if (response.status === 200 || response.status === 201) {
-         setFeedbackMessage(`${urls.length} páginas do sitemap adicionadas com sucesso`);
-         setSelectedWebsites([]);
-       } else {
-         setFeedbackMessage("Erro ao adicionar páginas do sitemap");
-       }
-     } catch (error) {
-       console.error("Error processing sitemap file:", error);
-       setFeedbackMessage("Erro ao processar o ficheiro sitemap");
-     }
-   };
+      if (response.status === 200 || response.status === 201) {
+        setFeedbackMessage(`${urls.length} paginas do sitemap adicionadas com sucesso. As paginas serao avaliadas em segundo plano.`);
+        setShouldClearForm(true); // Mark form to be cleared when modal closes
+      } else {
+        setFeedbackMessage("Erro ao adicionar paginas do sitemap");
+      }
+    } catch (error) {
+      console.error("Error processing sitemap file:", error);
+      setFeedbackMessage("Erro ao processar o ficheiro sitemap");
+    }
+  };
 
-   const handleCrawling = async ({ maxDepth, maxPages, waitJS }) => {
-     if (selectedWebsites.length === 0) {
-       setFeedbackMessage("Por favor, selecione pelo menos um sítio web para fazer crawling.");
-       return;
-     }
-     
-     const website = websites.filter(website => website.value === selectedWebsites[0]).map(website => ({
+  const handleCrawling = async ({ maxDepth, maxPages, waitJS }) => {
+    if (selectedWebsites.length === 0) {
+      setFeedbackMessage("Por favor, selecione pelo menos um sitio web para fazer crawling.");
+      return;
+    }
+    
+    const website = websites.filter(website => website.value === selectedWebsites[0].value).map(website => ({
       url: website.startingUrl,
       websiteId: website.value
-     }));
-     
-     try {
-       const response = await api.post('/crawler/crawl', {
-         websites: website,
-         maxDepth: maxDepth,
-         maxPages: maxPages,
-         waitJS: waitJS ? 1 : 0
-       });
-       
-       if (response.status === 201 || response.status === 200) {
-         setFeedbackMessage("O crawling foi iniciado com sucesso! O processo será executado em segundo plano.");
-         setSelectedWebsites([]);
-         setShowCrawlingModal(false);
-       }
-     } catch (error) {
-       setFeedbackMessage("Erro ao iniciar o crawling. Tente novamente.");
-     }
-   };
+    }));
+    
+    try {
+      const response = await api.post('/crawler/crawl', {
+        websites: website,
+        maxDepth: maxDepth,
+        maxPages: maxPages,
+        waitJS: waitJS ? 1 : 0
+      });
+      
+      if (response.status === 201 || response.status === 200) {
+        setFeedbackMessage("O crawling foi iniciado com sucesso! O processo sera executado em segundo plano.");
+        setSelectedWebsites([]);
+        setShowCrawlingModal(false);
+      }
+    } catch (error) {
+      setFeedbackMessage("Erro ao iniciar o crawling. Tente novamente.");
+    }
+  };
 
-
+  const handleModalClose = () => {
+    setFeedbackMessage("");
+    // Navigate to websites list after successful submission
+    if (shouldClearForm) {
+      setShouldClearForm(false);
+      navigate("/dashboard/websites");
+    }
+  };
 
   const TabsWithComponenets = (
     <Tabs
@@ -261,82 +268,84 @@ const PageCreateForm = () => {
       ]}
     />
   );
+
   return (
     <div>
       <Breadcrumb data={breadcrumbs} />
       <h1>{t('PAGES_PAGE.ADD.title')}</h1>
 
       <form className="bg-white" onSubmit={handleSubmit(onSubmit)}>
- <p>Nesta página é possível adicionar amostras de páginas a um sítio web. Existem 3 métodos para adicionar páginas a um sítio web.</p>
+        <p>Nesta pagina e possivel adicionar amostras de paginas a um sitio web. Existem 3 metodos para adicionar paginas a um sitio web.</p>
 
-      <h2>Métodos de adicionar páginas a um sítio web:</h2>
-      <ul className="list-style-disc" style={{ listStyleType: "disc" }}>
-        <li>Submeter manualmente uma lista de URLs;</li>
-        <li>Submeter um ficheiro em formato sitemap;</li>
-        <li>Solicitar crawling ao sítio web.</li>
-      </ul>
-        <div >
+        <h2>Metodos de adicionar paginas a um sitio web:</h2>
+        <ul className="list-style-disc" style={{ listStyleType: "disc" }}>
+          <li>Submeter manualmente uma lista de URLs;</li>
+          <li>Submeter um ficheiro em formato sitemap;</li>
+          <li>Solicitar crawling ao sitio web.</li>
+        </ul>
+        <div>
           <h2 className="mb-4">
-            1. Em que sítio web pretende efetuar a adição de páginas?
+            1. Em que sitio web pretende efetuar a adicao de paginas?
           </h2>
           <div className="w-50">
-          <MultiSelect
-            id="websites"
-            darkTheme={theme}
-            label="Sítio web (URL inicial):"
-            options={websites}
-            value={selectedWebsites}
-            onChange={(selected) => setSelectedWebsites(selected)}
-            onInputChange={(inputValue) => setSearchTerm(inputValue)}
-            placeholder={websitesLoading ? "A carregar sítios web..." : "Digite para pesquisar sítios web..."}
-            isLoading={websitesLoading}
-            isMulti={true}
-            isSearchable={true}
-            filterOption={null} // Disable client-side filtering since we're doing server-side search
-            noOptionsMessage={({ inputValue }) => 
-              inputValue ? `Nenhum sítio web encontrado para "${inputValue}"` : "Digite para pesquisar sítios web"
-            }
-            loadingMessage={() => "A pesquisar..."}
-            menuIsOpen={searchTerm.length > 0 || selectedWebsites.length > 0 || websites.length > 0}
-          />
-          {selectedWebsites.length === 0 && (
-            <small className="text-danger">
-              <div dangerouslySetInnerHTML={{__html: t('MISC.required_field')}} />
-            </small>
-          )}
+            <MultiSelect
+              id="websites"
+              darkTheme={theme}
+              label="Sitio web (URL inicial):"
+              options={websites}
+              value={selectedWebsites}
+              onChange={(selected) => setSelectedWebsites(selected)}
+              onInputChange={(inputValue) => setSearchTerm(inputValue)}
+              placeholder={websitesLoading ? "A carregar sitios web..." : "Digite para pesquisar sitios web..."}
+              isLoading={websitesLoading}
+              isMulti={true}
+              isSearchable={true}
+              filterOption={null}
+              noOptionsMessage={({ inputValue }) => 
+                inputValue ? `Nenhum sitio web encontrado para "${inputValue}"` : "Digite para pesquisar sitios web"
+              }
+              loadingMessage={() => "A pesquisar..."}
+              menuIsOpen={searchTerm.length > 0 || selectedWebsites.length > 0 || websites.length > 0}
+            />
+            {selectedWebsites.length === 0 && (
+              <small className="text-danger">
+                <div dangerouslySetInnerHTML={{__html: t('MISC.required_field')}} />
+              </small>
+            )}
           </div>
         </div>
 
         <div className=" mt-5">
           <h2 className="mb-4">
-            2. De que forma deseja adicionar as novas páginas?
+            2. De que forma deseja adicionar as novas paginas?
           </h2>
           <p>Selecione apenas um dos processos abaixo:</p>
           <div className="mt-5">{TabsWithComponenets}</div>
         </div>
       </form>
-             <Modal
-         title="Adicionar páginas"
-         onClose={() => setFeedbackMessage("")}
-         isOpen={feedbackMessage !== ""}
-       >
-         <p>{feedbackMessage}</p>
-         <Button
-           text="Fechar"
-           variant="primary"
-           darkTheme={theme}
-           onClick={() => setFeedbackMessage("")}
-         />
-       </Modal>
-       
-       <CrawlingModal
-         isOpen={showCrawlingModal}
-         onRequestClose={() => setShowCrawlingModal(false)}
-         onSubmit={handleCrawling}
-         theme={theme}
-         selectedItems={selectedWebsites.map(website => ({ id: website.value }))}
-         itemType="websites"
-       />
+
+      <Modal
+        title="Adicionar paginas"
+        onClose={handleModalClose}
+        isOpen={feedbackMessage !== ""}
+      >
+        <p>{feedbackMessage}</p>
+        <Button
+          text="Fechar"
+          variant="primary"
+          darkTheme={theme}
+          onClick={handleModalClose}
+        />
+      </Modal>
+      
+      <CrawlingModal
+        isOpen={showCrawlingModal}
+        onRequestClose={() => setShowCrawlingModal(false)}
+        onSubmit={handleCrawling}
+        theme={theme}
+        selectedItems={selectedWebsites.map(website => ({ id: website.value }))}
+        itemType="websites"
+      />
     </div>
   );
 };

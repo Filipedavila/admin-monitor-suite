@@ -65,30 +65,33 @@ const PageList = () => {
       
       try {
         const offset = currentPage - 1;
-        let url = `/page/all/${itemsPerPage}/${offset}/sort=desc/direction=/${search !== "" ? `/search=${search}`:'search='}`;
+        let url = `/page/all/${itemsPerPage}/${offset}/sort=desc/direction=/search=${search}`;
         const [totalItemsResponse, dataResponse] = await Promise.all([
           api.get(`/page/all/count/search=${search}`),
           api.get(url)
         ]);
         
+        console.log("Pages API response:", { total: totalItemsResponse.data, data: dataResponse.data });
+        
         setTotalItems(Number(totalItemsResponse.data.result));
         
-        const transformedData = dataResponse.data.result.map(item => ({
+        const transformedData = (dataResponse.data.result || []).map(item => ({
           id: item.PageId,
           Uri: item.Uri,
-          Score: Number(item.Score),
-          Evaluation_Date: formatDate(item.Evaluation_Date), // Using lightweight formatter
+          Score: item.Score != null ? Number(item.Score) : 0,
+          Evaluation_Date: item.Evaluation_Date ? formatDate(item.Evaluation_Date) : "Pendente",
           Element_Count: calculateTotalElements(item.Element_Count),
-          A: item.A,
-          AA: item.AA,
-          AAA: item.AAA,
+          A: item.A ?? 0,
+          AA: item.AA ?? 0,
+          AAA: item.AAA ?? 0,
           e: "?",
-          OPAW: item.Show_In.split("")[2] === "1" ? "Sim" : "Não",
+          OPAW: item.Show_In ? (item.Show_In.split("")[2] === "1" ? "Sim" : "Nao") : "Nao",
         }));
         
         setData(transformedData);
       } catch (error) {
-        setFeedbackMessage("Erro ao carregar páginas!");
+        console.error("Error loading pages:", error);
+        setFeedbackMessage("Erro ao carregar paginas!");
         setShowFeedbackModal(true);
       }
     };

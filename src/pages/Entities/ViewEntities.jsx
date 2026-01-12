@@ -306,12 +306,12 @@ const ViewEntitiesComponent = () => {
         ]
       });
       setListItems([
-        { title: 'Pontuação média', value: Math.round(averageScore) },
+        { title: 'Pontuação média', value: averageScore.toFixed(1) },
         { title: 'Avaliação mais antiga de uma página', value: oldestPage },
         { title: 'Avaliação mais recente de uma página', value: newestPage },
         { title: 'Nº de Sítios Web', value: totalWebsites },
         { title: 'Nº de Páginas(Avaliadas)', value: `${totalPages} (${totalEvaluatedPages})` },
-        { title: 'Nº médio de Páginas por Sítio', value: Math.round(totalPages / totalWebsites) },
+        { title: 'Nº médio de Páginas por Sítio', value: (totalPages / totalWebsites).toFixed(1) },
       ]);
       setListItemsGlobal([
         { title: 'Sítios Web', value: totalWebsites },
@@ -319,9 +319,9 @@ const ViewEntitiesComponent = () => {
         {
           title: 'Sítios Web conformes', value: conformantWebsites,
           itemsList: [
-            { title: 'Conformidade A', value: `${conformCounts.A} (${((conformCounts.A / totalWebsites) * 100).toFixed(2)}%)` },
-            { title: 'Conformidade AA', value: `${conformCounts.AA} (${((conformCounts.AA / totalWebsites) * 100).toFixed(2)}%)` },
-            { title: 'Conformidade AAA', value: `${conformCounts.AAA} (${((conformCounts.AAA / totalWebsites) * 100).toFixed(2)}%)` },
+            { title: 'Conformidade A', value: `${conformCounts.A} (${((conformCounts.A / totalWebsites) * 100).toFixed(1)}%)` },
+            { title: 'Conformidade AA', value: `${conformCounts.AA} (${((conformCounts.AA / totalWebsites) * 100).toFixed(1)}%)` },
+            { title: 'Conformidade AAA', value: `${conformCounts.AAA} (${((conformCounts.AAA / totalWebsites) * 100).toFixed(1)}%)` },
           ]
         },
       ]);

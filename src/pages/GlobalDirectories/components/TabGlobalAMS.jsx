@@ -85,7 +85,7 @@ const TabGlobalAMS = ({
           { title: 'Nº de Entidades', value: indicators.entities },
           { title: 'Nº de Sítios Web', value: indicators.websites },
           { title: 'Nº de Páginas', value: indicators.pages },
-          { title: 'Nº médio de Páginas por Sítio', value: indicators.pages / indicators.websites },
+          { title: 'Nº médio de Páginas por Sítio', value: (indicators.pages / indicators.websites).toFixed(1) },
         ]);
         setInitialListItemsGlobal([
           { title: 'Sítios Web', value: indicators.websites },

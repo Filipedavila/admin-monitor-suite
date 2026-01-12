@@ -176,12 +176,12 @@ const buildDirectoryMetrics = (pages = [], websites = [], barDataTemplate = barD
     radarWebsites,
     dataListBar,
     listItems: [
-      { title: 'Pontuação média', value: Math.round(averageScore) },
+      { title: 'Pontuação média', value: averageScore.toFixed(1) },
       { title: 'Avaliação mais antiga de uma página', value: oldestDate ? moment(oldestDate).format('DD/MM/YY') : '-' },
       { title: 'Avaliação mais recente de uma página', value: newestDate ? moment(newestDate).format('DD/MM/YY') : '-' },
       { title: 'Nº de Sítios Web', value: totalWebsites },
       { title: 'Nº de páginas(Avaliadas)', value: `${totalPages} (${totalEvaluatedPages})` },
-      { title: 'Nº médio de páginas por Sítios', value: totalWebsites ? Math.round(totalPages / totalWebsites) : 0 },
+      { title: 'Nº médio de páginas por Sítios', value: totalWebsites ? (totalPages / totalWebsites).toFixed(1) : '0.0' },
     ],
     listItemsGlobal: [
       { title: 'Sítios Web', value: totalWebsites },
@@ -189,9 +189,9 @@ const buildDirectoryMetrics = (pages = [], websites = [], barDataTemplate = barD
       {
         title: 'Sítios Web conformes', value: conformantWebsites,
         itemsList: [
-          { title: 'A', value: `${conformCounts.A} (${totalWebsites ? ((conformCounts.A / totalWebsites) * 100).toFixed(2) : '0.00'}%)` },
-          { title: 'AA', value: `${conformCounts.AA} (${totalWebsites ? ((conformCounts.AA / totalWebsites) * 100).toFixed(2) : '0.00'}%)` },
-          { title: 'AAA', value: `${conformCounts.AAA} (${totalWebsites ? ((conformCounts.AAA / totalWebsites) * 100).toFixed(2) : '0.00'}%)` },
+          { title: 'A', value: `${conformCounts.A} (${totalWebsites ? ((conformCounts.A / totalWebsites) * 100).toFixed(1) : '0.0'}%)` },
+          { title: 'AA', value: `${conformCounts.AA} (${totalWebsites ? ((conformCounts.AA / totalWebsites) * 100).toFixed(1) : '0.0'}%)` },
+          { title: 'AAA', value: `${conformCounts.AAA} (${totalWebsites ? ((conformCounts.AAA / totalWebsites) * 100).toFixed(1) : '0.0'}%)` },
         ]
       },
     ],
