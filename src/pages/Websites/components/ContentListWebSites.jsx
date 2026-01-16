@@ -82,6 +82,7 @@ export default function ContentListWebSites({
       </div>
       <SortingTable
         darkTheme={theme}
+        hasColAndRowspan={false}
         headers={directoriesHeaders}
         setDataList={setData}
         dataList={data}

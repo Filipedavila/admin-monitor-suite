@@ -194,7 +194,7 @@ const DetailsPage = () => {
 
       const mappedData = Object.keys(result.tot.results).map(item => ({
         id: item.id,
-        title: t('TESTS_RESULTS.' +item + '.p'),
+        title: <div dangerouslySetInnerHTML={{__html: t('TESTS_RESULTS.' +item + '.p')}} />,
         lvl: tests[item].level.toUpperCase(),
         component: (
     <div className="text-start">
