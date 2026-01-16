@@ -1,90 +1,87 @@
 :root {
-
   /* COLORS PALLETE */
   --ama-color-brand-primary: #333399;
   --ama-color-brand-secondary: #333333;
-  --ama-color-brand-tertiary: #1ACC60;
-  
+  --ama-color-brand-tertiary: #1acc60;
+
   --ama-color-text-gray: #333333;
-  --ama-color-text-blue: #B6DCF6;
-  --ama-color-text-blue-light: #E9F6FF;
-  --ama-color-system-warning: #FFC107;
-  --ama-color-system-error: #DC3545;
-  --ama-color-system-success: #38B458;
+  --ama-color-text-blue: #b6dcf6;
+  --ama-color-text-blue-light: #e9f6ff;
+  --ama-color-system-warning: #ffc107;
+  --ama-color-system-error: #dc3545;
+  --ama-color-system-success: #38b458;
 
-  --ama-color-background-white: #FFFFFF;
-  --ama-color-background-light-lighter: #EFEFEE;
-  --ama-color-background-light-darker: #E4E4E4;
-  --ama-color-background-dark-lighter: #2D3241;
-  --ama-color-background-dark-darker: #21242C;
+  --ama-color-background-white: #ffffff;
+  --ama-color-background-light-lighter: #efefee;
+  --ama-color-background-light-darker: #e4e4e4;
+  --ama-color-background-dark-lighter: #2d3241;
+  --ama-color-background-dark-darker: #21242c;
 
-  --ama-color-headers-light: #EFEFEE;
-  --ama-color-headers-pre-header: #E4E4E4;
+  --ama-color-headers-light: #efefee;
+  --ama-color-headers-pre-header: #e4e4e4;
 
-  --ama-color-blue-0: #F0F0FA;
-  --ama-color-blue-50: #D2D1EF;
-  --ama-color-blue-100: #B5B3E5;
-  --ama-color-blue-200: #9793D9;
-  --ama-color-blue-300: #7974CF;
-  --ama-color-blue-400: #5D56C5;
-  --ama-color-blue-500: #3A3297;
-  --ama-color-blue-600: #2E2879;
-  --ama-color-blue-700: #231E5B;
-  --ama-color-blue-800: #16143C;
-  --ama-color-blue-900: #0B0A1F;
+  --ama-color-blue-0: #f0f0fa;
+  --ama-color-blue-50: #d2d1ef;
+  --ama-color-blue-100: #b5b3e5;
+  --ama-color-blue-200: #9793d9;
+  --ama-color-blue-300: #7974cf;
+  --ama-color-blue-400: #5d56c5;
+  --ama-color-blue-500: #3a3297;
+  --ama-color-blue-600: #2e2879;
+  --ama-color-blue-700: #231e5b;
+  --ama-color-blue-800: #16143c;
+  --ama-color-blue-900: #0b0a1f;
 
-  --ama-color-grey-0: #FFFFFF;
-  --ama-color-grey-50: #D6D6D6;
-  --ama-color-grey-100: #C2C2C2;
-  --ama-color-grey-200: #ADADAD;
+  --ama-color-grey-0: #ffffff;
+  --ama-color-grey-50: #d6d6d6;
+  --ama-color-grey-100: #c2c2c2;
+  --ama-color-grey-200: #adadad;
   --ama-color-grey-300: #939393;
   --ama-color-grey-400: #858585;
   --ama-color-grey-500: #707070;
-  --ama-color-grey-600: #5C5C5C;
+  --ama-color-grey-600: #5c5c5c;
   --ama-color-grey-700: #515151;
-  --ama-color-grey-800: #1F1F1F;
-  --ama-color-grey-900: #0A0A0A;
+  --ama-color-grey-800: #1f1f1f;
+  --ama-color-grey-900: #0a0a0a;
 
-  --ama-color-green-0: #EEFDF3;
-  --ama-color-green-50: #CDF7DC;
-  --ama-color-green-100: #ACF2C5;
-  --ama-color-green-200: #8DEEAE;
-  --ama-color-green-300: #6DEB98;
-  --ama-color-green-400: #55E380;
-  --ama-color-green-500: #38B458;
-  --ama-color-green-600: #2C8F47;
-  --ama-color-green-700: #206B35;
+  --ama-color-green-0: #eefdf3;
+  --ama-color-green-50: #cdf7dc;
+  --ama-color-green-100: #acf2c5;
+  --ama-color-green-200: #8deeae;
+  --ama-color-green-300: #6deb98;
+  --ama-color-green-400: #55e380;
+  --ama-color-green-500: #38b458;
+  --ama-color-green-600: #2c8f47;
+  --ama-color-green-700: #206b35;
   --ama-color-green-800: #144724;
   --ama-color-green-900: #092411;
 
-  --ama-color-yellow-0: #FEFAEB;
-  --ama-color-yellow-50: #FFF6D3;
-  --ama-color-yellow-100: #FCECAF;
-  --ama-color-yellow-200: #FBE189;
-  --ama-color-yellow-300: #FAD763;
-  --ama-color-yellow-400: #F9CE41;
-  --ama-color-yellow-500: #DAAA20;
-  --ama-color-yellow-600: #B38B18;
-  --ama-color-yellow-700: #8B6C10;
-  --ama-color-yellow-800: #634E09;
-  --ama-color-yellow-900: #3B2E03;
+  --ama-color-yellow-0: #fefaeb;
+  --ama-color-yellow-50: #fff6d3;
+  --ama-color-yellow-100: #fcecaf;
+  --ama-color-yellow-200: #fbe189;
+  --ama-color-yellow-300: #fad763;
+  --ama-color-yellow-400: #f9ce41;
+  --ama-color-yellow-500: #daaa20;
+  --ama-color-yellow-600: #b38b18;
+  --ama-color-yellow-700: #8b6c10;
+  --ama-color-yellow-800: #634e09;
+  --ama-color-yellow-900: #3b2e03;
 
-  --ama-color-red-0: #FBEEEF;
-  --ama-color-red-50: #F7DDDF;
-  --ama-color-red-100: #F3CCCF;
-  --ama-color-red-200: #EBAAB0;
-  --ama-color-red-300: #E38991;
-  --ama-color-red-400: #DB6872;
-  --ama-color-red-500: #C8313B;
-  --ama-color-red-600: #A62831;
-  --ama-color-red-700: #851F27;
-  --ama-color-red-800: #64171D;
-  --ama-color-red-900: #420F13;
-
+  --ama-color-red-0: #fbeeef;
+  --ama-color-red-50: #f7dddf;
+  --ama-color-red-100: #f3cccf;
+  --ama-color-red-200: #ebaab0;
+  --ama-color-red-300: #e38991;
+  --ama-color-red-400: #db6872;
+  --ama-color-red-500: #c8313b;
+  --ama-color-red-600: #a62831;
+  --ama-color-red-700: #851f27;
+  --ama-color-red-800: #64171d;
+  --ama-color-red-900: #420f13;
 
   --font-lato: "Lato", sans-serif;
   /* --font-red-hat: "Red Hat Display", sans-serif; */
-
 }
 
 * {
@@ -114,16 +111,17 @@ fieldset {
 .main-content-dashboard.menu-collapsed {
   grid-template-columns: 0px calc(100% - 0px);
 }
-.dashboard-menu{
+.dashboard-menu {
   width: 100% !important;
   padding: 10px !important;
   height: 90% !important;
   padding-bottom: 100px !important;
   overflow-y: auto;
-  
+
   /* Custom Scrollbar Styling */
   scrollbar-width: thin;
-  scrollbar-color: var(--ama-color-background-light-darker) var(--ama-color-background-dark-darker);
+  scrollbar-color: var(--ama-color-background-light-darker)
+    var(--ama-color-background-dark-darker);
 }
 
 /* Webkit-based browsers (Chrome, Safari, Edge) */
@@ -153,7 +151,8 @@ fieldset {
 
 /* Dark theme scrollbar styling */
 .dark-theme .dashboard-menu {
-  scrollbar-color: var(--ama-color-blue-300) var(--ama-color-background-dark-darker);
+  scrollbar-color: var(--ama-color-blue-300)
+    var(--ama-color-background-dark-darker);
 }
 
 .dark-theme .dashboard-menu::-webkit-scrollbar-track {
@@ -194,7 +193,7 @@ aside {
   display: none;
 }
 
-.main-content-dashboard.menu-collapsed .dashboard-menu{
+.main-content-dashboard.menu-collapsed .dashboard-menu {
   overflow: hidden;
   padding-left: 6px !important;
   padding-right: 6px !important;
@@ -202,7 +201,7 @@ aside {
 
 main {
   grid-area: content;
-  background-color: #F5F5F5;
+  background-color: #f5f5f5;
   padding: 35px;
   z-index: 1;
 }
@@ -227,7 +226,7 @@ footer.app-footer {
   margin-right: 30px !important;
 }
 .dark-theme main {
-  background-color:#2D3241;
+  background-color: #2d3241;
   color: white;
 }
 
@@ -253,7 +252,6 @@ footer.app-footer {
 .dark-theme p {
   color: white !important;
 }
-
 
 .last_column_no_gauge {
   width: 67.3vw !important;
@@ -283,53 +281,50 @@ footer.app-footer {
 }
 
 .last_column_no_gauge {
-    width: 62.8vw !important;
+  width: 62.8vw !important;
 }
-
 
 h2 {
   font-size: 0.2rem !important;
 }
 
-.dark-theme .ama.tabs-container .nav-tabs{
+.dark-theme .ama.tabs-container .nav-tabs {
   background-color: var(--ama-color-background-dark-darker) !important;
-  color: var( --ama-color-text-blue) !important
+  color: var(--ama-color-text-blue) !important;
 }
-.dark-theme .ama.tabs-container .nav-tabs .nav-link{
-  color: var( --ama-color-text-blue) !important;
-
+.dark-theme .ama.tabs-container .nav-tabs .nav-link {
+  color: var(--ama-color-text-blue) !important;
 }
-.dark-theme .ama.tabs-container .nav-tabs .nav-link.active{
-  border-bottom-color: var( --ama-color-text-blue);
-  color: var( --ama-color-text-blue) !important;
+.dark-theme .ama.tabs-container .nav-tabs .nav-link.active {
+  border-bottom-color: var(--ama-color-text-blue);
+  color: var(--ama-color-text-blue) !important;
   background-color: var(--ama-color-background-dark-darker);
 }
 
 .dark-theme .ama.section_container.dark {
   background-color: var(--ama-color-background-dark-darker) !important;
-} 
+}
 
-.dark-theme .ama.section_container.dark .grid_container .last_column{
+.dark-theme .ama.section_container.dark .grid_container .last_column {
   background-color: var(--ama-color-background-dark-lighter) !important;
 }
 
 .dark-theme .ama.breadcrumbs .breadcrumb li.breadcrumb-item {
   color: var(--ama-color-text-blue-light) !important;
-} 
-.dark-theme .ama.breadcrumbs .breadcrumb li.breadcrumb-item a{
+}
+.dark-theme .ama.breadcrumbs .breadcrumb li.breadcrumb-item a {
   color: var(--ama-color-text-blue-light) !important;
-} 
+}
 
-
-.field-search{
-    width: 50% !important;
+.field-search {
+  width: 50% !important;
 }
 
 canvas[aria-label="Histograma das pontuações do AccessMonitor"] {
   width: 70% !important;
   height: 60% !important;
 }
-.dark-theme .list-group-item{
+.dark-theme .list-group-item {
   background-color: var(--ama-color-background-dark-darker) !important;
   color: var(--ama-color-text-blue) !important;
 }
@@ -513,7 +508,6 @@ aside h2 {
   }
 }
 
-/* Extra large screens (1201px and above) */
 @media (min-width: 1201px) {
   .main-content-dashboard {
     grid-template-columns: 20% 80%;
@@ -522,4 +516,40 @@ aside h2 {
   .main-content-dashboard.menu-collapsed {
     grid-template-columns: 0px 100%;
   }
+}
+
+/* ========== ACCESSIBILITY FIX FOR SCREEN READERS (Issue #68) ========== */
+/* Ensure table elements are properly read by screen readers like VoiceOver */
+/* This fixes the issue where screen readers only see 2 rows instead of all tbody rows */
+table {
+  display: table !important;
+}
+
+table thead {
+  display: table-header-group !important;
+}
+
+table tbody {
+  display: table-row-group !important;
+}
+
+table tfoot {
+  display: table-footer-group !important;
+}
+
+table tr {
+  display: table-row !important;
+}
+
+table th,
+table td {
+  display: table-cell !important;
+}
+
+/* Ensure tbody content is visible and accessible */
+table tbody tr {
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+  overflow: visible !important;
 }

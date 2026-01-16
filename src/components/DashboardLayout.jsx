@@ -102,6 +102,25 @@ const DashboardLayout = () => {
     setActiveItem(found ? found.id : "");
   }, [location.pathname]);
 
+  // Fix for Issue #68: Remove default checked attribute from header checkboxes
+  // The ama-design-system has a bug where the "All" checkbox is checked by default
+  useEffect(() => {
+    const fixHeaderCheckboxes = () => {
+      const headerCheckboxes = document.querySelectorAll('thead input[type="checkbox"]');
+      headerCheckboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+          checkbox.checked = false;
+          checkbox.removeAttribute('checked');
+        }
+      });
+    };
+    
+    // Run fix after DOM updates
+    const timeoutId = setTimeout(fixHeaderCheckboxes, 200);
+    
+    return () => clearTimeout(timeoutId);
+  }, [location.pathname]);
+
 
   const handleMenuItemClick = (id) => {
     setActiveItem(id);

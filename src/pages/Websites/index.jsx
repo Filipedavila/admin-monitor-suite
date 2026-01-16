@@ -22,7 +22,8 @@ import moment from "moment";
 import { Modal } from "../../components/Modal";
 import { useTheme } from "../../context/ThemeContext";
 import CrawlingModal from "../../components/CrawlingModal";
-import { setRootNavigationContext } from "../../utils/navigation";
+import { setRootNavigationContext, setWebsiteNavigationContext } from "../../utils/navigation";
+import { useUniqueCheckboxSelection } from "../../hooks/useUniqueCheckboxSelection";
 
 const WebSiteList = () => {
   const { t } = useTranslation();
@@ -30,7 +31,7 @@ const WebSiteList = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [data, setData] = useState([]);
-  const [checkboxesSelected, setCheckboxesSelected] = useState([]);
+  const [checkboxesSelected, setCheckboxesSelected] = useUniqueCheckboxSelection([]);
   const [totalItems, setTotalItems] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);
@@ -48,8 +49,9 @@ const WebSiteList = () => {
   ];
 
   useEffect(() => {
-    // Clear root context when viewing website list
+    // Clear root context and website context when viewing website list
     setRootNavigationContext(null);
+    setWebsiteNavigationContext(null);
   }, []);
 
   useEffect(() => {
@@ -65,12 +67,18 @@ const WebSiteList = () => {
     setSearch(value.target.value);
     setCurrentPage(1); // Reset to first page when searching
   };
-  const fetchData = async () => {
-    const responseTotal = await api.get(`/website/all/count/search=${search}`);
+  
+  const fetchData = async (searchValue, page, perPage) => {
+    // Use passed parameters to ensure consistency
+    const searchParam = searchValue !== undefined ? searchValue : search;
+    const pageParam = page !== undefined ? page : currentPage;
+    const perPageParam = perPage !== undefined ? perPage : itemsPerPage;
+    
+    const responseTotal = await api.get(`/website/all/count/search=${searchParam}`);
     setTotalItems(Number(responseTotal.data.result));
-    const offset = currentPage - 1;
+    const offset = pageParam - 1;
     const response = await api.get(
-      `/website/all/${itemsPerPage}/${offset}/sort=/direction=/search=${search}`
+      `/website/all/${perPageParam}/${offset}/sort=/direction=/search=${searchParam}`
     );
     setData(
       response.data.result.map((item) => ({
@@ -79,14 +87,14 @@ const WebSiteList = () => {
         StartingUrl: item.StartingUrl,
         Pages: item.Pages + "(" + item.Evaluated_Pages + ")",
         Creation_Date: moment(item.Creation_Date).format("DD/MM/YYYY"),
-        // Declaration: item.Declaration === null ? "Não avaliado" : item.Declaration === 1 ? "Selo de Ouro" : item.Declaration === 2 ? "Selo de Prata" : item.Declaration === 3 ? "Selo de Bronze" : "Declaração não conforme",
         edit: "Editar",
       }))
     );
   };
+  
   // Fetch total count and current page data
   useEffect(() => {
-    fetchData();
+    fetchData(search, currentPage, itemsPerPage);
   }, [currentPage, itemsPerPage, search]);
 
   // Handle page change
@@ -131,7 +139,7 @@ const WebSiteList = () => {
         );
         setCheckboxesSelected([]);
         setShowCrawlingModal(false);
-        await fetchData();
+        await fetchData(search, currentPage, itemsPerPage);
       }
     } catch (error) {
       setFeedbackMessage("Erro ao iniciar o crawling. Tente novamente.");
@@ -157,7 +165,7 @@ const WebSiteList = () => {
       if (response.status === 201 || response.status === 200) {
         setFeedbackMessage("Sítios web eliminados com sucesso!");
         setCheckboxesSelected([]);
-        await fetchData();
+        await fetchData(search, currentPage, itemsPerPage);
       }
     } catch (error) {
       setFeedbackMessage("Erro ao eliminar sítios web. Tente novamente.");
@@ -184,7 +192,7 @@ const WebSiteList = () => {
         setFeedbackMessage("Páginas dos sítios web eliminadas com sucesso!");
         setCheckboxesSelected([]);
         setSearch("");
-        await fetchData();
+        await fetchData("", 1, itemsPerPage);
       }
     } catch (error) {
       setFeedbackMessage(
@@ -211,7 +219,7 @@ const WebSiteList = () => {
         setCheckboxesSelected([]);
         setShowModal(false);
         setSearch("");
-        fetchData();
+        fetchData("", 1, itemsPerPage);
       }
     } catch (error) {
       setFeedbackMessage(

@@ -5,7 +5,7 @@ export const directoriesHeaders = [
   [
     {
       type: "Checkbox",
-      nRow: 2,
+      nRow: 1,
       center: true,
       name: i18n.t("MISC.rank"),
       property: "id",
@@ -13,7 +13,7 @@ export const directoriesHeaders = [
     {
       type: "SortingText",
       bigWidth: "50%",
-      nRow: 2,
+      nRow: 1,
       center: true,
       name: i18n.t("DIRECTORIES_PAGE.LIST.table.name_label"),
       property: "Name",
@@ -21,7 +21,7 @@ export const directoriesHeaders = [
     },
     {
       type: "SortingText",
-      nRow: 2,
+      nRow: 1,
       center: true,
       name: "Observatório",
       property: "Show_in_Observatory",
@@ -29,7 +29,7 @@ export const directoriesHeaders = [
     },
     {
       type: "SortingText",
-      nRow: 2,
+      nRow: 1,
       name: i18n.t("USERS_PAGE.LIST.table.edit_label"),
       property: "edit",
       justifyCenter: true,

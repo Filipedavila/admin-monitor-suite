@@ -53,8 +53,8 @@ const ViewPages = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    const previousPath = localStorage.getItem('previousPath') || '';
-    const navContext = getEffectiveNavigationContext(previousPath);
+    const currentPath = location.pathname;
+    const navContext = getEffectiveNavigationContext(currentPath);
     
     if (navContext) {
       if (navContext.type === 'website') {

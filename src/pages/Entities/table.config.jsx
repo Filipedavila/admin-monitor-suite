@@ -3,36 +3,36 @@ const apiUrl = import.meta.env.VITE_API_URL + import.meta.env.VITE_ROUTE_URL;
 
 export const directoriesHeaders = [
   [
-    { type: "Checkbox", nRow: 2, name: i18n.t('MISC.select'), property: "id", label: i18n.t('MISC.select') },
+    { type: "Checkbox", nRow: 1, name: i18n.t('MISC.select'), property: "id", label: i18n.t('MISC.select') },
     {
       type: "SortingText",
-      nRow: 2,
+      nRow: 1,
       name: i18n.t('ENTITIES_PAGE.LIST.table.short_name_label'),
       property: "Short_Name",
     },
     {
       type: "SortingText",
-      nRow: 2,
+      nRow: 1,
       name: i18n.t('ENTITIES_PAGE.LIST.table.long_name_label'),
       property: "Long_Name",
     },
     {
       type: "SortingText",
-      nRow: 2,
+      nRow: 1,
       name: i18n.t('ENTITIES_PAGE.LIST.table.creation_label'),
       property: "Creation_at",
       justifyCenter: true,
     },
     {
       type: "SortingText",
-      nRow: 2,
+      nRow: 1,
       name: i18n.t('ENTITIES_PAGE.LIST.table.websites_label'),
       property: "Websites",
       justifyCenter: true,
     },
     {
       type: "SortingText",
-      nRow: 2,
+      nRow: 1,
       name: i18n.t('ENTITIES_PAGE.LIST.table.edit_label'),
       property: "edit",
       justifyCenter: true,

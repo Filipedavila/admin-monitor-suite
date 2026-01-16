@@ -9,13 +9,14 @@ import { useTranslation } from "react-i18next";
 import { api } from "../../config/api";
 import moment from "moment";
 import { setRootNavigationContext } from "../../utils/navigation";
+import { useUniqueCheckboxSelection } from "../../hooks/useUniqueCheckboxSelection";
 
 const EntitiesList = () => {
   const location = useLocation();
   const { t } = useTranslation();
   const { theme } = useTheme();
   const [data, setData] = useState([]);
-  const [checkboxesSelected, setCheckboxesSelected] = useState([]);
+  const [checkboxesSelected, setCheckboxesSelected] = useUniqueCheckboxSelection([]);
   const [breadcrumbs, setBreadcrumbs] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -49,11 +50,17 @@ const EntitiesList = () => {
     setSearch(value.target.value);
     setCurrentPage(1); // Reset to first page when searching
   };
-  const fetchData = async () => {
-    const responseTotal = await api.get(`/entity/all/count/search=${search}`);
+  
+  const fetchData = async (searchValue, page, perPage) => {
+    // Use passed parameters to ensure consistency
+    const searchParam = searchValue !== undefined ? searchValue : search;
+    const pageParam = page !== undefined ? page : currentPage;
+    const perPageParam = perPage !== undefined ? perPage : itemsPerPage;
+    
+    const responseTotal = await api.get(`/entity/all/count/search=${searchParam}`);
     setTotalItems(Number(responseTotal.data.result));
-    const offset = currentPage - 1;
-    const response = await api.get(`/entity/all/${itemsPerPage}/${offset}/sort=/direction=/search=${search}`);
+    const offset = pageParam - 1;
+    const response = await api.get(`/entity/all/${perPageParam}/${offset}/sort=/direction=/search=${searchParam}`);
     setData(response.data.result.map(item => ({
       id: item.EntityId,
       Short_Name: item.Short_Name,
@@ -66,8 +73,7 @@ const EntitiesList = () => {
 
   // Fetch total count and current page data
   useEffect(() => {
-
-    fetchData();
+    fetchData(search, currentPage, itemsPerPage);
   }, [currentPage, itemsPerPage, search]);
 
   // Handle page change
@@ -90,7 +96,7 @@ const EntitiesList = () => {
       setShowFeedbackModal(true);
       setCheckboxesSelected([]);
       setSearch("");
-      await fetchData();
+      await fetchData("", 1, itemsPerPage);
     }
   };
 
@@ -105,7 +111,7 @@ const EntitiesList = () => {
       setShowFeedbackModal(true);
       setCheckboxesSelected([]);
       setSearch("");
-      await fetchData();
+      await fetchData("", 1, itemsPerPage);
     } else {
       setFeedbackMessage("Ocorreu um erro ao eliminar as páginas.");
       setShowFeedbackModal(true);

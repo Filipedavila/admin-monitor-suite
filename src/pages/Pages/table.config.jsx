@@ -21,7 +21,7 @@ export const directoriesHeaders = [
 
 export const columnsOptions = {
   id: { type: "Checkbox", center: true, bold: false, decimalPlace: false, label:"Selecionar"},
-  Uri: { type: "Link", center: true, bold: false, decimalPlace: false, href: (row) => apiUrl + "dashboard/pages/view/" + encodeURIComponent(row.Uri) },
+  Uri: { type: "Link", center: true, bold: false, decimalPlace: false, isCheckboxLabel: true, href: (row) => apiUrl + "dashboard/pages/view/" + encodeURIComponent(row.Uri) },
   Score: { type: "Text", center: true, bold: false, decimalPlace: true },
   Evaluation_Date: {
     type: "Text",
@@ -113,11 +113,11 @@ export const options = [
 
 export const directoriesHeadersPage = [
   [
-    { type: "Checkbox", nRow: 2, name: "rank ", property: "id", justifyCenter: false },
-    { type: "SortingText", nRow: 2, name: "Data Avaliação ", property: "date_avaliation", justifyCenter: false },
+    { type: "Checkbox", nRow: 1, name: "rank ", property: "id", justifyCenter: false },
+    { type: "SortingText", nRow: 1, name: "Data Avaliação ", property: "date_avaliation", justifyCenter: false },
     {
       type: "SortingText",
-      nRow: 2,
+      nRow: 1,
       name: "Pontuação",
       property: "score",
       justifyCenter: false,
@@ -125,7 +125,7 @@ export const directoriesHeadersPage = [
 
     {
       type: "SortingText",
-      nRow: 2,
+      nRow: 1,
       name: "Elementos HTML",
       property: "elementsNumber",
       justifyCenter: false,
@@ -133,7 +133,7 @@ export const directoriesHeadersPage = [
 
     {
       type: "SortingText",
-      nRow: 2,
+      nRow: 1,
       name: "A",
       property: "A",
       justifyCenter: false,
@@ -141,7 +141,7 @@ export const directoriesHeadersPage = [
 
     {
       type: "SortingText",
-      nRow: 2,
+      nRow: 1,
       name: "AA",
       property: "AA",
       justifyCenter: false,
@@ -149,14 +149,14 @@ export const directoriesHeadersPage = [
 
     {
       type: "SortingText",
-      nRow: 2,
+      nRow: 1,
       name: "AAA",
       property: "AAA",
       justifyCenter: false,
     },
     {
       type: "SortingText",
-      nRow: 2,
+      nRow: 1,
       name: "Ver relatório",
       property: "state",
       justifyCenter: false,

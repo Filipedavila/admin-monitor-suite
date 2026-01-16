@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Button, InputSearch, SortingTable } from "ama-design-system";
 import {
   directoriesHeaders,
@@ -9,6 +9,7 @@ import {
 } from "../table.config";
 import { useTheme } from "../../../context/ThemeContext";
 import { useTranslation } from 'react-i18next';
+import { useSyncCheckboxVisuals } from "../../../hooks/useSyncCheckboxVisuals";
 
 export default function ContentListPages ({ 
   checkboxesSelected, 
@@ -25,10 +26,30 @@ export default function ContentListPages ({
   handleSearchChange,
   handleDeletePages,
   handleReevaluatePages,
-  handleShowHideObservatory
+  handleShowHideObservatory,
+  onSortChange,
+  sortField = '',
+  sortDirection = '',
+  useClientSideSorting = false // Issue #60: Use client-side sorting for all data
 }){
   const { theme } = useTheme();
   const { t } = useTranslation();
+  
+  // Fix for Issue #64 - sync checkbox visuals when dealing with duplicate URIs
+  useSyncCheckboxVisuals(checkboxesSelected, data, 'id', 'table');
+  
+  // Issue #60: Filter data by search if client-side sorting is enabled
+  const filteredData = useMemo(() => {
+    if (!useClientSideSorting || !search) {
+      return data;
+    }
+    const searchLower = search.toLowerCase();
+    return data.filter(item => 
+      item.Uri?.toLowerCase().includes(searchLower) ||
+      item.Score?.toString().includes(searchLower) ||
+      item.Element_Count?.toString().includes(searchLower)
+    );
+  }, [data, search, useClientSideSorting]);
   
   return(
      <div>
@@ -73,7 +94,7 @@ export default function ContentListPages ({
             darkTheme={theme}
             headers={directoriesHeaders}
             setDataList={setData}
-            dataList={data}
+            dataList={useClientSideSorting ? filteredData : data}
             columnsOptions={columnsOptions}
             nextPage={() => null}
             caption={t('PAGES_PAGE.LIST.table.title')}
@@ -82,12 +103,15 @@ export default function ContentListPages ({
             setCheckboxesSelected={setCheckboxesSelected}
             checkedItems={checkboxesSelected}
             pagination={true}
-            serverSidePagination={true}
-            totalItems={totalItems}
-            currentPage={currentPage}
-            itemsPerPage={itemsPerPage}
-            onPageChange={onPageChange}
-            onItemsPerPageChange={onItemsPerPageChange}
+            serverSidePagination={!useClientSideSorting}
+            {...(!useClientSideSorting && {
+              totalItems,
+              currentPage,
+              itemsPerPage,
+              onPageChange,
+              onItemsPerPageChange,
+              setItemsPerPage
+            })}
             paginationButtonsTexts={[
               "Primeira página",
               "Página anterior",
@@ -106,7 +130,6 @@ export default function ContentListPages ({
             ]}
             paginationOptions={[10, 25, 50, 100]}
             rowKey="id"
-            setItemsPerPage={setItemsPerPage}
           />
         </div>
   )

@@ -3,11 +3,11 @@ const apiUrl = import.meta.env.VITE_API_URL + "/";
 
 export const directoriesHeaders = [
   [
-    { type: "Checkbox", nRow: 2,center: true, name: i18n.t('MISC.select'), property: "id", label: i18n.t('MISC.select') },
-    { type: "SortingText", nRow: 2, center: true, name: i18n.t('WEBSITES_PAGE.LIST.table.url_label'), property: "Url" },
-    { type: "SortingText", nRow: 2, center: true, name: "Descrição do Erro", property: "Error"},
-    { type: "SortingText", nRow: 2, center: true, name: " Adicionada para avaliação ", property: "CreatedAt" },
-    { type: "Empty", nRow: 2, center: true, name: "Página", property: "PageId" },
+    { type: "Checkbox", nRow: 1,center: true, name: i18n.t('MISC.select'), property: "id", label: i18n.t('MISC.select') },
+    { type: "SortingText", nRow: 1, center: true, name: i18n.t('WEBSITES_PAGE.LIST.table.url_label'), property: "Url" },
+    { type: "SortingText", nRow: 1, center: true, name: "Descrição do Erro", property: "Error"},
+    { type: "SortingText", nRow: 1, center: true, name: " Adicionada para avaliação ", property: "CreatedAt" },
+    { type: "Empty", nRow: 1, center: true, name: "Página", property: "PageId" },
   ],
 ];
 

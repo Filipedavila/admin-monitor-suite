@@ -19,6 +19,7 @@ import { useTranslation } from "react-i18next";
 import { api } from "../../config/api";
 import moment from "moment";
 import { Modal } from "../../components/Modal";
+import { useUniqueCheckboxSelection } from "../../hooks/useUniqueCheckboxSelection";
 
 const UserList = () => {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ const UserList = () => {
   const { theme } = useTheme();
   const { t } = useTranslation();
   const [allUsers, setAllUsers] = useState([]);
-  const [checkboxesSelected, setCheckboxesSelected] = useState([]);
+  const [checkboxesSelected, setCheckboxesSelected] = useUniqueCheckboxSelection([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);
   const [searchTerm, setSearchTerm] = useState("");

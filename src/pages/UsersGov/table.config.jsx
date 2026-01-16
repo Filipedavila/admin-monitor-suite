@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 
 export const dataHeaders = [
   [
-    { type: "Checkbox", nRow: 2, name: i18n.t('MISC.select'), property: "id", justifyCenter: true, label: i18n.t('MISC.select') },
-    { type: "SortingText", nRow: 2, name: i18n.t('GOV_USERS_PAGE.LIST.table.username_label'), property: "name", justifyCenter: true },
-    { type: "SortingText", nRow: 2, name: i18n.t('GOV_USERS_PAGE.LIST.table.citizen_number_label'), property: "ccNumber", justifyCenter: true },
-    { type: "SortingText", nRow: 2, name: i18n.t('USERS_PAGE.LIST.table.register_label'), property: "registerDate", justifyCenter: true },
-    { type: "SortingText", nRow: 2, name: i18n.t('GOV_USERS_PAGE.LIST.table.last_login_label'), property: "lastLogin", justifyCenter: true },
-    { type: "SortingText", nRow: 2, name: i18n.t('GOV_USERS_PAGE.LIST.table.edit_label'), property: "edit", justifyCenter: true },
+    { type: "Checkbox", nRow: 1, name: i18n.t('MISC.select'), property: "id", justifyCenter: true, label: i18n.t('MISC.select') },
+    { type: "SortingText", nRow: 1, name: i18n.t('GOV_USERS_PAGE.LIST.table.username_label'), property: "name", justifyCenter: true },
+    { type: "SortingText", nRow: 1, name: i18n.t('GOV_USERS_PAGE.LIST.table.citizen_number_label'), property: "ccNumber", justifyCenter: true },
+    { type: "SortingText", nRow: 1, name: i18n.t('USERS_PAGE.LIST.table.register_label'), property: "registerDate", justifyCenter: true },
+    { type: "SortingText", nRow: 1, name: i18n.t('GOV_USERS_PAGE.LIST.table.last_login_label'), property: "lastLogin", justifyCenter: true },
+    { type: "SortingText", nRow: 1, name: i18n.t('GOV_USERS_PAGE.LIST.table.edit_label'), property: "edit", justifyCenter: true },
   ],
 ];
 

@@ -214,9 +214,39 @@ export const getRootNavigationContext = () => {
 };
 
 /**
+ * Sets the website navigation context.
+ * This is used to preserve the website context when navigating to pages/reports.
+ * 
+ * @param {object|null} context - The website context object with {websiteId, websiteSlug, websiteName} or null to clear
+ */
+export const setWebsiteNavigationContext = (context) => {
+  if (context === null) {
+    localStorage.removeItem('websiteNavigationContext');
+  } else {
+    localStorage.setItem('websiteNavigationContext', JSON.stringify(context));
+  }
+};
+
+/**
+ * Gets the website navigation context if it exists.
+ * Returns null if no website context is stored.
+ * 
+ * @returns {object|null} The website context or null
+ */
+export const getWebsiteNavigationContext = () => {
+  try {
+    const stored = localStorage.getItem('websiteNavigationContext');
+    return stored ? JSON.parse(stored) : null;
+  } catch (error) {
+    return null;
+  }
+};
+
+/**
  * Gets the effective navigation context by checking:
  * 1. Root context (directory/entity/category) if exists
- * 2. Current path context (for direct navigation)
+ * 2. Website context if exists (for page/report navigation from website)
+ * 3. Current path context (for direct navigation)
  * 
  * @param {string} currentPath - The current URL path
  * @returns {object|null} The navigation context
@@ -228,6 +258,15 @@ export const getEffectiveNavigationContext = (currentPath = "") => {
   // If we're viewing pages or websites, preserve the root context
   if (rootContext && (currentPath.includes('/pages') || currentPath.includes('/websites/view'))) {
     return rootContext;
+  }
+  
+  // Check for website context (for navigation from website to pages/reports)
+  const websiteContext = getWebsiteNavigationContext();
+  if (websiteContext && (currentPath.includes('/pages'))) {
+    return {
+      type: 'website',
+      data: websiteContext,
+    };
   }
   
   // Otherwise, extract from current path

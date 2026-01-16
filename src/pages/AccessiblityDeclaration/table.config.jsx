@@ -3,36 +3,36 @@ import i18n from '../../i18n';
 
 export const directoriesHeaders = [
   [
-    { type: "Checkbox", nRow: 2, name: i18n.t('MISC.select'), property: "id", label: i18n.t('MISC.select') },
+    { type: "Checkbox", nRow: 1, name: i18n.t('MISC.select'), property: "id", label: i18n.t('MISC.select') },
     {
       type: "SortingText",
-      nRow: 2,
+      nRow: 1,
       name: i18n.t('ENTITIES_PAGE.LIST.table.short_name_label'),
       property: "shortName",
     },
     {
       type: "SortingText",
-      nRow: 2,
+      nRow: 1,
       name: i18n.t('ENTITIES_PAGE.LIST.table.long_name_label'),
       property: "fullName",
     },
     {
       type: "SortingText",
-      nRow: 2,
+      nRow: 1,
       name: i18n.t('ENTITIES_PAGE.LIST.table.creation_label'),
       property: "createdAt",
       justifyCenter: true,
     },
     {
       type: "SortingText",
-      nRow: 2,
+      nRow: 1,
       name: i18n.t('ENTITIES_PAGE.LIST.table.websites_label'),
       property: "websiteCount",
       justifyCenter: true,
     },
     {
       type: "Action",
-      nRow: 2,
+      nRow: 1,
       name: i18n.t('ENTITIES_PAGE.LIST.table.edit_label'),
       property: "edit",
       justifyCenter: true,

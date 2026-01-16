@@ -3,12 +3,12 @@ import i18n from "../../i18n";
 
 export const directoriesHeaders = [
   [
-    { type: "Hidden", nRow: 2, name: i18n.t('CRAWLER_PAGE.LIST.table.website_label'), property: "websiteId" },
-    { type: "Checkbox", nRow: 2, name: i18n.t('CRAWLER_PAGE.LIST.table.select_label'), property: "id", label: i18n.t('CRAWLER_PAGE.LIST.table.select_label') },
-    { type: "SortingText", nRow: 2, name: i18n.t('CRAWLER_PAGE.LIST.table.initial_url_label'), property: "url", justifyCenter: true },
-    { type: "SortingText", nRow: 2, name: i18n.t('CRAWLER_PAGE.LIST.table.start_date_label'), property: "startDate" },
-    { type: "SortingText", nRow: 2, name: i18n.t('CRAWLER_PAGE.LIST.table.status_label'), property: "status" },
-    { type: "SortingText", nRow: 2, name: i18n.t('CRAWLER_PAGE.LIST.table.results_label'), property: "results" },
+    { type: "Hidden", nRow: 1, name: i18n.t('CRAWLER_PAGE.LIST.table.website_label'), property: "websiteId" },
+    { type: "Checkbox", nRow: 1, name: i18n.t('CRAWLER_PAGE.LIST.table.select_label'), property: "id", label: i18n.t('CRAWLER_PAGE.LIST.table.select_label') },
+    { type: "SortingText", nRow: 1, name: i18n.t('CRAWLER_PAGE.LIST.table.initial_url_label'), property: "url", justifyCenter: true },
+    { type: "SortingText", nRow: 1, name: i18n.t('CRAWLER_PAGE.LIST.table.start_date_label'), property: "startDate" },
+    { type: "SortingText", nRow: 1, name: i18n.t('CRAWLER_PAGE.LIST.table.status_label'), property: "status" },
+    { type: "SortingText", nRow: 1, name: i18n.t('CRAWLER_PAGE.LIST.table.results_label'), property: "results" },
   ]
 ];
 
@@ -56,8 +56,8 @@ export const dataRows = [
 
 export const directoriesHeadersCrawlDetails = [
   [
-    { type: "Checkbox", nRow: 2, justifyCenter: true, name: "Importar", property: "Import" },
-    { type: "SortingText", nRow: 2, name: "Páginas", property: "Uri" },
+    { type: "Checkbox", nRow: 1, justifyCenter: true, name: "Importar", property: "Import" },
+    { type: "SortingText", nRow: 1, name: "Páginas", property: "Uri" },
   ]
 ];
 

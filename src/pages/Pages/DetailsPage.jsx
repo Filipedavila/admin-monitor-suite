@@ -130,8 +130,8 @@ const DetailsPage = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    const previousPath = localStorage.getItem('previousPath') || '';
-    const navContext = getEffectiveNavigationContext(previousPath);
+    const currentPath = location.pathname;
+    const navContext = getEffectiveNavigationContext(currentPath);
     const pageLink = `/dashboard/pages/view/${encodeURIComponent(pageUrl)}`;
     
     if (navContext) {

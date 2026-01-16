@@ -2,13 +2,13 @@ import i18n from '../../i18n';
 
 export const directoriesHeaders = [
   [
-    { type: "Checkbox", nRow: 2, name: i18n.t('MISC.select'), property: "id", label: i18n.t('MISC.select') },
-    { type: "SortingText", nRow: 2, name: i18n.t('USERS_PAGE.LIST.table.username_label'), property: "Username" },
-    { type: "SortingText", nRow: 2, name: i18n.t('USERS_PAGE.LIST.table.app_label'), property: "Type" },
-    { type: "SortingText", nRow: 2, name: i18n.t('USERS_PAGE.LIST.table.websites_label'), property: "Websites", justifyCenter: true },
-    { type: "SortingText", nRow: 2, name: i18n.t('USERS_PAGE.LIST.table.last_login_label'), property: "Last_Login", justifyCenter: true },
-    { type: "SortingText", nRow: 2, name: i18n.t('USERS_PAGE.LIST.table.register_label'), property: "Register_Date", justifyCenter: true },
-    { type: "SortingText", nRow: 2, name: i18n.t('USERS_PAGE.LIST.table.edit_label'), property: "edit", justifyCenter: true },
+    { type: "Checkbox", nRow: 1, name: i18n.t('MISC.select'), property: "id", label: i18n.t('MISC.select') },
+    { type: "SortingText", nRow: 1, name: i18n.t('USERS_PAGE.LIST.table.username_label'), property: "Username" },
+    { type: "SortingText", nRow: 1, name: i18n.t('USERS_PAGE.LIST.table.app_label'), property: "Type" },
+    { type: "SortingText", nRow: 1, name: i18n.t('USERS_PAGE.LIST.table.websites_label'), property: "Websites", justifyCenter: true },
+    { type: "SortingText", nRow: 1, name: i18n.t('USERS_PAGE.LIST.table.last_login_label'), property: "Last_Login", justifyCenter: true },
+    { type: "SortingText", nRow: 1, name: i18n.t('USERS_PAGE.LIST.table.register_label'), property: "Register_Date", justifyCenter: true },
+    { type: "SortingText", nRow: 1, name: i18n.t('USERS_PAGE.LIST.table.edit_label'), property: "edit", justifyCenter: true },
   ],
 ];
 
@@ -118,11 +118,11 @@ export const options = [
 export const websiteUsersHeaders = [
   [
     
-    { type: "Skip", nRow: 2, name: i18n.t('USERS_PAGE.LIST.table.username_label'), property: "id", justifyCenter: false },
-    { type: "Skip", nRow: 2, name: i18n.t('USERS_PAGE.LIST.table.username_label'), property: "Username", justifyCenter: false },
-    { type: "SortingText", nRow: 2, name: i18n.t('WEBSITES_PAGE.LIST.table.name_label'), property: "Name", justifyCenter: false, bigWidth: "40%" },
-    { type: "SortingText", nRow: 2, name: i18n.t('WEBSITES_PAGE.LIST.table.creation_label'), property: "Creation_Date", justifyCenter: false },
-    { type: "SortingText", nRow: 2, name: i18n.t('WEBSITES_PAGE.LIST.table.import'), property: "import", justifyCenter: false },
+    { type: "Skip", nRow: 1, name: i18n.t('USERS_PAGE.LIST.table.username_label'), property: "id", justifyCenter: false },
+    { type: "Skip", nRow: 1, name: i18n.t('USERS_PAGE.LIST.table.username_label'), property: "Username", justifyCenter: false },
+    { type: "SortingText", nRow: 1, name: i18n.t('WEBSITES_PAGE.LIST.table.name_label'), property: "Name", justifyCenter: false, bigWidth: "40%" },
+    { type: "SortingText", nRow: 1, name: i18n.t('WEBSITES_PAGE.LIST.table.creation_label'), property: "Creation_Date", justifyCenter: false },
+    { type: "SortingText", nRow: 1, name: i18n.t('WEBSITES_PAGE.LIST.table.import'), property: "import", justifyCenter: false },
   ],
 ];
 
@@ -141,14 +141,14 @@ export const websiteUsersColumnsOptions = (navigate, handleImportWebsite)=>({
 
 export const pagesUsersHeaders = [
   [
-    { type: "Skip", nRow: 2, name: i18n.t('USERS_PAGE.LIST.table.username_label'), property: "id", justifyCenter: true },
-    { type: "Skip", nRow: 2, name: i18n.t('WEBSITES_PAGE.LIST.table.name_label'), property: "ShowIn", justifyCenter: true },
-    { type: "Skip", nRow: 2, name: i18n.t('USERS_PAGE.LIST.table.username_label'), property: "Username", justifyCenter: true },
-    { type: "Skip", nRow: 2, name: i18n.t('WEBSITES_PAGE.LIST.table.name_label'), property: "Name", justifyCenter: true },
-    { type: "SortingText", nRow: 2, name: i18n.t('WEBSITES_PAGE.LIST.table.name_label'), property: "Url", justifyCenter: true },
-    { type: "SortingText", nRow: 2, name: i18n.t('PAGES_PAGE.LIST.table.score_label'), property: "Score", justifyCenter: true },
-    { type: "SortingText", nRow: 2, name: i18n.t('PAGES_PAGE.LIST.table.last_updated_label'), property: "Evaluation_Date", justifyCenter: true },
-    { type: "SortingText", nRow: 2, name: i18n.t('WEBSITES_PAGE.LIST.table.import'), property: "import", justifyCenter: true },
+    { type: "Skip", nRow: 1, name: i18n.t('USERS_PAGE.LIST.table.username_label'), property: "id", justifyCenter: true },
+    { type: "Skip", nRow: 1, name: i18n.t('WEBSITES_PAGE.LIST.table.name_label'), property: "ShowIn", justifyCenter: true },
+    { type: "Skip", nRow: 1, name: i18n.t('USERS_PAGE.LIST.table.username_label'), property: "Username", justifyCenter: true },
+    { type: "Skip", nRow: 1, name: i18n.t('WEBSITES_PAGE.LIST.table.name_label'), property: "Name", justifyCenter: true },
+    { type: "SortingText", nRow: 1, name: i18n.t('WEBSITES_PAGE.LIST.table.name_label'), property: "Url", justifyCenter: true },
+    { type: "SortingText", nRow: 1, name: i18n.t('PAGES_PAGE.LIST.table.score_label'), property: "Score", justifyCenter: true },
+    { type: "SortingText", nRow: 1, name: i18n.t('PAGES_PAGE.LIST.table.last_updated_label'), property: "Evaluation_Date", justifyCenter: true },
+    { type: "SortingText", nRow: 1, name: i18n.t('WEBSITES_PAGE.LIST.table.import'), property: "import", justifyCenter: true },
   ],
 ];
 

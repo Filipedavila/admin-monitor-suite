@@ -34,7 +34,8 @@ import tests from "../../utils/tests.js";
 import { downloadCSV, downloadWebsiteCSV, getData, getSimplifiedPracticesData } from "../../utils/utils.js";
 import { isRequestSuccessful } from "../../utils/apiHelpers.js";
 import { Modal } from "../../components/Modal";
-import { getEffectiveNavigationContext } from "../../utils/navigation";
+import { getEffectiveNavigationContext, setWebsiteNavigationContext } from "../../utils/navigation";
+import { useUniqueCheckboxSelection } from "../../hooks/useUniqueCheckboxSelection";
 
 // Function to calculate total elements from JSON string
 const calculateTotalElements = (elementCountJson) => {
@@ -141,7 +142,7 @@ const ViewWebSitesComponent = () => {
   ]);
   const [data, setData] = useState([]);
   const [dataBad, setDataBad] = useState(dataRowsBad);
-  const [checkboxesSelected, setCheckboxesSelected] = useState([]);
+  const [checkboxesSelected, setCheckboxesSelected] = useUniqueCheckboxSelection([]);
   const [listItems, setListItems] = useState([]);
   const [listItemsGlobal, setListItemsGlobal] = useState([]);
   const [barDataDynamic, setBarDataDynamic] = useState(barData);
@@ -151,7 +152,8 @@ const ViewWebSitesComponent = () => {
   const [totalItems, setTotalItems] = useState(100);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);
-  const [originalData, setOriginalData] = useState([]);
+  // Issue #60: Using only allPagesData for client-side sorting/pagination
+  const [allPagesData, setAllPagesData] = useState([]);
   const [horizontalDataGood, setHorizontalDataGood] = useState(
     {
       labels: [],
@@ -202,7 +204,16 @@ const ViewWebSitesComponent = () => {
       localStorage.setItem('previousPath', lastPath);
     }
     localStorage.setItem('currentPath', currentPath);
-  }, [location.pathname]);
+    
+    // Save website context for navigation to pages/reports
+    if (id && websiteName) {
+      setWebsiteNavigationContext({
+        websiteId: id,
+        websiteSlug: encodeURIComponent(websiteName),
+        websiteName: websiteName
+      });
+    }
+  }, [location.pathname, id, websiteName]);
 
   useEffect(() => {
     const previousPath = localStorage.getItem('previousPath') || '';
@@ -268,35 +279,30 @@ const ViewWebSitesComponent = () => {
   
   useEffect(() => {
     const fetchData = async () => {
-      const responsePagesPag = await api.get(`/website/${encodeURIComponent(websiteName)}/user/admin/pages/all/${itemsPerPage}/0/sort=/direction=/search=`);
-      console.log('Pages API Response:', responsePagesPag.data);
-      setOriginalData((responsePagesPag.data.result || []).map(page => ({
-        id: page.PageId,
-        Uri: page.Uri,
-        Score: page.Score ?? 0,
-        Evaluation_Date: page.Evaluation_Date ? moment(page.Evaluation_Date).format('DD/MM/YYYY') : 'Pendente',
-        Element_Count: calculateTotalElements(page.Element_Count),
-        A: page.A ?? 0,
-        AA: page.AA ?? 0,
-        AAA: page.AAA ?? 0,
-        e: "?",
-        OPAW: page.Show_In ? (page.Show_In.split("")[2] === "1" ? "Sim" : "Nao") : "Nao",
-      })));
-      setData((responsePagesPag.data.result || []).map(page => ({
-        id: page.PageId,
-        Uri: page.Uri,
-        Score: page.Score ?? 0,
-        Evaluation_Date: page.Evaluation_Date ? moment(page.Evaluation_Date).format('DD/MM/YYYY') : 'Pendente',
-        Element_Count: calculateTotalElements(page.Element_Count),
-        A: page.A ?? 0,
-        AA: page.AA ?? 0,
-        AAA: page.AAA ?? 0,
-        e: "?",
-        OPAW: page.Show_In ? (page.Show_In.split("")[2] === "1" ? "Sim" : "Nao") : "Nao",
-      })));
+      // Issue #60: Fetch ALL pages for proper client-side sorting
+      // Only one API call needed - fetch all pages at once
       const responsePages = await api.get(`/website/${encodeURIComponent(websiteName)}/user/admin/pages`);
       const pagesData = responsePages.data.result || [];
+      console.log('Pages API Response - Total pages:', pagesData.length);
       setTotalItems(pagesData.length);
+      
+      // Transform all pages data once
+      const allTransformedPages = pagesData.map(page => ({
+        id: page.PageId,
+        Uri: page.Uri,
+        Score: page.Score ?? 0,
+        Evaluation_Date: page.Evaluation_Date ? moment(page.Evaluation_Date).format('DD/MM/YYYY') : 'Pendente',
+        Evaluation_Date_Raw: page.Evaluation_Date, // Keep raw date for sorting
+        Element_Count: calculateTotalElements(page.Element_Count),
+        A: page.A ?? 0,
+        AA: page.AA ?? 0,
+        AAA: page.AAA ?? 0,
+        e: "?",
+        OPAW: page.Show_In ? (page.Show_In.split("")[2] === "1" ? "Sim" : "Nao") : "Nao",
+      }));
+      
+      // Use only allPagesData - single source of truth
+      setAllPagesData(allTransformedPages);
       const response = await api.get(`/website/info/${id}`);
       const website = response.data.result || [];
 
@@ -502,40 +508,12 @@ const ViewWebSitesComponent = () => {
     fetchData();
   }, []);
 
-  // Server-side pagination and search for pages table
-  const fetchWebsitePages = useCallback(async () => {
-    try {
-      // Fetch current page
-      const offset = currentPage - 1; // API expects page index
-      const listRes = await api.get(`/website/${websiteName}/user/admin/pages/all/${itemsPerPage}/${offset}/sort=/direction=/search=${encodeURIComponent(search || '')}`);
-      const rows = (listRes.data.result || []).map(page => ({
-        id: page.PageId,
-        Uri: page.Uri,
-        Score: page.Score,
-        Evaluation_Date: moment(page.Evaluation_Date).format('DD/MM/YYYY'),
-        Element_Count: calculateTotalElements(page.Element_Count),
-        A: page.A,
-        AA: page.AA,
-        AAA: page.AAA,
-        e: "?",
-        OPAW: (page.Show_In || '').toString().split("")[2] === "1" ? "Sim" : "Não",
-      }));
-      setData(rows);
-      setOriginalData(rows);
-    } catch (err) {
-      // Fallback: keep current data if endpoint not available
-      console.error('Error fetching paginated pages:', err);
-    }
-  }, [websiteName, currentPage, itemsPerPage, search]);
 
-  useEffect(() => {
-    fetchWebsitePages();
-  }, [fetchWebsitePages]);
-
-  // Handle search change
+  // Note: fetchWebsitePages removed - using client-side sorting/pagination now (Issue #60)
+  
+  // Handle search change - for client-side filtering
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
-    setCurrentPage(1);
   };
 
   const handlePageChange = (page) => setCurrentPage(page);
@@ -567,16 +545,11 @@ const ViewWebSitesComponent = () => {
         setFeedbackMessage("Páginas excluídas com sucesso!");
         setCheckboxesSelected([]);
         
-        // Remove deleted pages from both data arrays
+        // Remove deleted pages from allPagesData
         const deletedIds = checkboxesSelected.map(item => item.id);
-        const updatedData = originalData.filter(item => !deletedIds.includes(item.id));
-        const updatedDisplayData = data.filter(item => !deletedIds.includes(item.id));
-        
-        setOriginalData(updatedData);
-        setData(updatedDisplayData);
-        
-        // Refresh data from API to ensure consistency
-        await fetchWebsitePages();
+        const updatedData = allPagesData.filter(item => !deletedIds.includes(item.id));
+        setAllPagesData(updatedData);
+        setTotalItems(updatedData.length);
       } else {
         setFeedbackMessage("Erro ao excluir páginas!");
       }
@@ -654,8 +627,8 @@ const ViewWebSitesComponent = () => {
         <ContentListPages
           checkboxesSelected={checkboxesSelected}
           setCheckboxesSelected={setCheckboxesSelected}
-          data={originalData}
-          setData={setOriginalData}
+          data={allPagesData}
+          setData={setAllPagesData}
           totalItems={totalItems}
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}
@@ -666,6 +639,7 @@ const ViewWebSitesComponent = () => {
           handleDeletePages={handleDeletePages}
           handleReevaluatePages={handleReevaluatePages}
           handleShowHideObservatory={handleShowHideObservatory}
+          useClientSideSorting={true}
         />
       </div>
 

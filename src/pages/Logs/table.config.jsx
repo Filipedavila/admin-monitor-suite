@@ -3,7 +3,7 @@ import i18n from "../../i18n";
 
 export const directoriesHeaders = [
   [
-    { type: "SortingText", nRow: 2, name:"Log", property: "log", label: "Log"},
+    { type: "SortingText", nRow: 1, name:"Log", property: "log", label: "Log"},
 
   ]
 ];

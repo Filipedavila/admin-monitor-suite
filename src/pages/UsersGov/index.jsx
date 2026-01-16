@@ -18,11 +18,12 @@ import { useTranslation } from 'react-i18next';
 import { api } from "../../config/api";
 import moment from "moment";
 import { Modal } from "../../components/Modal";
+import { useUniqueCheckboxSelection } from "../../hooks/useUniqueCheckboxSelection";
 
 const UserGovList = () => {
   const location = useLocation();
   const [allUsersGov, setAllUsersGov] = useState([]);
-  const [checkboxesSelected, setCheckboxesSelected] = useState([]);
+  const [checkboxesSelected, setCheckboxesSelected] = useUniqueCheckboxSelection([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");

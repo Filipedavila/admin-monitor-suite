@@ -4,10 +4,10 @@ const apiUrl = import.meta.env.VITE_API_URL + import.meta.env.VITE_ROUTE_URL;
 
 export const categoriesHeaders = [
   [
-    {type: "Checkbox", nRow: 2, name: i18n.t('MISC.select'), property: "id", justifyCenter: true},
-    {type: "SortingText", nRow: 2, name: i18n.t('CATEGORIES_PAGE.LIST.table.name_label'), property: "Name"},
-    {type: "SortingText", nRow: 2, name: i18n.t('CATEGORIES_PAGE.LIST.table.websites_label'), property: "Websites", justifyCenter: true},
-    { type: "SortingText", nRow: 2, name: i18n.t('USERS_PAGE.LIST.table.edit_label'), property: "edit", justifyCenter: true },
+    {type: "Checkbox", nRow: 1, name: i18n.t('MISC.select'), property: "id", justifyCenter: true},
+    {type: "SortingText", nRow: 1, name: i18n.t('CATEGORIES_PAGE.LIST.table.name_label'), property: "Name"},
+    {type: "SortingText", nRow: 1, name: i18n.t('CATEGORIES_PAGE.LIST.table.websites_label'), property: "Websites", justifyCenter: true},
+    { type: "SortingText", nRow: 1, name: i18n.t('USERS_PAGE.LIST.table.edit_label'), property: "edit", justifyCenter: true },
 
   ]
 ]
