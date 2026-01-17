@@ -4,6 +4,10 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    watch: {
+      usePolling: true, 
+    }},
   test: {
     globals: true,
     environment: 'jsdom',

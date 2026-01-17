@@ -5,9 +5,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --mode development",
-    "build": "vite build --mode production",
+    "dev": "vite --host 0.0.0.0 --mode dev",
+    "build": "vite build --mode prod",
     "build:preprod": "vite build --mode preprod",
+    "build:noenv": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
