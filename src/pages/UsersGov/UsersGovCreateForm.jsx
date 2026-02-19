@@ -15,7 +15,7 @@ const UsersGovCreateForm = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
     const [feedbackMessage, setFeedbackMessage] = useState("");
-    const [associatedUser, setAssociatedUser] = useState("");
+    const [associatedUser, setAssociatedUser] = useState([]);
     const [associatedUsersOptions, setAssociatedUsersOptions] = useState([]);
     const watchedUsername = watch("username");
     const watchedCitizenCard = watch("citizen_card_number");
@@ -29,8 +29,8 @@ const UsersGovCreateForm = () => {
     ];
 
     const handleUpdateGovUser = async (payload) => {
-        
-        const result = associatedUsersOptions.filter(item => associatedUser.includes(item.value));
+        const selectedUserIds = Array.isArray(associatedUser) ? associatedUser : [];
+        const result = associatedUsersOptions.filter(item => selectedUserIds.includes(item.value));
         
         payload.entities = result.map(item => ({
             UserId: item.value,

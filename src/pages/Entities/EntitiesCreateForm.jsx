@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Input, Button, Breadcrumb, MultiSelect } from 'ama-design-system';
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -25,34 +25,59 @@ const EntitiesCreateForm = () => {
     const watchedFullName = watch("fullName");
     const [defaultWebsites, setDefaultWebsites] = useState([]);
     const [shortNameInvalid, setShortNameInvalid] = useState(false);
+    const websitesValueRef = useRef([]);
     const [fullNameInvalid, setFullNameInvalid] = useState(false);
     // Load initial websites
     useEffect(() => {
-        fetchWebsites("");
         const fetchEntity = async () => {
-        
             const response = await api.get(`/entity/info/${id}`);
             const ent = response.data.result;
             setValue("entityName", ent.Short_Name);
             setValue("fullName", ent.Long_Name);
-            setWebsites(ent.websites.map(web => web.WebsiteId));
-            setValue("websites", ent.websites.map(web => web.WebsiteId));
-            setDefaultWebsites(ent.websites.map(web => web.WebsiteId));
+            
+            const websiteIds = ent.websites.map(web => web.WebsiteId);
+            const selectedWebsiteOptions = ent.websites.map(web => ({
+                value: web.WebsiteId,
+                label: web.Name
+            }));
+            
+            websitesValueRef.current = websiteIds;
+            setWebsitesOptions(selectedWebsiteOptions);
+            setWebsites(websiteIds);
+            setValue("websites", websiteIds);
+            setDefaultWebsites(websiteIds);
+            
+            fetchWebsites("");
         };
+        
         if (id) {
             fetchEntity();
+        } else {
+            fetchWebsites("");
         }
-        
     }, [id, reset]);
 
     // Function to fetch websites based on search
     const fetchWebsites = async (searchTerm) => {
         try {
             const response = await api.get(`/website/all/10000/0/sort=/direction=/search=${searchTerm}`);
-            setWebsitesOptions(response.data.result.map(item => ({
+            const fetchedOptions = response.data.result.map(item => ({
                 value: item.WebsiteId,
                 label: item.Name
-            })));
+            }));
+            
+            setWebsitesOptions(prevOptions => {
+                const currentValues = websitesValueRef.current;
+                const preservedOptions = prevOptions.filter(opt => currentValues.includes(opt.value));
+                const allOptions = [...preservedOptions];
+                const existingIds = new Set(allOptions.map(opt => opt.value));
+                fetchedOptions.forEach(opt => {
+                    if (!existingIds.has(opt.value)) {
+                        allOptions.push(opt);
+                    }
+                });
+                return allOptions;
+            });
         } catch (error) {
             console.error('Error fetching websites:', error);
         }
@@ -70,6 +95,7 @@ const EntitiesCreateForm = () => {
 
     const handleWebsitesChange = (newWebsites) => {
         setWebsites(newWebsites || []);
+        websitesValueRef.current = newWebsites || [];
         setValue("websites", newWebsites || []);
         trigger("websites");
     };

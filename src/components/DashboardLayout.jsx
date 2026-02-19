@@ -186,11 +186,11 @@ const DashboardLayout = () => {
       <aside>
 
       {
-        localStorage.getItem("@AMS:apiUrl").includes("http://10.55.37.17")  ?
-         <h2>AMS - <abbr title="Desenvolvimento">DEV</abbr></h2> :  
-        localStorage.getItem("@AMS:apiUrl").includes("https://accessmonitor.acessibilidade.gov.pt")
-        ? <h2>AMS - <abbr title="Produção">PROD</abbr></h2>
-        : <h2>AMS - <abbr title="Pré-produção">PREPROD</abbr></h2>
+        (localStorage.getItem("@AMS:apiUrl") || "").includes("http://10.55.37.17")  ?
+         <h2>AMS - <abbr title="Desenvolvimento">DEV</abbr></h2> :
+        (localStorage.getItem("@AMS:apiUrl") || "").includes("https://accessmonitor.acessibilidade.gov.pt")
+        ? <h2>AMS - <abbr title="Produção">PRD</abbr></h2>
+        : <h2>AMS - <abbr title="Pré-produção">PPR</abbr></h2>
         }
         <DashboardMenu
           basename="/ams"

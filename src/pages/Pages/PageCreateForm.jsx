@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import {
   Input,
   Button,
@@ -43,6 +43,7 @@ const PageCreateForm = () => {
   const [selectedWebsites, setSelectedWebsites] = React.useState([]);
   const [websitesLoading, setWebsitesLoading] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState('');
+  const selectedWebsitesRef = useRef([]);
   const [urls, setUrls] = React.useState("");
   const [activeTab, setActiveTab] = React.useState("tab1");
   const [feedbackMessage, setFeedbackMessage] = React.useState("");
@@ -54,16 +55,29 @@ const PageCreateForm = () => {
     try {
       setWebsitesLoading(true);
       const response = await api.get(`/website/all/100/0/sort=/direction=/search=${encodeURIComponent(search)}`);
-      const websitesData = response.data.result.map(website => ({
+      const fetchedOptions = response.data.result.map(website => ({
         value: website.WebsiteId,
         label: `${website.Name} (${website.StartingUrl})`,
         startingUrl: website.StartingUrl,
         name: website.Name
       }));
-      setWebsites(websitesData);
+      
+      setWebsites(prevOptions => {
+        const currentSelected = selectedWebsitesRef.current;
+        const selectedOptions = prevOptions.filter(opt => 
+          currentSelected.some(sel => sel.value === opt.value)
+        );
+        const allOptions = [...selectedOptions];
+        const existingIds = new Set(allOptions.map(opt => opt.value));
+        fetchedOptions.forEach(opt => {
+          if (!existingIds.has(opt.value)) {
+            allOptions.push(opt);
+          }
+        });
+        return allOptions;
+      });
     } catch (error) {
       console.error('Error fetching websites:', error);
-      setWebsites([]);
     } finally {
       setWebsitesLoading(false);
     }
@@ -294,7 +308,10 @@ const PageCreateForm = () => {
               label="Sitio web (URL inicial):"
               options={websites}
               value={selectedWebsites}
-              onChange={(selected) => setSelectedWebsites(selected)}
+              onChange={(selected) => {
+                setSelectedWebsites(selected);
+                selectedWebsitesRef.current = selected || [];
+              }}
               onInputChange={(inputValue) => setSearchTerm(inputValue)}
               placeholder={websitesLoading ? "A carregar sitios web..." : "Digite para pesquisar sitios web..."}
               isLoading={websitesLoading}

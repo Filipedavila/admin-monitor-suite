@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Input, Button, Select, Tabs, Breadcrumb } from "ama-design-system";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -47,6 +47,10 @@ const WebSiteCreateForm = () => {
   const [defaultEntities, setDefaultEntities] = useState([]);
   const [defaultUsers, setDefaultUsers] = useState([]);
   const [defaultCategories, setDefaultCategories] = useState([]);
+  
+  const entityValueRef = useRef([]);
+  const userValueRef = useRef([]);
+  const categoryValueRef = useRef([]);
   // State for Select values to track conditional validation
   const [complianceValue, setComplianceValue] = useState("");
   const [typeSealValue, setTypeSealValue] = useState("");
@@ -192,26 +196,65 @@ const WebSiteCreateForm = () => {
   // Debounced fetchers
   const fetchEntities = async (searchTerm) => {
     const res = await api.get(`/entity/all/40/0/sort=/direction=/search=${searchTerm || ''}`);
-    console.log(res.data.result);
-    setEntityOptions((res.data.result || []).map(e => ({ value: e.EntityId || e.id, label: e.Long_Name + " - " + e.Short_Name })));
+    const fetchedOptions = (res.data.result || []).map(e => ({ value: e.EntityId || e.id, label: e.Long_Name + " - " + e.Short_Name }));
+    
+    setEntityOptions(prevOptions => {
+      const currentValues = entityValueRef.current;
+      const preservedOptions = prevOptions.filter(opt => currentValues.includes(opt.value));
+      const allOptions = [...preservedOptions];
+      const existingIds = new Set(allOptions.map(opt => opt.value));
+      fetchedOptions.forEach(opt => {
+        if (!existingIds.has(opt.value)) {
+          allOptions.push(opt);
+        }
+      });
+      return allOptions;
+    });
   }
 
   const fetchUsers = async (searchTerm) => {
     const res = await api.get(`/user/all`);
-    setUserOptions((res.data.result || []).map(u => ({ value: u.UserId || u.id, label: u.Username })));
+    const fetchedOptions = (res.data.result || []).map(u => ({ value: u.UserId || u.id, label: u.Username }));
+    
+    setUserOptions(prevOptions => {
+      const currentValues = userValueRef.current;
+      const preservedOptions = prevOptions.filter(opt => currentValues.includes(opt.value));
+      const allOptions = [...preservedOptions];
+      const existingIds = new Set(allOptions.map(opt => opt.value));
+      fetchedOptions.forEach(opt => {
+        if (!existingIds.has(opt.value)) {
+          allOptions.push(opt);
+        }
+      });
+      return allOptions;
+    });
   }
 
   const fetchCategories = async (searchTerm) => {
     const res = await api.get(`/tag/all`);
-    setCategoryOptions((res.data.result || []).map(c => ({ value: c.TagId, label: c.Name  })));
+    const fetchedOptions = (res.data.result || []).map(c => ({ value: c.TagId, label: c.Name  }));
+    
+    setCategoryOptions(prevOptions => {
+      const currentValues = categoryValueRef.current;
+      const preservedOptions = prevOptions.filter(opt => currentValues.includes(opt.value));
+      const allOptions = [...preservedOptions];
+      const existingIds = new Set(allOptions.map(opt => opt.value));
+      fetchedOptions.forEach(opt => {
+        if (!existingIds.has(opt.value)) {
+          allOptions.push(opt);
+        }
+      });
+      return allOptions;
+    });
   }
 
-  // Initial load
   useEffect(() => {
-    fetchEntities("");
-    fetchUsers("");
-    fetchCategories("");
-  }, []);
+    if (!id) {
+      fetchEntities("");
+      fetchUsers("");
+      fetchCategories("");
+    }
+  }, [id]);
 
   // Load website data for editing
   useEffect(() => {
@@ -227,17 +270,59 @@ const WebSiteCreateForm = () => {
         setValue("accessibility_declaration_date", websiteData.Declaration_Update_Date || "");
         setValue("type_seal", websiteData.Stamp || "");
         setValue("usability_seal_date", websiteData.Stamp_Update_Date || "");
-        setEntityValue(websiteData.entities.map(e => e.EntityId));
-        setUserValue([websiteData.UserId]);
-        setCategoryValue(websiteData.tags.map(c => c.TagId));
-        setDefaultEntities(websiteData.entities.map(e => e.EntityId));
-        setDefaultUsers([websiteData.UserId]);
-        setDefaultCategories(websiteData.tags.map(c => c.TagId));
+        
+        const entityIds = websiteData.entities.map(e => e.EntityId);
+        const userIds = [websiteData.UserId];
+        const categoryIds = websiteData.tags.map(c => c.TagId);
+
+        entityValueRef.current = entityIds;
+        userValueRef.current = userIds;
+        categoryValueRef.current = categoryIds;
+
+        if (websiteData.entities && websiteData.entities.length > 0) {
+          const selectedEntityOptions = websiteData.entities.map(e => ({ 
+            value: e.EntityId, 
+            label: e.Long_Name + " - " + e.Short_Name 
+          }));
+          setEntityOptions(selectedEntityOptions);
+        }
+        
+        if (websiteData.UserId) {
+          try {
+            const userResponse = await api.get(`/user/${websiteData.UserId}`);
+            const userData = userResponse.data.result;
+            const selectedUserOption = { 
+              value: websiteData.UserId, 
+              label: userData.Username 
+            };
+            setUserOptions([selectedUserOption]);
+          } catch (error) {
+            console.error("Error fetching user data:", error);
+          }
+        }
+        
+        if (websiteData.tags && websiteData.tags.length > 0) {
+          const selectedCategoryOptions = websiteData.tags.map(c => ({ 
+            value: c.TagId, 
+            label: c.Name 
+          }));
+          setCategoryOptions(selectedCategoryOptions);
+        }
+        
+        setEntityValue(entityIds);
+        setUserValue(userIds);
+        setCategoryValue(categoryIds);
+        setDefaultEntities(entityIds);
+        setDefaultUsers(userIds);
+        setDefaultCategories(categoryIds);
+        
+        fetchEntities("");
+        fetchUsers("");
+        fetchCategories("");
+        
         // Set compliance and seal values for validation
         setComplianceValue(websiteData.Declaration || "");
         setTypeSealValue(websiteData.Stamp || "");
-        
-   
         
         // Clear validation states for edit mode
         setNameValidation({ isValid: true, message: "" });
@@ -280,6 +365,7 @@ const WebSiteCreateForm = () => {
     const validatedSelection = selected || [];
     setValue("entities", validatedSelection);
     setEntityValue(validatedSelection);
+    entityValueRef.current = validatedSelection;
     validateEntities(validatedSelection);
   };
   
@@ -287,8 +373,8 @@ const WebSiteCreateForm = () => {
     const validatedSelection = selected || [];
     setValue("users", validatedSelection);
     setUserValue(validatedSelection);
+    userValueRef.current = validatedSelection;
     const isValid = validateUsers(validatedSelection);
-    // If validation fails, switch to the associations tab
     if (!isValid) {
       setActiveTab("tab3");
     }
@@ -298,8 +384,8 @@ const WebSiteCreateForm = () => {
     const validatedSelection = selected || [];
     setValue("categories", validatedSelection);
     setCategoryValue(validatedSelection);
+    categoryValueRef.current = validatedSelection;
     const isValid = validateCategories(validatedSelection);
-    // If validation fails, switch to the associations tab
     if (!isValid) {
       setActiveTab("tab3");
     }

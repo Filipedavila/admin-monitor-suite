@@ -7,14 +7,17 @@ const normalizeBaseUrl = (url) => {
   return url.replace(/\/+$/, '');
 };
 
+export const getDefaultDevApiUrl = () => {
+  return (import.meta?.env?.VITE_DEV_API_URL || 'http://10.55.37.17').replace(/\/+$/, '');
+};
+
 const resolveBaseUrl = () => {
   if (typeof window === 'undefined') {
     return '/api';
   }
 
   const storedUrl = localStorage.getItem('@AMS:apiUrl');
-  const fallbackUrl = import.meta?.env?.VITE_API_URL;
-  const base = normalizeBaseUrl(storedUrl || fallbackUrl);
+  const base = normalizeBaseUrl(storedUrl || getDefaultDevApiUrl());
 
   return base ? `${base}/api` : '/api';
 };

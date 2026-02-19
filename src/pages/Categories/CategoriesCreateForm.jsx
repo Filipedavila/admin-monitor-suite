@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Input, Button, Breadcrumb, MultiSelect } from 'ama-design-system';
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -27,6 +27,7 @@ const CategoriesCreateForm = () => {
     const [defaultDirectories, setDefaultDirectories] = useState([]);
     const [defaultWebsites, setDefaultWebsites] = useState([]);
     const [isNameInvalid, setIsNameInvalid] = useState(false);
+    const websitesValueRef = useRef([]);
     // Example options, replace with API data if needed
 
     const websiteOptions = [
@@ -67,41 +68,56 @@ const CategoriesCreateForm = () => {
             })));
         };
         fetchDirectories();
+        
         const fetchCategory = async () => {
-            // Fetch category by id and set form values
             const response = await api.get(`/tag/info/${id}`);
             const cat = response.data.result;
             setValue("categoryName", cat.Name);
             setDirectories(cat.directories.map(dir => dir.DirectoryId));
-            setWebsites(cat.websites.map(web => web.WebsiteId));
+            
+            const websiteIds = cat.websites.map(web => web.WebsiteId);
+            const selectedWebsiteOptions = cat.websites.map(web => ({
+                value: web.WebsiteId,
+                label: web.Name
+            }));
+            
+            websitesValueRef.current = websiteIds;
+            setWebsites(websiteIds);
             setDefaultDirectories(cat.directories.map(dir => dir.DirectoryId));
-            setWebsitesOptions(cat.websites.map(web => ({
-                value: web.WebsiteId,
-                label: web.Name
-            })));
-            setDefaultWebsites(cat.websites.map(web => ({
-                value: web.WebsiteId,
-                label: web.Name
-            })));
-           // fetchWebsites(cat.websites[0].Name.);
-
+            setWebsitesOptions(selectedWebsiteOptions);
+            setDefaultWebsites(selectedWebsiteOptions);
+            
+            fetchWebsites("");
         };
-        fetchCategory();
+        
+        if (id) {
+            fetchCategory();
+        } else {
+            fetchWebsites("");
+        }
     }, [id, reset]);
 
 
     // Função para buscar websites conforme pesquisa
     const fetchWebsites = async (searchTerm) => {
         const responseWebsites = await api.get(`/website/all/100/0/sort=/direction=/search=${searchTerm}`);
-        setWebsitesOptions([
-            ...defaultWebsites.map(web => ({
-                value: web.value,
-                label: web.label
-            })),
-            ...responseWebsites.data.result.map(item => ({
+        const fetchedOptions = responseWebsites.data.result.map(item => ({
             value: item.WebsiteId,
             label: item.Name
-        }))]);
+        }));
+        
+        setWebsitesOptions(prevOptions => {
+            const currentValues = websitesValueRef.current;
+            const preservedOptions = prevOptions.filter(opt => currentValues.includes(opt.value));
+            const allOptions = [...preservedOptions];
+            const existingIds = new Set(allOptions.map(opt => opt.value));
+            fetchedOptions.forEach(opt => {
+                if (!existingIds.has(opt.value)) {
+                    allOptions.push(opt);
+                }
+            });
+            return allOptions;
+        });
     };
 
     // Debounced handler para pesquisa
@@ -121,6 +137,7 @@ const CategoriesCreateForm = () => {
     };
     const handleWebsitesChange = (newWebs) => {
         setWebsites(newWebs || []);
+        websitesValueRef.current = newWebs || [];
         setValue("websites", newWebs || []);
         trigger("websites");
     };

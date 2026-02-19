@@ -64,44 +64,43 @@ const PageList = () => {
     setSearch(value.target.value);
     setCurrentPage(1); // Reset to first page when searching
   };
-
+  const fetchData = async () => {
+    setCheckboxesSelected([]);
+    
+    try {
+      const offset = currentPage - 1;
+      let url = `/page/all/${itemsPerPage}/${offset}/sort=desc/direction=/search=${search}`;
+      const [totalItemsResponse, dataResponse] = await Promise.all([
+        api.get(`/page/all/count/search=${search}`),
+        api.get(url)
+      ]);
+      
+      console.log("Pages API response:", { total: totalItemsResponse.data, data: dataResponse.data });
+      
+      setTotalItems(Number(totalItemsResponse.data.result));
+      
+      const transformedData = (dataResponse.data.result || []).map(item => ({
+        id: item.PageId,
+        Uri: item.Uri,
+        Score: item.Score != null ? Number(item.Score) : 0,
+        Evaluation_Date: item.Evaluation_Date ? formatDate(item.Evaluation_Date) : "Pendente",
+        Element_Count: calculateTotalElements(item.Element_Count),
+        A: item.A ?? 0,
+        AA: item.AA ?? 0,
+        AAA: item.AAA ?? 0,
+        e: "?",
+        OPAW: item.Show_In ? (item.Show_In.split("")[2] === "1" ? "Sim" : "Nao") : "Nao",
+      }));
+      
+      setData(transformedData);
+    } catch (error) {
+      console.error("Error loading pages:", error);
+      setFeedbackMessage("Erro ao carregar paginas!");
+      setShowFeedbackModal(true);
+    }
+  };
   // Fetch total count and current page data with parallel API calls
   useEffect(() => {
-    const fetchData = async () => {
-      setCheckboxesSelected([]);
-      
-      try {
-        const offset = currentPage - 1;
-        let url = `/page/all/${itemsPerPage}/${offset}/sort=desc/direction=/search=${search}`;
-        const [totalItemsResponse, dataResponse] = await Promise.all([
-          api.get(`/page/all/count/search=${search}`),
-          api.get(url)
-        ]);
-        
-        console.log("Pages API response:", { total: totalItemsResponse.data, data: dataResponse.data });
-        
-        setTotalItems(Number(totalItemsResponse.data.result));
-        
-        const transformedData = (dataResponse.data.result || []).map(item => ({
-          id: item.PageId,
-          Uri: item.Uri,
-          Score: item.Score != null ? Number(item.Score) : 0,
-          Evaluation_Date: item.Evaluation_Date ? formatDate(item.Evaluation_Date) : "Pendente",
-          Element_Count: calculateTotalElements(item.Element_Count),
-          A: item.A ?? 0,
-          AA: item.AA ?? 0,
-          AAA: item.AAA ?? 0,
-          e: "?",
-          OPAW: item.Show_In ? (item.Show_In.split("")[2] === "1" ? "Sim" : "Nao") : "Nao",
-        }));
-        
-        setData(transformedData);
-      } catch (error) {
-        console.error("Error loading pages:", error);
-        setFeedbackMessage("Erro ao carregar paginas!");
-        setShowFeedbackModal(true);
-      }
-    };
     fetchData();
   }, [currentPage, itemsPerPage, search]);
 
@@ -135,14 +134,32 @@ const PageList = () => {
   };
 
   const handleShowHideObservatory = async () => {
+    console.log("CHECKED OBSERVATORY: ",checkboxesSelected)
+    const pagesToAdd = checkboxesSelected.filter(item => item.OPAW === "Nao");
+    const pagesToRemove = checkboxesSelected.filter(item => item.OPAW === "Sim");
+    
     await Promise.all(checkboxesSelected.map(async item => {
       const response = await api.post(`/page/update`, {
         pageId: item.id,
-        checked: true  // false = hide from Observatory, true = show in Observatory
+        checked: item.OPAW === "Nao" // false = hide from Observatory, true = show in Observatory
       });
-    }));
-    setFeedbackMessage('As páginas foram adicionadas ao observatório com sucesso!');
+   
+    
+    let message = '';
+    if (pagesToAdd.length > 0 && pagesToRemove.length > 0) {
+      message = `As páginas foram atualizadas no observatório com sucesso! ${pagesToAdd.length} página(s) adicionada(s) e ${pagesToRemove.length} página(s) removida(s).`;
+    } else if (pagesToAdd.length > 0) {
+      message = `${pagesToAdd.length} página(s) adicionada(s) ao observatório com sucesso!`;
+    } else if (pagesToRemove.length > 0) {
+      message = `${pagesToRemove.length} página(s) removida(s) do observatório com sucesso!`;
+    } else {
+      message = 'As páginas foram atualizadas no observatório com sucesso!';
+    }
+    
+    setFeedbackMessage(message);
+    await fetchData();
     setShowFeedbackModal(true);
+  }));
   };
   return (
     <div>

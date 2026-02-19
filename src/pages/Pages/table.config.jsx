@@ -173,7 +173,9 @@ export const columnsOptionsPage = (navigate, url)=>({
   AA: { type: "Text", center: false, bold: false, decimalPlace: false },
   AAA: { type: "Text", center: false, bold: false, decimalPlace: false },
   state: { type: "Button", text: "Relatório", center: false, bold: false, decimalPlace: false, onClick: (row)=>{ 
-    console.log(row)
+    if(row.id === 0){
+      return;
+    }
     navigate(`${import.meta.env.VITE_ROUTE_URL}dashboard/pages/details/${encodeURIComponent(url)}/${row.id}`) 
   }},
 })
@@ -182,7 +184,7 @@ export const columnsOptionsPage = (navigate, url)=>({
 
 export const dataRowsPage = [
   {
-    id: 2,
+    id: 0,
     date_avaliation: "05/06/2025",
     score: "8.5",
     elementsNumber: 134,

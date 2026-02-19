@@ -663,7 +663,7 @@ const ViewCategoriesComponent = () => {
                 "Última página"
               ]}
               project=""
-              paginationOptions={[50, 100, 200, 500]}
+              paginationOptions={[50, 100, 200, 500, dataListDetails.filter(item => !item.occurrences.toString().includes("lang")).length].filter((v, i, a) => v && a.indexOf(v) === i).sort((a, b) => a - b)}
               setCheckboxesSelected={() => {}}
             />
           )}

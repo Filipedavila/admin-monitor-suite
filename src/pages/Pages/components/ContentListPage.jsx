@@ -128,7 +128,7 @@ export default function ContentListPages ({
               " de ",
               " itens "
             ]}
-            paginationOptions={[10, 25, 50, 100]}
+            paginationOptions={[10, 25, 50, 100, totalItems].filter((v, i, a) => v && a.indexOf(v) === i).sort((a, b) => a - b)}
             rowKey="id"
           />
         </div>
