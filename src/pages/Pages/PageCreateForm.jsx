@@ -61,21 +61,7 @@ const PageCreateForm = () => {
         startingUrl: website.StartingUrl,
         name: website.Name
       }));
-      
-      setWebsites(prevOptions => {
-        const currentSelected = selectedWebsitesRef.current;
-        const selectedOptions = prevOptions.filter(opt => 
-          currentSelected.some(sel => sel.value === opt.value)
-        );
-        const allOptions = [...selectedOptions];
-        const existingIds = new Set(allOptions.map(opt => opt.value));
-        fetchedOptions.forEach(opt => {
-          if (!existingIds.has(opt.value)) {
-            allOptions.push(opt);
-          }
-        });
-        return allOptions;
-      });
+      setWebsites(fetchedOptions);
     } catch (error) {
       console.error('Error fetching websites:', error);
     } finally {
@@ -83,22 +69,17 @@ const PageCreateForm = () => {
     }
   }, []);
 
-  // Debounced search effect
   React.useEffect(() => {
     const timeoutId = setTimeout(() => {
       fetchWebsites(searchTerm);
-    }, 300); // 300ms debounce
+    }, 300);
 
     return () => clearTimeout(timeoutId);
   }, [searchTerm, fetchWebsites]);
 
-  // Initial load
-  React.useEffect(() => {
-    fetchWebsites();
-  }, [fetchWebsites]);
+
 
   const onSubmit = (data) => {
-    console.log("activeTab", activeTab)
     if(activeTab === "tab1") {
       handleInsertPages(data);
     } else if(activeTab === "tab2") {
@@ -140,7 +121,7 @@ const PageCreateForm = () => {
 
     try {
       const response = await api.post('/page/add', {
-        websiteId: selectedWebsites[0].value,
+        websiteId: selectedWebsites,
         uris: JSON.stringify(urls),
         observatory: "[]"
       });
@@ -158,14 +139,12 @@ const PageCreateForm = () => {
   };
 
   const handleInsertSiteMap = async (data) => {
-    console.log("handleInsertSiteMap called with data:", data);
     
     if (selectedWebsites.length === 0) {
       setFeedbackMessage("Por favor, selecione pelo menos um sitio web.");
       return;
     }
 
-    // Get the file input element directly
     const fileInput = document.getElementById('sitemap');
     console.log("File input element:", fileInput);
     console.log("File input files:", fileInput?.files);
@@ -177,7 +156,6 @@ const PageCreateForm = () => {
     }
 
     const file = fileInput.files[0];
-    console.log("Selected file:", file);
     
     try {
       // Read the file content
@@ -213,7 +191,6 @@ const PageCreateForm = () => {
         setFeedbackMessage("Erro ao adicionar paginas do sitemap");
       }
     } catch (error) {
-      console.error("Error processing sitemap file:", error);
       setFeedbackMessage("Erro ao processar o ficheiro sitemap");
     }
   };
@@ -224,11 +201,11 @@ const PageCreateForm = () => {
       return;
     }
     
-    const website = websites.filter(website => website.value === selectedWebsites[0].value).map(website => ({
+    const website = websites.filter(website => website.value === selectedWebsites).map(website => ({
       url: website.startingUrl,
       websiteId: website.value
     }));
-    
+    console.log("website", website)
     try {
       const response = await api.post('/crawler/crawl', {
         websites: website,
@@ -302,27 +279,21 @@ const PageCreateForm = () => {
             1. Em que sitio web pretende efetuar a adicao de paginas?
           </h2>
           <div className="w-50">
-            <MultiSelect
+            <Select
               id="websites"
               darkTheme={theme}
               label="Sitio web (URL inicial):"
               options={websites}
               value={selectedWebsites}
-              onChange={(selected) => {
-                setSelectedWebsites(selected);
-                selectedWebsitesRef.current = selected || [];
+              isSearch={true}
+              onChange={(value) => {
+                setSelectedWebsites(value);
+                selectedWebsitesRef.current = value || [];
               }}
-              onInputChange={(inputValue) => setSearchTerm(inputValue)}
-              placeholder={websitesLoading ? "A carregar sitios web..." : "Digite para pesquisar sitios web..."}
-              isLoading={websitesLoading}
-              isMulti={true}
-              isSearchable={true}
-              filterOption={null}
-              noOptionsMessage={({ inputValue }) => 
-                inputValue ? `Nenhum sitio web encontrado para "${inputValue}"` : "Digite para pesquisar sitios web"
-              }
-              loadingMessage={() => "A pesquisar..."}
-              menuIsOpen={searchTerm.length > 0 || selectedWebsites.length > 0 || websites.length > 0}
+              onInputChange={(inputValue) => {
+                setSearchTerm(inputValue.target.value);
+              }}
+          
             />
             {selectedWebsites.length === 0 && (
               <small className="text-danger">
@@ -360,7 +331,7 @@ const PageCreateForm = () => {
         onRequestClose={() => setShowCrawlingModal(false)}
         onSubmit={handleCrawling}
         theme={theme}
-        selectedItems={selectedWebsites.map(website => ({ id: website.value }))}
+        selectedItems={selectedWebsites}
         itemType="websites"
       />
     </div>
