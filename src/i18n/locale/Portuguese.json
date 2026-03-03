@@ -858,6 +858,7 @@
     "frame_02": "Webpage assente numa estrutura de molduras mas com a declaração DTD incorreta",
     "heading_01": "Cabeçalhos com nome acessível",
     "heading_02": "Cabeçalhos sem nome acessível",
+    "heading_03": "Cabeçalhos sem nome acessível",
     "hx_01a": "Sem cabeçalhos",
     "hx_01b": "Cabeçalhos na página",
     "hx_01c": "Não há cabeçalho principal (h1) na página",
@@ -1242,6 +1243,10 @@
       "p": "Constatei que todos os cabeçalhos desta página <mark>têm</mark> nome acessível"
     },
     "heading_02": {
+      "s": "Identifiquei <mark>{{value}}</mark> cabeçalho sem nome acessível.",
+      "p": "Identifiquei <mark>{{value}}</mark> cabeçalhos sem nome acessível."
+    },
+    "heading_03": {
       "s": "Identifiquei <mark>{{value}}</mark> cabeçalho sem nome acessível.",
       "p": "Identifiquei <mark>{{value}}</mark> cabeçalhos sem nome acessível."
     },

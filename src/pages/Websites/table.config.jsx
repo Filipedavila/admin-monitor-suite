@@ -12,6 +12,7 @@ export const directoriesHeaders = [
       name: i18n.t("MISC.select"),
       property: "id",
       label: i18n.t("MISC.select"),
+      justifyCenter: true,
     },
     {
       type: "SortingText",
@@ -61,7 +62,7 @@ export const columnsOptions = (navigate) => ({
   },
   Name: {
     type: "Link",
-    center: false,
+    center: true,
     bold: false,
     isCheckboxLabel: true,
     decimalPlace: false,
@@ -71,7 +72,7 @@ export const columnsOptions = (navigate) => ({
   },
   StartingUrl: {
     type: "Text",
-    center: false,
+    center: true,
     bold: false,
     decimalPlace: false,
   },

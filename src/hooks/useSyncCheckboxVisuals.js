@@ -29,26 +29,22 @@ export const useSyncCheckboxVisuals = (
     
     const tbody = container.querySelector('tbody');
     if (!tbody) return;
-    
-    const rows = tbody.querySelectorAll('tr');
+
+    // Collect all row checkboxes rendered by SortingTable
+    const checkboxes = tbody.querySelectorAll('input[type="checkbox"][id^="checkbox_"]');
     const selectedIds = new Set(checkboxesSelected.map(item => item[uniqueKey]));
-    
-    rows.forEach((row, index) => {
-      const checkbox = row.querySelector('input[type="checkbox"]');
-      if (!checkbox) return;
-      
-      const item = data[index];
-      if (!item) return;
-      
-      const itemId = item[uniqueKey];
-      const shouldBeChecked = selectedIds.has(itemId);
-      
+
+    checkboxes.forEach((checkbox) => {
+      const domId = checkbox.id.replace('checkbox_', '');
+      const parsedId = Number.isNaN(Number(domId)) ? domId : Number(domId);
+      const shouldBeChecked = selectedIds.has(parsedId);
+
       // Only update if there's a mismatch
       if (checkbox.checked !== shouldBeChecked) {
         checkbox.checked = shouldBeChecked;
       }
     });
-  }, [checkboxesSelected, data, uniqueKey, containerSelector]);
+  }, [checkboxesSelected, uniqueKey, containerSelector]);
   
   // Sync checkboxes after selection changes
   useEffect(() => {

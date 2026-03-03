@@ -1219,6 +1219,10 @@
       "s": "I have identified <mark>{{value}}</mark> heading without an accessible name.",
       "p": "I have identified <mark>{{value}}</mark> headings without an accessible name."
     },
+    "heading_03": {
+      "s": "I have identified <mark>{{value}}</mark> heading without an accessible name.",
+      "p": "I have identified <mark>{{value}}</mark> headings without an accessible name."
+    },
     "aria_01": {
       "s": "I noticed that <mark>all elements</mark> with an explicit semantic role exist inside their required contexts.",
       "p": "I noticed that <mark>all elements</mark> with an explicit semantic role exist inside their required contexts."

@@ -204,6 +204,8 @@ main {
   background-color: #f5f5f5;
   padding: 35px;
   z-index: 1;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 footer.app-footer {
@@ -516,6 +518,19 @@ aside h2 {
   .main-content-dashboard.menu-collapsed {
     grid-template-columns: 0px 100%;
   }
+}
+
+/* ========== FIX HORIZONTAL SCROLL IN TABLES (Issue #83) ========== */
+/* Ensure long URLs in table cells wrap and don't cause horizontal overflow */
+.ama.sorting_table_responsive {
+  overflow-x: auto !important;
+  max-width: 100%;
+}
+
+.ama.sorting_table_responsive .sorting_table tbody tr td a,
+.ama.sorting_table_responsive .sorting_table tbody tr td {
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* ========== ACCESSIBILITY FIX FOR SCREEN READERS (Issue #68) ========== */

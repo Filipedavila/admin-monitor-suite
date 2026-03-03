@@ -20,6 +20,7 @@ import {
   LineController,
   RadialLinearScale,
   ArcElement,
+  Filler,
 } from "chart.js";
 import App from './App';
 
@@ -34,7 +35,8 @@ ChartJS.register(
   Legend,
   LineController,
   RadialLinearScale,
-  ArcElement
+  ArcElement,
+  Filler
 );
 
 ReactDOM.createRoot(document.getElementById("root")).render(

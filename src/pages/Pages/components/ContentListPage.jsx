@@ -9,7 +9,6 @@ import {
 } from "../table.config";
 import { useTheme } from "../../../context/ThemeContext";
 import { useTranslation } from 'react-i18next';
-import { useSyncCheckboxVisuals } from "../../../hooks/useSyncCheckboxVisuals";
 
 export default function ContentListPages ({ 
   checkboxesSelected, 
@@ -34,9 +33,6 @@ export default function ContentListPages ({
 }){
   const { theme } = useTheme();
   const { t } = useTranslation();
-  
-  // Fix for Issue #64 - sync checkbox visuals when dealing with duplicate URIs
-  useSyncCheckboxVisuals(checkboxesSelected, data, 'id', 'table');
   
   // Issue #60: Filter data by search if client-side sorting is enabled
   const filteredData = useMemo(() => {

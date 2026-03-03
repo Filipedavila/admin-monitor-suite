@@ -2,7 +2,7 @@ const apiUrl = import.meta.env.VITE_API_URL + import.meta.env.VITE_ROUTE_URL;
 
 export const dataHeaders = [
   [
-    { type: "SortingText", nRow: 1, name: "Práticas ", property: "name", justifyCenter: false },
+    { type: "SortingText", nRow: 1, name: "Práticas ", property: "name", justifyCenter: true },
     { type: "SortingText", nRow: 1, name: "Práticas por páginas", property: "praticesPerPage", justifyCenter: true },
     { type: "SortingText", nRow: 1, name: "Páginas", property: "pages", justifyCenter: true },
     { type: "SortingText", nRow: 1, name: "Ocorrência", property: "occurences", justifyCenter: true },

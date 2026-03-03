@@ -195,7 +195,7 @@ const DetailsPage = () => {
         { title: 'Tamanho da página	', value: result.tot.info.size + " bytes"},
       ]);
       setResult(result);
-      const mappedData = Object.keys(result.tot.results).map(item => ({
+      const mappedData = Object.keys(result.tot.results).filter(item => tests[item] !== undefined).map(item => ({
         id:  tests[item].test,
         title: <div dangerouslySetInnerHTML={{__html: t('TESTS_RESULTS.' +item + '.p', {value: result.tot.elems[tests[item].test]})}} />,
         lvl: tests[item].level.toUpperCase(),
@@ -214,11 +214,18 @@ const DetailsPage = () => {
         ele: item,
         tdClassName: tests[item].result === "warning" ? "warning-cell" : tests[item].result === "failed" ? "error-cell" : "success-cell",
       }));
+      console.log(mappedData);
       setData(mappedData);
       setMatrixData(calculateMatrix(mappedData));
 
     }
-    fetchData();
+    try {
+      fetchData();
+    } catch (error) {
+      console.log(mappedData);
+      setOpenModal(true);
+      setErrorMessage("Erro ao carregar o relatório de acessibilidade da página");
+    }
   }, [pageUrl, id, t]);
   return (
     <div>

@@ -21,9 +21,9 @@ export const directoriesHeaders = [
 ];
 
 export const columnsOptions = {
-  id: { type: "Checkbox", center: false, bold: false, decimalPlace: false, label:"Selecionar"},
+  id: { type: "Checkbox", center: true, bold: false, decimalPlace: false, label:"Selecionar"},
   Uri: { type: "Link", center: false, bold: false, decimalPlace: false, isCheckboxLabel: true, href: (row) => apiUrl + "dashboard/pages/view/" + encodeURIComponent(row.Uri) },
-  Score: { type: "Text", center: false, bold: false, decimalPlace: true },
+  Score: { type: "Text", center: true, bold: false, decimalPlace: true },
   Evaluation_Date: {
     type: "Text",
     center: true,

@@ -9,13 +9,9 @@ import ContentListPages from "../Pages/components/ContentListPage.jsx";
 import {
   dataHeaders as dataHeadersBad,
   columnsOptions as columnsOptionsBad,
-  dataRows as dataRowsBad,
-  itemsPaginationText,
-  nameOfIcons,
-  nItemsPerPageText,
-  paginationButtonsTexts,
+  dataRows as dataRowsBad
 } from "../../components/GoodBadTab/table.config.jsx";
-import { barOptionsDark, dataRows, optionsHorizontalBar, horizontalData, optionsHorizontalBarDark } from "./table.config.jsx";
+import { barOptionsDark, optionsHorizontalBar, optionsHorizontalBarDark } from "./table.config.jsx";
 import {
   barData,
   barOptions,
@@ -287,8 +283,9 @@ const ViewWebSitesComponent = () => {
       setTotalItems(pagesData.length);
       
       // Transform all pages data once
-      const allTransformedPages = pagesData.map(page => ({
-        id: page.PageId,
+      // Ensure we always have a valid, unique id for each row (some pages may have null/undefined PageId)
+      const allTransformedPages = pagesData.map((page, index) => ({
+        id: page.PageId ?? index,
         Uri: page.Uri,
         Score: page.Score ?? 0,
         Evaluation_Date: page.Evaluation_Date ? moment(page.Evaluation_Date).format('DD/MM/YYYY') : 'Pendente',
