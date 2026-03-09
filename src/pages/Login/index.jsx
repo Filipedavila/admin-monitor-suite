@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { Button, Input } from "ama-design-system";
 import Logo from "../../assets/logo-ams.svg";
 import { useAuth } from "../../context/AuthContext";
-import { refreshApiBaseUrl, getDefaultDevApiUrl } from "../../config/api";
+import { getDefaultApiUrl, refreshApiBaseUrl } from "../../config/api";
 import './login.css'
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -16,7 +16,7 @@ const Login = () => {
 
   const onSubmit = async (data) => {
     try {
-      const machineIP = (data.machineIP && data.machineIP.trim()) ? data.machineIP.trim() : getDefaultDevApiUrl();
+      const machineIP = (data.machineIP && data.machineIP.trim()) ? data.machineIP.trim() :getDefaultApiUrl() ;
       localStorage.setItem('@AMS:apiUrl', machineIP);
       refreshApiBaseUrl();
       const result = await login(data.username, data.password, machineIP);
