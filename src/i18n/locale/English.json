@@ -224,6 +224,7 @@
     "LIST": {
       "title": "Gov Users",
       "subtitle": "List of all users from the applications Study Monitor and My Monitor",
+      "delete_users": "Delete users",
       "table": {
         "title":"List of gov users",
         "id_label": "ID",
