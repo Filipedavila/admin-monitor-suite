@@ -67,7 +67,7 @@ export const columnsOptions = (navigate) => ({
     isCheckboxLabel: true,
     decimalPlace: false,
     href: (row) => {
-      return `${apiUrl}dashboard/websites/view/${row.id}/${row.Name}`;
+      return `${apiUrl}dashboard/websites/view/${row.id}/${encodeURIComponent(row.Name)}`;
     },
   },
   StartingUrl: {

@@ -10,7 +10,6 @@ import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from "react-i18next";
 import { getEffectiveNavigationContext } from "../../utils/navigation";
 import {  getTestResults } from "../../utils/utils";
-import { getEvalDataByAPI } from "../../config/api.js";
 import TableDetails from "../../components/TableDetails/TableDetails.jsx";
 
 const DetailedPageLine = () => {
