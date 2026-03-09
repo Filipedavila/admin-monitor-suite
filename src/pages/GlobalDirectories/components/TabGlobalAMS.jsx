@@ -13,7 +13,6 @@ import { api } from "../../../config/api.js";
 import { useTranslation } from "react-i18next";
 import { downloadCSVByDirectory, groupPracticesBySuccessCriteria } from "../../../utils/utils.js";
 import moment from "moment";
-import tests from "../../../utils/tests.js";
 const TabGlobalAMS = ({
   theme,
   columnsOptionsBar,

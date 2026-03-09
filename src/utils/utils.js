@@ -1,10 +1,9 @@
-import tests from './tests'
 import { clone, orderBy } from "lodash";
 import { saveAs } from "file-saver";
 
 import { api } from '../config/api'
-import tests_colors from './tests_colors';
-import scs from './scs';
+import {testColors,successCriteria,ruleset} from "@a12e/accessmonitor-rulesets";
+
 const pathUrl = "/dashboard/"
 function getTopTenErrors(errors) {
   const errorsList = [];
@@ -16,7 +15,7 @@ function getTopTenErrors(errors) {
         n_elems: errors[key].n_elems,
         nOccurrences: errors[key].nOccurrences,
         n_pages: errors[key].n_pages,
-        test: tests[key].test
+        test: ruleset[key].test
       });
     }
   }
@@ -48,7 +47,7 @@ function getTopTenBestPractices(success) {
       key,
       nOccurrences: success[key].nOccurrences,
       n_pages: success[key].n_pages,
-      test: tests[key].test
+      test: ruleset[key].test
     });
   }
 
@@ -65,10 +64,10 @@ function getWebsiteSuccessDetailsTable(success, pages) {
     if (success[key]) {
       practices.push({
         key,
-        test: tests[key].test,
+        test: ruleset[key].test,
         nOccurrences: success[key].nOccurrences,
         n_pages: success[key].n_pages,
-        lvl: tests[key].level.toUpperCase(),
+        lvl: ruleset[key].level.toUpperCase(),
         quartiles: calculateQuartiles(getPassedOccurrencesByPage(key, pages)),
       });
     }
@@ -90,10 +89,10 @@ function getWebsiteErrorsDetailsTable(errors, pages) {
     if (errors[key]) {
       practices.push({
         key,
-        test: tests[key].test,
+        test: ruleset[key].test,
         nOccurrences: errors[key].nOccurrences,
         n_pages: errors[key].n_pages,
-        lvl: tests[key].level.toUpperCase(),
+        lvl: ruleset[key].level.toUpperCase(),
         quartiles: calculateQuartiles(getErrorOccurrencesByPage(key, pages)),
       });
     }
@@ -113,10 +112,10 @@ function getPassedOccurrencesByPage(test, pages) {
   const occurrences = [];
   for (const page of pages || []) {
     const tot = safeBase64ToJson(page.Tot, "Tot");
-    const practice = tot.elems[tests[test]["test"]];
+    const practice = tot.elems[ruleset[test]["test"]];
     if (
       tot.results[test] &&
-      tests[test]["result"] === "passed"
+      ruleset[test]["result"] === "passed"
     ) {
       if (!practice) {
         occurrences.push(1);
@@ -133,8 +132,8 @@ function getErrorOccurrencesByPage(test, pages) {
 
   for (const p of pages) {
     const tot = safeBase64ToJson(p.Tot, "Tot");
-    const error = tot["elems"][tests[test]["test"]];
-    if (error && tests[test]["result"] === "failed") {
+    const error = tot["elems"][ruleset[test]["test"]];
+    if (error && ruleset[test]["result"] === "failed") {
       if (error === "langNo" || error === "titleNo") {
         occurrences.push(1);
       } else {
@@ -259,14 +258,14 @@ export function getSimplifiedPracticesData(pages) {
 
       // Process each test result
       for (const key in totAfterTransformation.results || {}) {
-        if (tests[key] === undefined) {
+        if (ruleset[key] === undefined) {
           continue;
         }
 
-        const test = tests[key]["test"];
-        const level = tests[key]["level"];
-        const result = tests[key]["result"];
-        const scs = tests[key]["scs"];
+        const test = ruleset[key]["test"];
+        const level = ruleset[key]["level"];
+        const result = ruleset[key]["result"];
+        const scs = ruleset[key]["scs"];
         // Get occurrences count
         const occurrences = errorAfterTransformation[test] === undefined || errorAfterTransformation[test] < 1
           ? 1
@@ -364,17 +363,17 @@ export function getData(website, pages, websiteList, websiteListForWebsitePage, 
       // Errors
       const pageErrors = errorAfterTransformation
       for (const key in totAfterTransformation.results || {}) {
-        if (tests[key] === undefined) {
+        if (ruleset[key] === undefined) {
           continue;
         }
 
-        const test = tests[key]["test"];
-        const elem = tests[key]["elem"];
+        const test = ruleset[key]["test"];
+        const elem = ruleset[key]["elem"];
         const occurrences =
           pageErrors[test] === undefined || pageErrors[test] < 1
             ? 1
             : pageErrors[test];
-        const result = tests[key]["result"];
+        const result = ruleset[key]["result"];
         if (result === "failed") {
           if (Object.keys(errors).includes(key)) {
             errors[key]["nOccurrences"] += occurrences;
@@ -818,7 +817,7 @@ export function generateCSV(evaluation, skipLabels, website, entity, tag, t) {
       desc = "TESTS_RESULTS." +
         _eval["results"][row]["msg"] +
         (num === 1 ? ".s" : ".p");
-      sc = tests[_eval["results"][row]["msg"]]["scs"];
+      sc = ruleset[_eval["results"][row]["msg"]]["scs"];
       sc = sc.replace(/,/g, " ");
 
       descs.push(desc, error);
@@ -1040,21 +1039,21 @@ function processData(evaluation) {
     },
   };
 
-  for (const test in tests) {
+  for (const test in ruleset) {
     if (test) {
       if (tot.results[test]) {
-        const tes = tests[test]["test"];
-        const lev = tests[test]["level"];
-        const ref = tests[test]["ref"];
-        const ele = tests[test]["elem"];
+        const tes = ruleset[test]["test"];
+        const lev = ruleset[test]["level"];
+        const ref = ruleset[test]["ref"];
+        const ele = ruleset[test]["elem"];
 
         let color;
 
-        if (tests_colors[test] === "R") {
+        if (testColors[test] === "R") {
           color = "err";
-        } else if (tests_colors[test] === "Y") {
+        } else if (testColors[test] === "Y") {
           color = "war";
-        } else if (tests_colors[test] === "G") {
+        } else if (testColors[test] === "G") {
           color = "ok";
         }
 
@@ -1084,7 +1083,7 @@ function processData(evaluation) {
         }
 
         const result = {};
-        result["test"] = tests[test];
+        result["test"] = ruleset[test];
         result["ico"] = "assets/images/ico" + color + ".png";
         result["color"] = color;
         result["lvl"] = level;
@@ -1104,22 +1103,22 @@ function processData(evaluation) {
         result["ref_website"] =
           "https://www.w3.org/WAI/WCAG21/Techniques/" + path + ref + ".html";
         result["relation"] =
-          tests[test]["ref"] === "F" ? "relationF" : "relationT";
+          ruleset[test]["ref"] === "F" ? "relationF" : "relationT";
         result["ref_related_sc"] = new Array();
         result["value"] = tnum;
         result["prio"] = color === "ok" ? 3 : color === "err" ? 1 : 2;
 
-        const scstmp = tests[test]["scs"].split(",");
+        const scstmp = ruleset[test]["scs"].split(",");
         const li = {};
         for (let s in scstmp) {
           if (s) {
             s = scstmp[s].trim();
             if (s !== "") {
               li["sc"] = s;
-              li["lvl"] = scs[s]["1"];
+              li["lvl"] = successCriteria[s].level;
               li["link"] =
                 "https://www.w3.org/TR/UNDERSTANDING-WCAG20/" +
-                scs[s]["0"] +
+                successCriteria[s].name +
                 ".html";
 
               result["ref_related_sc"].push(clone(li));
@@ -1400,7 +1399,7 @@ export async function downloadCSV(websites, fileBaseName = "websites") {
 
 export async function downloadWebsiteCSV(website, fileBaseName = "evaluation", t) {
   if (!api || typeof api.get !== "function") throw new Error("Provide an Axios instance `api`.");
-  if (!tests || typeof tests !== "object") throw new Error("Provide tests map from tests.js.");
+  if (!ruleset || typeof ruleset !== "object") throw new Error("Provide tests map from tests.js.");
 
   // Fetch pages (expects array of objects like the one you posted)
   const { data, status } = await api.get(`/website/${encodeURIComponent(website)}/user/admin/pages`);
@@ -1489,7 +1488,7 @@ export async function downloadWebsiteCSV(website, fileBaseName = "evaluation", t
 
       // For each test key inside Tot.results, emit a CSV row
       for (const [testId, rawVal] of Object.entries(results)) {
-        const def = tests[testId] || {};
+        const def = ruleset[testId] || {};
         const tipo = toTipo(def.result);
         const nivel = normLevel(def.level);
         const criterio = def.scs || "";

@@ -26,7 +26,7 @@ import { useTranslation } from "react-i18next";
 import Indicators from "../../components/Indicators";
 import { api } from "../../config/api";
 import moment from "moment";
-import tests from "../../utils/tests.js";
+import { ruleset } from "@a12e/accessmonitor-rulesets";
 import { downloadCSV, downloadWebsiteCSV, getData, getSimplifiedPracticesData } from "../../utils/utils.js";
 import { isRequestSuccessful } from "../../utils/apiHelpers.js";
 import { Modal } from "../../components/Modal";
@@ -67,9 +67,9 @@ const decodeAndFormatErrors = (errorsBase64) => {
           key,
           n_elems: errorsData[key], // This is the count of errors for this test
           n_pages: 1, // This page has this error
-          lvl: tests[key]?.level?.toUpperCase() || 'UNKNOWN',
-          description: tests[key]?.test || `Test ${key}`, // Use the test name as description
-          elem: tests[key]?.elem || 'unknown' // Element type
+          lvl: ruleset[key]?.level?.toUpperCase() || 'UNKNOWN',
+          description: ruleset[key]?.test || `Test ${key}`, // Use the test name as description
+          elem: ruleset[key]?.elem || 'unknown' // Element type
         });
       }
     }

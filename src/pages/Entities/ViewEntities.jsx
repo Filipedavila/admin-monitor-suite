@@ -24,7 +24,6 @@ import Indicators from "../../components/Indicators";
 import { api } from "../../config/api";
 import moment from "moment";
 import { downloadCSV, getSimplifiedPracticesData } from "../../utils/utils.js";
-import tests from "../../utils/tests.js";
 import CrawlingModal from "../../components/CrawlingModal";
 import { Modal } from "../../components/Modal";
 import { setRootNavigationContext } from "../../utils/navigation";
@@ -328,7 +327,6 @@ const ViewEntitiesComponent = () => {
       // Don't overwrite table data - already set in Phase 1
       setIsProcessingStats(false);
       } catch (error) {
-        console.error("Error loading entity data:", error);
         setWebsitesError('Erro ao carregar dados da entidade');
         setIsLoadingWebsites(false);
         setIsProcessingStats(false);
@@ -472,7 +470,6 @@ const ViewEntitiesComponent = () => {
         await fetchDataWebsite();
       }
     } catch (error) {
-      console.error("Error:", error);
       setFeedbackMessage("Erro ao iniciar reavaliação dos sítios web. Tente novamente.");
     }
     setShowFeedbackModal(true);
@@ -482,14 +479,13 @@ const ViewEntitiesComponent = () => {
     setShowCrawlingModal(true);
   };
   const handleExportCSV = async () => {
-    console.log("DATA",data);
     try {
       downloadCSV(
         dataForCSV,
         "Entidade"
       );
     } catch (error) {
-      console.error("Error exporting CSV:", error);
+      //TODO - handle error 
     }
   }
   return (

@@ -18,7 +18,7 @@ import { useTheme } from '../../context/ThemeContext.jsx';
 import { api } from "../../config/api.js";
 import moment from "moment";
 import Indicators from "../../components/Indicators/index.jsx";
-import tests from "../../utils/tests.js";
+import { ruleset } from  "@a12e/accessmonitor-rulesets";
 import { useTranslation } from "react-i18next";
 import { getEffectiveNavigationContext } from "../../utils/navigation";
 import { calculateTotalElements } from "../../utils/utils";
@@ -103,12 +103,12 @@ const DetailsPage = () => {
   const [matrixData, setMatrixData] = useState({
     data: {
     infoak: {
-      A: { ok: 2, err: 1, war: 0 },
+      A: { ok: 0, err: 0, war: 0 },
       AA: { ok: 0, err: 0, war: 0 },
       AAA: { ok: 0, err: 0, war: 0 }
     },
       metadata: {
-        count_results: 3
+        count_results: 0
       }
     }
   })
@@ -194,27 +194,41 @@ const DetailsPage = () => {
         { title: 'Nº de elementos (x)HTML	', value: calculateTotalElements(result.tot.info.cTags) },
         { title: 'Tamanho da página	', value: result.tot.info.size + " bytes"},
       ]);
-      setResult(result);
-      const mappedData = Object.keys(result.tot.results).filter(item => tests[item] !== undefined).map(item => ({
-        id:  tests[item].test,
-        title: <div dangerouslySetInnerHTML={{__html: t('TESTS_RESULTS.' +item + '.p', {value: result.tot.elems[tests[item].test]})}} />,
-        lvl: tests[item].level.toUpperCase(),
-        component: (
-    <div className="text-start">
-            <div  dangerouslySetInnerHTML={{__html: t('TXT_TECHNIQUES.' + tests[item].ref)}} />
+  const mappedData = Object.keys(result.tot.results).map(itemKey => {
+  
+  const testData = ruleset[itemKey] || {};
+  
+  const level = testData.level?.toUpperCase() ?? '';
+  const resultType = testData.result ?? 'passed';
+
+  const successCriteria = testData.scs ? testData.scs : [];
+
+  return {
+    id: itemKey, 
+    title: <div dangerouslySetInnerHTML={{__html: t('TESTS_RESULTS.' + itemKey + '.p')}} />,
+    lvl: level,
+    component: (
+      <div className="text-start">
+        <div dangerouslySetInnerHTML={{ __html: t('TXT_TECHNIQUES.' + (testData.ref ?? '')) }} />
+        {successCriteria.length > 0 && (
+          <>
             <span>Esta técnica WCAG 2.1 está relacionada com:</span>
             <ul>
-              {tests[item].scs.split(',').map(sc => (
-                <li className="list-table" key={sc}>Critério de sucesso {sc} <em>(Nível {tests[item].level.toUpperCase()})</em></li>
+              {successCriteria.map(sc => (
+                <li className="list-table" key={sc}>
+                  Critério de sucesso {sc} <em>(Nível {level})</em>
+                </li>
               ))}
             </ul>
-            </div>
-        ),
-        iconName: tests[item].result === "warning" ? "AMA-Middle-Line" : tests[item].result === "failed" ? "AMA-Wrong-Line" : "AMA-Check-Line",
-        ele: item,
-        tdClassName: tests[item].result === "warning" ? "warning-cell" : tests[item].result === "failed" ? "error-cell" : "success-cell",
-      }));
-      console.log(mappedData);
+          </>
+        )}
+      </div>
+    ),
+    iconName: resultType === "warning" ? "AMA-Middle-Line" : resultType === "failed" ? "AMA-Wrong-Line" : "AMA-Check-Line",
+    ele: testData.ele ?? [],
+    tdClassName: resultType === "warning" ? "warning-cell" : resultType === "failed" ? "error-cell" : "success-cell"
+  };
+});
       setData(mappedData);
       setMatrixData(calculateMatrix(mappedData));
 

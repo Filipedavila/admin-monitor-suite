@@ -6,7 +6,7 @@ import { Link, useLocation, useNavigate  } from "react-router-dom";
 import { useTheme } from '../../context/ThemeContext.jsx';
 import { api } from "../../config/api.js";
 import Indicators from "../../components/Indicators/index.jsx";
-import tests from "../../utils/tests.js";
+import { ruleset } from "@a12e/accessmonitor-rulesets";
 import { useTranslation } from "react-i18next";
 import {Modal} from "../../components/Modal.jsx";
 const calculateMatrix = (data) => {
@@ -141,21 +141,21 @@ const DetailsPageUsers = () => {
       const mappedData = Object.keys(result.tot.results).map(item => ({
         id: item.id,
         title: t('TESTS_RESULTS.' +item + '.p'),
-        lvl: tests[item].level.toUpperCase(),
+        lvl: ruleset[item].level.toUpperCase(),
         component: (
     <div className="text-start">
-            <div  dangerouslySetInnerHTML={{__html: t('TXT_TECHNIQUES.' + tests[item].ref)}} />
+            <div  dangerouslySetInnerHTML={{__html: t('TXT_TECHNIQUES.' + ruleset[item].ref)}} />
             <span>Esta técnica WCAG 2.1 está relacionada com:</span>
             <ul>
-              {tests[item].scs.split(',').map(sc => (
-                <li className="list-table" key={sc}>Critério de sucesso {sc} <em>(Nível {tests[item].level.toUpperCase()})</em></li>
+              {ruleset[item].scs.map(sc => (
+                <li className="list-table" key={sc}>Critério de sucesso {sc} <em>(Nível {ruleset[item].level.toUpperCase()})</em></li>
               ))}
             </ul>
             </div>
         ),
-        iconName: tests[item].result === "warning" ? "AMA-Middle-Line" : tests[item].result === "failed" ? "AMA-Wrong-Line" : "AMA-Check-Line",
-        ele: tests[item].ele,
-        tdClassName: tests[item].result === "warning" ? "warning-cell" : tests[item].result === "failed" ? "error-cell" : "success-cell"
+        iconName: ruleset[item].result === "warning" ? "AMA-Middle-Line" : ruleset[item].result === "failed" ? "AMA-Wrong-Line" : "AMA-Check-Line",
+        ele: ruleset[item].ele,
+        tdClassName: ruleset[item].result === "warning" ? "warning-cell" : ruleset[item].result === "failed" ? "error-cell" : "success-cell"
       }));
 
       setData(mappedData);

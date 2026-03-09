@@ -19,7 +19,6 @@ import { useTranslation } from 'react-i18next';
 import { api } from "../../config/api";
 import moment from "moment";
 import { downloadCSV, getSimplifiedPracticesData } from "../../utils/utils.js";
-import tests from "../../utils/tests.js";
 import { Modal } from "../../components/Modal";
 import CrawlingModal from "../../components/CrawlingModal";
 import { setRootNavigationContext } from "../../utils/navigation";

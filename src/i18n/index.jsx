@@ -5,7 +5,7 @@ import enJSON from './locale/English.json'
 import ptJSON from './locale/Portuguese.json'
 import moment from 'moment';
 import 'moment/locale/pt';
-
+import {translations} from "@a12e/accessmonitor-rulesets";
 // Global safeguard: if a Moment instance is invalid, format() returns an empty string
 const originalMomentFormat = moment.fn.format;
 moment.fn.format = function (...args) {
@@ -17,8 +17,8 @@ i18n
   .use(initReactI18next)
   .init({
     resources: {
-      en: { translation: enJSON },
-      pt: { translation: ptJSON },
+      en: { translation: { ...enJSON, ...translations.en.translation } },
+      pt: { translation: { ...ptJSON, ...translations.pt.translation } },
     },
     fallbackLng: "en",
     interpolation: { escapeValue: false }

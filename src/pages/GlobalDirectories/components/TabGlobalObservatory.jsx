@@ -8,7 +8,7 @@ import Indicators from "../../../components/Indicators/index.jsx";
 import {api} from "../../../config/api.js";
 import { useTranslation } from "react-i18next";
 import { headersBarLine } from "../../../components/BarLineGraph/table.config.jsx";
-import tests from "../../../utils/tests.js";
+import { ruleset } from "@a12e/accessmonitor-rulesets";
 import moment from "moment";
 import { downloadCSV, downloadCSVByDirectory } from "../../../utils/utils.js";
 const TabGlobalObservatoryComponent = ({ theme, statsTitle, columnsOptionsBar, barDataCopy, barOptionsCopy, dataHeadersBar, dataListBar, headerBarlineBar }) => {
@@ -138,14 +138,14 @@ const TabGlobalObservatoryComponent = ({ theme, statsTitle, columnsOptionsBar, b
                     practice: t(`TESTS_RESULTS.${keysGood[index]}.p`, { value: item.n_occurrences }),
                     pages: item.n_pages,
                     occurrences: item.n_occurrences,
-                    level: tests[keysGood[index]]?.level ?? "N/A"
+                    level: ruleset[keysGood[index]]?.level ?? "N/A"
                   })));
                  
                   setDetailsTableBad(Object.values(indicators.errorDistribution.errors).map((error, index)=>({
                     practice: t(`TESTS_RESULTS.${keysErrors[index]}.p`, { value: error.n_occurrences }),
                     pages: error.n_pages,
                     occurrences: error.n_occurrences.toString().includes("lang") ? "N/A" : error.n_occurrences,
-                    level: tests[keysErrors[index]]?.level ?? "N/A"
+                    level: ruleset[keysErrors[index]]?.level ?? "N/A"
                   })));
 
                   // Process practices by WCAG Success Criteria
@@ -156,12 +156,12 @@ const TabGlobalObservatoryComponent = ({ theme, statsTitle, columnsOptionsBar, b
 
                   // Process successful practices
                   keysGood.forEach((key, index) => {
-                    const testData = tests[key];
+                    const testData = ruleset[key];
                     const practiceData = indicators.bestPracticesDistribution.success[key];
                     
                     if (testData && testData.scs && practiceData) {
-                      const scs = testData.scs;
-                      const criteriaList = scs.split(',');
+                      const criteriaList = testData.scs;
+     
                       
                       criteriaList.forEach(criteria => {
                         const trimmedCriteria = criteria.trim();
@@ -181,12 +181,12 @@ const TabGlobalObservatoryComponent = ({ theme, statsTitle, columnsOptionsBar, b
 
                   // Process error practices
                   keysErrors.forEach((key, index) => {
-                    const testData = tests[key];
+                    const testData = ruleset[key];
                     const errorData = indicators.errorDistribution.errors[key];
                     
                     if (testData && testData.scs && errorData) {
-                      const scs = testData.scs;
-                      const criteriaList = scs.split(',');
+                      const criteriaList = testData.scs;
+                    
                       
                       criteriaList.forEach(criteria => {
                         const trimmedCriteria = criteria.trim();
