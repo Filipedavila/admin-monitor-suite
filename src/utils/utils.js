@@ -1845,3 +1845,27 @@ function removeImgStyles(code) {
   });
   return htmlString;
 }
+
+export function getEvaluationStatus(item) {
+  const hasEvaluationList = item.EvaluationListId != null;
+  const isEvaluating = item.Is_Evaluating === 1;
+  const hasError = item.Error != null;
+
+  if (hasEvaluationList) {
+    if (hasError) {
+      return item.Error;
+    }
+
+    if (isEvaluating) {
+      return "A ser avaliada";
+    }
+
+    return "A aguardar avaliação";
+  }
+
+  if (item.Score != null) {
+    return "Avaliação concluída";
+  }
+
+  return "Sem avaliação";
+};

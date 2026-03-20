@@ -27,7 +27,7 @@ import Indicators from "../../components/Indicators";
 import { api } from "../../config/api";
 import moment from "moment";
 import {ruleset} from "@a12e/accessmonitor-rulesets";
-import { downloadCSV, downloadWebsiteCSV, getData, getSimplifiedPracticesData } from "../../utils/utils.js";
+import { downloadCSV, downloadWebsiteCSV, getData, getSimplifiedPracticesData, getEvaluationStatus } from "../../utils/utils.js";
 import { isRequestSuccessful } from "../../utils/apiHelpers.js";
 import { Modal } from "../../components/Modal";
 import { getEffectiveNavigationContext, setWebsiteNavigationContext } from "../../utils/navigation";
@@ -292,7 +292,7 @@ const ViewWebSitesComponent = () => {
         A: page.A ?? 0,
         AA: page.AA ?? 0,
         AAA: page.AAA ?? 0,
-        e: "?",
+        e: getEvaluationStatus(page),
         OPAW: page.Show_In ? (page.Show_In.split("")[2] === "1" ? "Sim" : "Nao") : "Nao",
       }));
       

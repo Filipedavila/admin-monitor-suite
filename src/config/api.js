@@ -19,7 +19,7 @@ const resolveBaseUrl = () => {
   const storedUrl = localStorage.getItem('@AMS:apiUrl');
   const base = normalizeBaseUrl(storedUrl || getDefaultApiUrl());
 
-  return base ? `${base}/` : '/';
+  return base ? `${base}/api` : '/api';
 };
 
 const api = axios.create({

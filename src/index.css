@@ -114,10 +114,8 @@ fieldset {
 .dashboard-menu {
   width: 100% !important;
   padding: 10px !important;
-  height: 90% !important;
-  padding-bottom: 100px !important;
+  height: 100% !important;
   overflow-y: auto;
-
   /* Custom Scrollbar Styling */
   scrollbar-width: thin;
   scrollbar-color: var(--ama-color-background-light-darker)
@@ -182,6 +180,9 @@ header {
 
 aside {
   grid-area: menu;
+  background-color: var(--ama-color-background-dark-darker);
+  display: flex;
+  flex-direction: column;
 }
 
 .main-content-dashboard.menu-collapsed aside {
