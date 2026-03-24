@@ -612,5 +612,16 @@
   },
   "BREADCRUMB": {
     "tag_here": "You are here"
+  },
+  "ELEMENT_RESULTS": {
+    "result": {
+      "caption": "Result",
+      "ocurrenceNumber": "Occurrence number",
+      "ocurrenceDetail": "Occurrence detail",
+      "element": "Element",
+      "code": "Code",
+      "content": "Content",
+      "location": "Location"
+    }
   }
 } 

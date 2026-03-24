@@ -194,18 +194,18 @@ const DetailsPage = () => {
         { title: 'Nº de elementos (x)HTML	', value: calculateTotalElements(result.tot.info.cTags) },
         { title: 'Tamanho da página	', value: result.tot.info.size + " bytes"},
       ]);
+  
   const mappedData = Object.keys(result.tot.results).map(itemKey => {
-  
+    
   const testData = ruleset[itemKey] || {};
-  
   const level = testData.level?.toUpperCase() ?? '';
   const resultType = testData.result ?? 'passed';
-
+  const title = result.elems[testData.test] > 1 ? '.p' : '.s';
   const successCriteria = testData.scs ? testData.scs : [];
-
+  
   return {
     id: itemKey, 
-    title: <div dangerouslySetInnerHTML={{__html: t('TESTS_RESULTS.' + itemKey + '.p')}} />,
+    title: <div dangerouslySetInnerHTML={{__html: t('TESTS_RESULTS.' + itemKey + title, {value: result.elems[testData.test]})}} />,
     lvl: level,
     component: (
       <div className="text-start">
@@ -225,7 +225,7 @@ const DetailsPage = () => {
       </div>
     ),
     iconName: resultType === "warning" ? "AMA-Middle-Line" : resultType === "failed" ? "AMA-Wrong-Line" : "AMA-Check-Line",
-    ele: testData.ele ?? [],
+    ele: itemKey,
     tdClassName: resultType === "warning" ? "warning-cell" : resultType === "failed" ? "error-cell" : "success-cell"
   };
 });
@@ -270,8 +270,8 @@ const DetailsPage = () => {
      
         <div className="d-flex justify-content-start align-items-end gap-3">
          <TableComponent 
-            data={data} 
             onClick={(e, i) => {navigate(`/dashboard/pages/detailed/${encodeURIComponent(pageUrl)}/${e}/${id}`)}} 
+            data={data} 
             caption={"Práticas avaliadas"} 
             col1={"Prática encontrada"} 
             col2={"Nível"} 

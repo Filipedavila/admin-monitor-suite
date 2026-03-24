@@ -10,6 +10,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from "react-i18next";
 import { getEffectiveNavigationContext } from "../../utils/navigation";
 import {  getTestResults } from "../../utils/utils";
+import { ruleset, translations as translationsRuleset } from  "@a12e/accessmonitor-rulesets";
 import TableDetails from "../../components/TableDetails/TableDetails.jsx";
 
 const DetailedPageLine = () => {
@@ -49,6 +50,7 @@ const DetailedPageLine = () => {
   }, [location.pathname]);
 
   useEffect(() => {
+    console.log('ruleset', );
     const currentPath = location.pathname;
     const navContext = getEffectiveNavigationContext(currentPath);
     const pageLink = `/dashboard/pages/view/${encodeURIComponent(pageUrl || "")}`;
@@ -108,10 +110,9 @@ const DetailedPageLine = () => {
 
     const fetchData = async () => {
       const response = JSON.parse(localStorage.getItem('@AMS:evalData'));
-      
-      const responseDetails = getTestResults(tests[details].test, response);
+      const responseDetails = getTestResults(ruleset[details]?.test, response);
       setData(responseDetails);
-      console.log(responseDetails)
+      console.log('responseDetails', responseDetails)
       setDetailsData(responseDetails.tot.results[details]);
     };
     fetchData();
@@ -130,7 +131,7 @@ const DetailedPageLine = () => {
 
                   <span
                     className="textHeader ama-typography-body-large bold"
-                    dangerouslySetInnerHTML={{ __html: t('ELEMS.' + tests[details].test, {value: data.size}) }}
+                    dangerouslySetInnerHTML={{ __html: t('ELEMS.' + ruleset[details]?.test, {value: data.size}) }}
                   />
                 </div>
 
