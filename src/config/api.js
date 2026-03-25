@@ -18,8 +18,9 @@ const resolveBaseUrl = () => {
 
   const storedUrl = localStorage.getItem('@AMS:apiUrl');
   const base = normalizeBaseUrl(storedUrl || getDefaultApiUrl());
+  const pathApi = import.meta.env?.VITE_PATH_API || '/api';
 
-  return base ? `${base}/` : '/';
+  return base ? `${base}${pathApi}` : pathApi;
 };
 
 const api = axios.create({
