@@ -1853,18 +1853,18 @@ export function getEvaluationStatus(item) {
 
   if (hasEvaluationList) {
     if (hasError) {
-      return item.Error;
+      return React.createElement('span', { title: item.Error, 'aria-label': item.Error, role: 'img' }, '❌');
     }
 
     if (isEvaluating) {
-      return "A ser avaliada";
+      return React.createElement('span', { title: 'A ser avaliada', 'aria-label': 'A ser avaliada', role: 'img' }, '🔄');
     }
 
-    return "A aguardar avaliação";
+    return React.createElement('span', { title: 'A aguardar avaliação', 'aria-label': 'A aguardar avaliação', role: 'img' }, '⏸️');
   }
 
   if (item.Score != null) {
-    return "Avaliação concluída";
+    return React.createElement('span', { title: 'Avaliação concluída', 'aria-label': 'Avaliação concluída', role: 'img' }, '✅');
   }
 
   return "Sem avaliação";
