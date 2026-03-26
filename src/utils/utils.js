@@ -1,3 +1,4 @@
+import React from "react";
 import { clone, orderBy } from "lodash";
 import { saveAs } from "file-saver";
 
@@ -1108,7 +1109,7 @@ function processData(evaluation) {
         result["value"] = tnum;
         result["prio"] = color === "ok" ? 3 : color === "err" ? 1 : 2;
 
-        const scstmp = ruleset[test]["scs"].split(",");
+        const scstmp = ruleset[test]?.scs;
         const li = {};
         for (let s in scstmp) {
           if (s) {
@@ -1743,10 +1744,10 @@ export function getElements(allNodes, ele, tot) {
 
   let result = "G";
   const results = dataTransform?.results.map((r) => r.msg);
-  for (const test in tests || {}) {
-    const _test = tests[test];
+  for (const test in ruleset || {}) {
+    const _test = ruleset[test];
     if (_test.test === ele && results?.includes(test)) {
-      result = tests_colors[test];
+      result = testColors[test];
       break;
     }
   }
@@ -1853,18 +1854,18 @@ export function getEvaluationStatus(item) {
 
   if (hasEvaluationList) {
     if (hasError) {
-      return item.Error;
+      return React.createElement('span', { title: item.Error, 'aria-label': item.Error, role: 'img' }, '❌');
     }
 
     if (isEvaluating) {
-      return "A ser avaliada";
+      return React.createElement('span', { title: 'A ser avaliada', 'aria-label': 'A ser avaliada', role: 'img' }, '🔄');
     }
 
-    return "A aguardar avaliação";
+    return React.createElement('span', { title: 'A aguardar avaliação', 'aria-label': 'A aguardar avaliação', role: 'img' }, '⏸️');
   }
 
   if (item.Score != null) {
-    return "Avaliação concluída";
+    return React.createElement('span', { title: 'Avaliação concluída', 'aria-label': 'Avaliação concluída', role: 'img' }, '✅');
   }
 
   return "Sem avaliação";

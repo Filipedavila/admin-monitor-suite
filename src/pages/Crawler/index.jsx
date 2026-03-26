@@ -3,7 +3,7 @@ import { InputSearch, SortingTable, Button, Breadcrumb } from "ama-design-system
 import { Link, useNavigate } from "react-router";
 import { useTheme } from '../../context/ThemeContext.jsx';
 import { useTranslation } from 'react-i18next';
-import { directoriesHeaders, dataRows, columnsOptions, nameOfIcons, paginationButtonsTexts } from "./table.config.jsx";
+import { directoriesHeaders, dataRows, columnsOptions, nameOfIcons } from "./table.config.jsx";
 import { api } from "../../config/api";
 import moment from "moment";
 import { Modal } from "../../components/Modal";
@@ -17,6 +17,8 @@ export default function CrawlerList() {
   const [search, setSearch] = useState("");
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const breadcrumbs = [
     { children: <Link to="/dashboard/home">Início</Link> },
@@ -45,6 +47,16 @@ export default function CrawlerList() {
 
   const handleSearchChange = (event) => {
     setSearch(event.target.value);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (items) => {
+    setItemsPerPage(items);
+    setCurrentPage(1);
   };
 
   const handleDeleteCrawlers = async () => {
@@ -120,10 +132,35 @@ export default function CrawlerList() {
           nextPage={() => null}
           caption={t('CRAWLER_PAGE.LIST.table.title')}
           iconsAltTexts={nameOfIcons}
-          paginationButtonsTexts={paginationButtonsTexts}
           project={""}
           setCheckboxesSelected={setCheckboxesSelected}
           checkedItems={checkboxesSelected}
+          pagination={true}
+          serverSidePagination={false}
+          totalItems={filteredData.length}
+          currentPage={currentPage}
+          itemsPerPage={itemsPerPage}
+          setItemsPerPage={setItemsPerPage}
+          onPageChange={handlePageChange}
+          onItemsPerPageChange={handleItemsPerPageChange}
+          paginationButtonsTexts={[
+            "Primeira página",
+            "Página anterior",
+            "Página seguinte",
+            "Última página"
+          ]}
+          nItemsPerPageTexts={[
+            "Ver",
+            "por página",
+            "Selector de itens por página",
+            "Navegação do seletor de itens por página"
+          ]}
+          itemsPaginationTexts={[
+            " de ",
+            " itens "
+          ]}
+          paginationOptions={[10, 25, 50, 100].filter(v => v <= filteredData.length || v === 10).concat(filteredData.length > 100 ? [filteredData.length] : []).filter((v, i, a) => a.indexOf(v) === i).sort((a, b) => a - b)}
+          rowKey="id"
         />
       </div>
 
