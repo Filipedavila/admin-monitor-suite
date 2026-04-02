@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, StatisticsHeader, Breadcrumb, Icon } from "ama-design-system";
+import { Button, StatisticsHeader, Breadcrumb, Icon } from "@a12e/accessmonitor-ds";
 import "./style.users.css";
 import { useParams } from "react-router-dom";
 import { dataRowsPage  } from "./table.config.jsx";

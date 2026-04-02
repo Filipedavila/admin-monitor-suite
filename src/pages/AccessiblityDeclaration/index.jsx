@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, SortingTable, Icon, Breadcrumb } from "ama-design-system";
+import { Button, SortingTable, Icon, Breadcrumb } from "@a12e/accessmonitor-ds";
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { Link } from "react-router-dom";

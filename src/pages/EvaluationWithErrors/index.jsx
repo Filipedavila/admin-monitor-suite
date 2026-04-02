@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./style.users.css";
 import { useNavigate, useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { Breadcrumb, Button, InputSearch } from "ama-design-system";
+import { Breadcrumb, Button, InputSearch } from "@a12e/accessmonitor-ds";
 import { useTranslation } from "react-i18next";
 import { api } from "../../config/api";
 import { isRequestSuccessful } from "../../utils/apiHelpers.js";
@@ -11,7 +11,7 @@ import { Modal } from "../../components/Modal";
 
 import { useTheme } from '../../context/ThemeContext';
 import { directoriesHeaders, columnsOptions, nameOfIcons, paginationButtonsTexts, nItemsPerPageText, itemsPaginationText, dataRows } from './table.config';
-import { SortingTable } from "ama-design-system";
+import { SortingTable } from "@a12e/accessmonitor-ds";
 
 const EvaluationWithErrors = () => {
   const { t } = useTranslation();

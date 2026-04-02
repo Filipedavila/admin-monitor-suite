@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, StatisticsHeader, Breadcrumb, Tabs } from "ama-design-system";
+import { Button, StatisticsHeader, Breadcrumb, Tabs } from "@a12e/accessmonitor-ds";
 import "./style.users.css";
 import { directoriesHeaders, dataRows, columnsOptions, nameOfIcons, paginationButtonsTexts } from "../Directories/table.config.jsx";
 import { Link } from "react-router-dom";

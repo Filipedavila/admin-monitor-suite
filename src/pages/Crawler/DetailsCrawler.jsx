@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { InputSearch, Button, Breadcrumb } from "ama-design-system";
+import { InputSearch, Button, Breadcrumb } from "@a12e/accessmonitor-ds";
 import { Link, useParams } from "react-router";
 import { useTheme } from "../../context/ThemeContext.jsx";
 import { useTranslation } from "react-i18next";

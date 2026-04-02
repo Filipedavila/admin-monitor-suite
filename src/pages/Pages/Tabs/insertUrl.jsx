@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextArea, Button } from "ama-design-system";
+import { TextArea, Button } from "@a12e/accessmonitor-ds";
 
 const InsertUrl = ({ register, errors, darkTheme, onSubmit, setUrls}) => {
     const { onChange: registerOnChange, ...registerRest } = register("urls", { required: "Campo obrigatório" });

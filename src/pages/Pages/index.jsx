@@ -5,7 +5,7 @@ import {
 } from "./table.config";
 import { Link } from "react-router-dom";
 import ContentListPages from "./components/ContentListPage";
-import { Breadcrumb, Button } from "ama-design-system";
+import { Breadcrumb, Button } from "@a12e/accessmonitor-ds";
 import { useTranslation } from "react-i18next";
 import { api } from "../../config/api";
 import { isRequestSuccessful } from "../../utils/apiHelpers.js";

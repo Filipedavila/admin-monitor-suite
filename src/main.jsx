@@ -2,7 +2,7 @@ import './i18n';
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import "ama-design-system/dist/index.css";
+import "@a12e/accessmonitor-ds/dist/index.css";
 import { RouterProvider } from "react-router-dom";
 import router from "./routes";
 import { ThemeProvider } from "./context/ThemeContext";

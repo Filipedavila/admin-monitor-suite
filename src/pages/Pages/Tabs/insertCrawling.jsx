@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from "ama-design-system";
+import { Button } from "@a12e/accessmonitor-ds";
 
 const InsertCrawling = ({ darkTheme, onSubmit}) => {
   return (

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, memo } from "react";
 import { useNavigate, Link, useLocation, useParams } from "react-router-dom";
-import { Button, StatisticsHeader, Breadcrumb, SortingTable, RadioGroup } from "ama-design-system";
+import { Button, StatisticsHeader, Breadcrumb, SortingTable, RadioGroup } from "@a12e/accessmonitor-ds";
 import { BarLineGraphTabs } from "../../components/BarLineGraph";
 import { RadarGraph } from "../../components/RadarGraph";
 import GoodBadTab from "../../components/GoodBadTab/GoodBadTab";
@@ -662,7 +662,6 @@ const ViewCategoriesComponent = () => {
                 "Última página"
               ]}
               project=""
-              paginationOptions={[50, 100, 200, 500, dataListDetails.filter(item => !item.occurrences.toString().includes("lang")).length].filter((v, i, a) => v && a.indexOf(v) === i).sort((a, b) => a - b)}
               setCheckboxesSelected={() => {}}
             />
           )}

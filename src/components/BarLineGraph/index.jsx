@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Tabs, SortingTable } from "ama-design-system";
+import { Tabs, SortingTable } from "@a12e/accessmonitor-ds";
 import { Bar } from "react-chartjs-2";
 
 import { useTheme } from '../../context/ThemeContext';

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, InputSearch, SortingTable, Breadcrumb, RadioGroup } from "ama-design-system";
+import { Button, InputSearch, SortingTable, Breadcrumb, RadioGroup } from "@a12e/accessmonitor-ds";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Modal } from "../../components/Modal";
 import { useTheme } from '../../context/ThemeContext';

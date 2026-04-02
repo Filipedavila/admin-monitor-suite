@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, Button, Breadcrumb, Input } from "ama-design-system";
+import { Card, Button, Breadcrumb, Input } from "@a12e/accessmonitor-ds";
 import { Link } from "react-router-dom";
 import CardAvaliation from "../../components/CardAvaliation";
 import "./style.home.css";

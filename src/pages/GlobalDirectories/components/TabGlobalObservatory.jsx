@@ -1,4 +1,4 @@
-import { Button, StatisticsHeader, SortingTable } from "ama-design-system";
+import { Button, StatisticsHeader, SortingTable } from "@a12e/accessmonitor-ds";
 import { BarLineGraphTabs } from "../../../components/BarLineGraph/index.jsx";
 import { RadarGraph } from "../../../components/RadarGraph/index.jsx";
 import GoodBadTab from "../../../components/GoodBadTab/GoodBadTab.jsx";

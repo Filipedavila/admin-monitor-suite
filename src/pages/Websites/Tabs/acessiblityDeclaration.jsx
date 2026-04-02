@@ -1,5 +1,5 @@
 import React from 'react';
-import { Input, Button, Select, Tabs } from "ama-design-system";
+import { Input, Button, Select, Tabs } from "@a12e/accessmonitor-ds";
 import { useTranslation } from 'react-i18next';
 import moment from 'moment';
 

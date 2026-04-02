@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button, Input } from "ama-design-system";
+import { Button, Input } from "@a12e/accessmonitor-ds";
 import Logo from "../../assets/logo-ams.svg";
 import { useAuth } from "../../context/AuthContext";
 import { getDefaultApiUrl, refreshApiBaseUrl } from "../../config/api";

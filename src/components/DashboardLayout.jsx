@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import { DashboardMenu, Breadcrumb, InputSearch, Button, Icon } from "ama-design-system";
+import { DashboardMenu, Breadcrumb, InputSearch, Button, Icon } from "@a12e/accessmonitor-ds";
 import { useNavigate, Link } from "react-router-dom";
 import Logo from "../assets/logo-header.svg"; 
 import { useTheme } from "../context/ThemeContext";

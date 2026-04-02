@@ -7,7 +7,7 @@ import {
   Breadcrumb,
   Tabs,
   MultiSelect,
-} from "ama-design-system";
+} from "@a12e/accessmonitor-ds";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import InsertUrl from "./Tabs/insertUrl";

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Input, Button, MultiSelect } from "ama-design-system";
+import { Input, Button, MultiSelect } from "@a12e/accessmonitor-ds";
 import { useTranslation } from "react-i18next";
 
 const Associations = ({

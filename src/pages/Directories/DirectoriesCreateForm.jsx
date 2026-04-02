@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Input, Button, CheckGroup, RadioGroup, Breadcrumb, MultiSelect } from 'ama-design-system';
+import { Input, Button, CheckGroup, RadioGroup, Breadcrumb, MultiSelect } from "@a12e/accessmonitor-ds";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

@@ -1,7 +1,7 @@
 // RadarGraph.jsx
 import React, { useMemo } from 'react';
 import { Radar } from 'react-chartjs-2';
-import { Tabs, SortingTable } from 'ama-design-system';
+import { Tabs, SortingTable } from '@a12e/accessmonitor-ds';
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 

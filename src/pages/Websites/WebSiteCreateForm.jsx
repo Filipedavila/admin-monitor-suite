@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Input, Button, Select, Tabs, Breadcrumb } from "ama-design-system";
+import { Input, Button, Select, Tabs, Breadcrumb } from "@a12e/accessmonitor-ds";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import AcessibilityDeclaration from "./Tabs/acessiblityDeclaration";

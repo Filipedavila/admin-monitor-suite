@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { Button, InputSearch, SortingTable } from "ama-design-system";
+import { Button, InputSearch, SortingTable } from "@a12e/accessmonitor-ds";
 import {
   directoriesHeaders,
   dataRows,
@@ -124,7 +124,6 @@ export default function ContentListPages ({
               " de ",
               " itens "
             ]}
-            paginationOptions={[10, 25, 50, 100, totalItems].filter((v, i, a) => v && a.indexOf(v) === i).sort((a, b) => a - b)}
             rowKey="id"
           />
         </div>

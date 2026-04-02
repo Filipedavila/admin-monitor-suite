@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Input, CheckGroup } from "ama-design-system";
+import { Button, Input, CheckGroup } from "@a12e/accessmonitor-ds";
 import { Modal } from "./Modal";
 
 const CrawlingModal = ({ 

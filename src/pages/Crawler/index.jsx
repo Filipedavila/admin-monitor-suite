@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { InputSearch, SortingTable, Button, Breadcrumb } from "ama-design-system";
+import { InputSearch, SortingTable, Button, Breadcrumb } from "@a12e/accessmonitor-ds";
 import { Link, useNavigate } from "react-router";
 import { useTheme } from '../../context/ThemeContext.jsx';
 import { useTranslation } from 'react-i18next';
@@ -159,7 +159,6 @@ export default function CrawlerList() {
             " de ",
             " itens "
           ]}
-          paginationOptions={[10, 25, 50, 100].filter(v => v <= filteredData.length || v === 10).concat(filteredData.length > 100 ? [filteredData.length] : []).filter((v, i, a) => a.indexOf(v) === i).sort((a, b) => a - b)}
           rowKey="id"
         />
       </div>

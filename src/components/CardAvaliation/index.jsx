@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './CardAvaliation.css'; // Optional: Add styles in a separate CSS file
-import { Button } from 'ama-design-system';
+import { Button } from "@a12e/accessmonitor-ds";
 import { Link } from 'react-router-dom';
 import moment from 'moment';
 const CardAvaliation = ({ title, description, darkTheme, data, handleReset, handleCancel, hasNoButtons }) => {

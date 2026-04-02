@@ -4,7 +4,7 @@ import {
   InputSearch,
   SortingTable,
   Breadcrumb,
-} from "ama-design-system";
+} from "@a12e/accessmonitor-ds";
 import i18n from '../../i18n';
 
 import "./style.users.css";

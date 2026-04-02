@@ -5,7 +5,7 @@ import {
   SortingTable,
   Breadcrumb,
   RadioGroup,
-} from "ama-design-system";
+} from "@a12e/accessmonitor-ds";
 import "./style.users.css";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {

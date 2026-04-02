@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Tabs } from 'ama-design-system'
+import { Tabs } from "@a12e/accessmonitor-ds";
 import { 
   dataHeaders, 
   dataRows, 
@@ -7,7 +7,7 @@ import {
   nameOfIcons, 
   paginationButtonsTexts 
 } from "./table.config.jsx";
-import { SortingTable } from 'ama-design-system';
+import { SortingTable } from "@a12e/accessmonitor-ds";
 import { useTheme } from '../../context/ThemeContext';
 
 export default function GoodBadTab() {

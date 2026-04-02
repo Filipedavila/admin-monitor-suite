@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Button, InputSearch, SortingTable, Breadcrumb, RadioGroup } from "ama-design-system";
+import { Button, InputSearch, SortingTable, Breadcrumb, RadioGroup } from "@a12e/accessmonitor-ds";
 import { useTheme } from '../../context/ThemeContext';
 import "./style.users.css";
 import { directoriesHeaders, columnsOptions, nameOfIcons, paginationButtonsTexts } from "./table.config.jsx";

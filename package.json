@@ -16,8 +16,8 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
-    "@a12e/accessmonitor-rulesets": "^1.0.3",
-    "ama-design-system": "./ama-design-system-1.1.92.tgz",
+    "@a12e/accessmonitor-ds": "^1.0.5",
+    "@a12e/accessmonitor-rulesets": "^1.0.2",
     "axios": "^1.9.0",
     "bootstrap": "^5.3.6",
     "chart.js": "^4.4.9",

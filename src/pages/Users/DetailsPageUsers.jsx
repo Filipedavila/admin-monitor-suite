@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, StatisticsHeader, Breadcrumb, TableComponent, StatsTable } from "ama-design-system";
+import { Button, StatisticsHeader, Breadcrumb, TableComponent, StatsTable } from "@a12e/accessmonitor-ds";
 import "./style.users.css";
 import { useParams } from "react-router-dom";
 import { Link, useLocation, useNavigate  } from "react-router-dom";

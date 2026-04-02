@@ -1,5 +1,5 @@
 import React from 'react';
-import { Input, Button } from "ama-design-system";
+import { Input, Button } from "@a12e/accessmonitor-ds";
 const InsertSiteMap = ({ register, errors, darkTheme, onSubmit }) => {
   const fileInputRef = React.useRef(null);
   return (

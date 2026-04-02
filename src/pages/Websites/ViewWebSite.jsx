@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, memo } from "react";
-import { Button, StatisticsHeader, Breadcrumb, SortingTable } from "ama-design-system";
+import { Button, StatisticsHeader, Breadcrumb, SortingTable } from "@a12e/accessmonitor-ds";
 import "./style.users.css";
 import { RadarGraph } from "../../components/RadarGraph/index.jsx";
 import GoodBadTab from "../../components/GoodBadTab/GoodBadTab.jsx";

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, memo } from "react";
-import { Button, StatisticsHeader, Breadcrumb, SortingTable, RadioGroup } from "ama-design-system";
+import { Button, StatisticsHeader, Breadcrumb, SortingTable, RadioGroup } from "@a12e/accessmonitor-ds";
 import "./style.users.css";
 import { RadarGraph } from "../../components/RadarGraph/index.jsx";
 import { Link, useParams, useLocation } from "react-router-dom";
