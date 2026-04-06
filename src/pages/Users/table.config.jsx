@@ -145,7 +145,7 @@ export const pagesUsersHeaders = [
     { type: "Skip", nRow: 1, name: i18n.t('WEBSITES_PAGE.LIST.table.name_label'), property: "ShowIn", justifyCenter: true },
     { type: "Skip", nRow: 1, name: i18n.t('USERS_PAGE.LIST.table.username_label'), property: "Username", justifyCenter: true },
     { type: "Skip", nRow: 1, name: i18n.t('WEBSITES_PAGE.LIST.table.name_label'), property: "Name", justifyCenter: true },
-    { type: "SortingText", nRow: 1, name: i18n.t('WEBSITES_PAGE.LIST.table.name_label'), property: "Url", justifyCenter: true },
+    { type: "SortingText", nRow: 1,  bigWidth: "40%", name: i18n.t('WEBSITES_PAGE.LIST.table.name_label'), property: "Url", justifyCenter: true },
     { type: "SortingText", nRow: 1, name: i18n.t('PAGES_PAGE.LIST.table.score_label'), property: "Score", justifyCenter: true },
     { type: "SortingText", nRow: 1, name: i18n.t('PAGES_PAGE.LIST.table.last_updated_label'), property: "Evaluation_Date", justifyCenter: true },
     { type: "SortingText", nRow: 1, name: i18n.t('WEBSITES_PAGE.LIST.table.import'), property: "import", justifyCenter: true },
@@ -157,7 +157,7 @@ export const pagesUsersColumnsOptions = (navigate, handleImportPage, canImportPa
   ShowIn: { type: "Skip", center: false, bold: false, decimalPlace: false },
   Username: { type: "Skip", center: false, bold: false, decimalPlace: false },
   Name: { type: "Skip", center: false, bold: false, decimalPlace: false },
-  Url: { type:  "Link" , center: true, bold: false, decimalPlace: false, href: (row)=>`/ams/dashboard/users/websites/pages/details/${row.id}/${row.Username}/${row.Name}/${encodeURIComponent(row.Url)}` },
+  Url: { type:  "Link" , bigWidth: "50%", center: false, bold: false, decimalPlace: false, href: (row)=>`/ams/dashboard/users/websites/pages/details/${row.id}/${row.Username}/${row.Name}/${encodeURIComponent(row.Url)}` },
   Score: { type: "Text", center: true, bold: false, decimalPlace: false },
   Evaluation_Date: { type: "Text", center: true, bold: false, decimalPlace: false },
   import: { 
