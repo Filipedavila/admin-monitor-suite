@@ -1,13 +1,6 @@
-import React, { useRef } from "react";
-import {
-  Input,
-  Button,
-  Select,
-  TextArea,
-  Breadcrumb,
-  Tabs,
-  MultiSelect,
-} from "@a12e/accessmonitor-ds";
+import React, { useRef, useCallback } from "react";
+import qs from "qs";
+import { Button, Select, Breadcrumb, Tabs } from "@a12e/accessmonitor-ds";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import InsertUrl from "./Tabs/insertUrl";
@@ -18,20 +11,20 @@ import { useTheme } from '../../context/ThemeContext';
 import { api } from "../../config/api";
 import { Modal } from "../../components/Modal";
 import CrawlingModal from "../../components/CrawlingModal";
+import { createPages, createPagesFromSitemap } from "../../services/pages";
+import { crawlWebsites } from "../../services/discovery";
 
 const PageCreateForm = () => {
   const {
     register,
     handleSubmit,
-    watch,
-    trigger,
     setValue,
     getValues,
     formState: { errors },
   } = useForm();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [breadcrumbs, setBreadcrumbs] = React.useState([
+  const [breadcrumbs] = React.useState([
     { children: <Link to="/dashboard/home">Inicio</Link> },
     { children: <Link to="/dashboard/pages">Paginas</Link> },
     {
@@ -42,26 +35,28 @@ const PageCreateForm = () => {
   const [websites, setWebsites] = React.useState([]);
   const [selectedWebsites, setSelectedWebsites] = React.useState([]);
   const [websitesLoading, setWebsitesLoading] = React.useState(false);
-  const [searchTerm, setSearchTerm] = React.useState('');
   const selectedWebsitesRef = useRef([]);
-  const [urls, setUrls] = React.useState("");
+  const webSearchTimeoutRef = useRef(null);
   const [activeTab, setActiveTab] = React.useState("tab1");
   const [feedbackMessage, setFeedbackMessage] = React.useState("");
   const [showCrawlingModal, setShowCrawlingModal] = React.useState(false);
   const [shouldClearForm, setShouldClearForm] = React.useState(false);
 
-  // Function to fetch websites with search term
-  const fetchWebsites = React.useCallback(async (search = '') => {
+  const fetchWebsites = useCallback(async (search = '') => {
+    const searchTerm = typeof search === 'string' ? search : '';
+    setWebsitesLoading(true);
     try {
-      setWebsitesLoading(true);
-      const response = await api.get(`/website/all/100/0/sort=/direction=/search=${encodeURIComponent(search)}`);
-      const fetchedOptions = response.data.result.map(website => ({
-        value: website.WebsiteId,
-        label: `${website.Name} (${website.StartingUrl})`,
-        startingUrl: website.StartingUrl,
-        name: website.Name
+      const queryObj = { pagination: { limit: 20, page: 1 } };
+      if (searchTerm) queryObj.filters = { searchTerm };
+      const query = qs.stringify(queryObj);
+      const response = await api.get(`/websites?${query}`);
+      const fetched = response.data.data.map(item => ({
+        value: item.id,
+        label: `${item.title} (${item.baseUrl})`,
+        startingUrl: item.baseUrl,
+        name: item.title,
       }));
-      setWebsites(fetchedOptions);
+      setWebsites(fetched);
     } catch (error) {
       console.error('Error fetching websites:', error);
     } finally {
@@ -70,12 +65,8 @@ const PageCreateForm = () => {
   }, []);
 
   React.useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      fetchWebsites(searchTerm);
-    }, 300);
-
-    return () => clearTimeout(timeoutId);
-  }, [searchTerm, fetchWebsites]);
+    fetchWebsites('');
+  }, [fetchWebsites]);
 
 
 
@@ -120,11 +111,7 @@ const PageCreateForm = () => {
     }
 
     try {
-      const response = await api.post('/page/add', {
-        websiteId: selectedWebsites,
-        uris: JSON.stringify(urls),
-        observatory: "[]"
-      });
+      const response = await createPages(selectedWebsites, urls);
       
       if(response.status === 200 || response.status === 201) {
         setFeedbackMessage(`${urls.length} pagina(s) adicionada(s) com sucesso. As paginas serao avaliadas em segundo plano.`);
@@ -138,7 +125,7 @@ const PageCreateForm = () => {
     }
   };
 
-  const handleInsertSiteMap = async (data) => {
+  const handleInsertSiteMap = async () => {
     
     if (selectedWebsites.length === 0) {
       setFeedbackMessage("Por favor, selecione pelo menos um sitio web.");
@@ -146,80 +133,64 @@ const PageCreateForm = () => {
     }
 
     const fileInput = document.getElementById('sitemap');
-    console.log("File input element:", fileInput);
-    console.log("File input files:", fileInput?.files);
+ 
     
     if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-      console.log("No file selected");
       setFeedbackMessage("Por favor, selecione um ficheiro sitemap.");
       return;
     }
 
     const file = fileInput.files[0];
-    
-    try {
-      // Read the file content
-      const fileContent = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target.result);
-        reader.onerror = reject;
-        reader.readAsText(file);
-      });
+    if (!/\.(xml|txt)$/i.test(file.name)) {
+      setFeedbackMessage("Formato invalido. Use um ficheiro .xml ou .txt.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setFeedbackMessage("O ficheiro excede o limite de 5MB.");
+      return;
+    }
 
-      // Extract URLs from file content (one URL per line)
-      const urls = fileContent
-        .split('\n')
-        .map(url => url.trim())
-        .filter(url => url.length > 0);
-
-      if (urls.length === 0) {
-        setFeedbackMessage("O ficheiro nao contem URLs validos.");
-        return;
-      }
-
-      // Use the same logic as handleInsertPages
-      const response = await api.post('/page/add', {
-        websiteId: selectedWebsites[0].value,
-        uris: JSON.stringify(urls),
-        observatory: "[]"
-      });
-
-      if (response.status === 200 || response.status === 201) {
-        setFeedbackMessage(`${urls.length} paginas do sitemap adicionadas com sucesso. As paginas serao avaliadas em segundo plano.`);
-        setShouldClearForm(true); // Mark form to be cleared when modal closes
-      } else {
-        setFeedbackMessage("Erro ao adicionar paginas do sitemap");
-      }
-    } catch (error) {
-      setFeedbackMessage("Erro ao processar o ficheiro sitemap");
+    const ids = Array.isArray(selectedWebsites) ? selectedWebsites : [selectedWebsites];
+    const results = await Promise.allSettled(ids.map((id) => createPagesFromSitemap(id, file)));
+    const failed = results.filter((r) => r.status === "rejected");
+    if (failed.length === 0) {
+      setFeedbackMessage("Sitemap enviado com sucesso. As paginas serao criadas e avaliadas em segundo plano.");
+      setShouldClearForm(true); // Mark form to be cleared when modal closes
+    } else {
+      failed.forEach((r) => console.error("Error adding sitemap pages:", r.reason));
+      const status = failed[0].reason?.response?.status;
+      setFeedbackMessage(
+        status === 400
+          ? "Ficheiro invalido: confirme o formato (.xml ou .txt), o tamanho (max. 5MB) e o conteudo do sitemap."
+          : status === 404
+            ? "Sitio web nao encontrado."
+            : `Erro ao adicionar paginas do sitemap em ${failed.length} de ${ids.length} sitio(s) web.`
+      );
     }
   };
 
-  const handleCrawling = async ({ maxDepth, maxPages, waitJS }) => {
+  const handleCrawling = async () => {
     if (selectedWebsites.length === 0) {
       setFeedbackMessage("Por favor, selecione pelo menos um sitio web para fazer crawling.");
       return;
     }
     
-    const website = websites.filter(website => website.value === selectedWebsites).map(website => ({
-      url: website.startingUrl,
-      websiteId: website.value
-    }));
-    console.log("website", website)
+    // O Select de pesquisa devolve o id do sítio web escolhido. O crawl é o pedido
+    // "Discovery > Crawl Website" (POST /discovery { websitesId }); POST /discovery/:id
+    // é o crawl de uma categoria e não pode ser usado aqui.
+    const websitesIds = Array.isArray(selectedWebsites) ? selectedWebsites : [selectedWebsites];
+
     try {
-      const response = await api.post('/crawler/crawl', {
-        websites: website,
-        maxDepth: maxDepth,
-        maxPages: maxPages,
-        waitJS: waitJS ? 1 : 0
-      });
-      
+      const response = await crawlWebsites(websitesIds);
+
       if (response.status === 201 || response.status === 200) {
         setFeedbackMessage("O crawling foi iniciado com sucesso! O processo sera executado em segundo plano.");
         setSelectedWebsites([]);
         setShowCrawlingModal(false);
+      } else {
+        setFeedbackMessage("Erro ao iniciar o crawling. Tente novamente.");
       }
-    } catch (error) {
+    } catch {
       setFeedbackMessage("Erro ao iniciar o crawling. Tente novamente.");
     }
   };
@@ -286,14 +257,20 @@ const PageCreateForm = () => {
               options={websites}
               value={selectedWebsites}
               isSearch={true}
+              isLoading={websitesLoading}
+              noOptionsMessage={() => "Nenhum sítio web encontrado"}
+              loadingMessage={() => "A pesquisar..."}
               onChange={(value) => {
                 setSelectedWebsites(value);
                 selectedWebsitesRef.current = value || [];
               }}
-              onInputChange={(inputValue) => {
-                setSearchTerm(inputValue.target.value);
+              onInputChange={(e) => {
+                const inputValue = typeof e === "string" ? e : (e?.target?.value ?? "");
+                if (webSearchTimeoutRef.current) clearTimeout(webSearchTimeoutRef.current);
+                webSearchTimeoutRef.current = setTimeout(() => {
+                  fetchWebsites(inputValue);
+                }, 300);
               }}
-          
             />
             {selectedWebsites.length === 0 && (
               <small className="text-danger">

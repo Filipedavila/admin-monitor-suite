@@ -6,15 +6,15 @@ const InsertSiteMap = ({ register, errors, darkTheme, onSubmit }) => {
     <div className="d-flex flex-column justify-content-start mt-4">
       <p>2b. Por submissão de um ficheiro com URLs</p>
       <p>
-        Selecione um ficheiro TXT que contenha uma lista de URLs do sítio web pretendido (1 URL por linha).
+        Selecione um sitemap (.xml) ou um ficheiro TXT com uma lista de URLs do sítio web pretendido (1 URL por linha). Máximo 5MB.
       </p>
       <Input
         id="sitemap"
         ref={fileInputRef}
-        label="Ficheiro TXT com URLs"
+        label="Ficheiro sitemap (.xml) ou TXT com URLs"
         type="file"
         darkTheme={darkTheme}
-        accept=".txt"
+        accept=".xml,.txt"
         {...register("sitemap", { required: "Campo obrigatório" })}
         error={errors.sitemap?.message}
         className="w-50"

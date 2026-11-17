@@ -1,5 +1,4 @@
 import i18n from '../../i18n';
-import { useNavigate } from 'react-router-dom';
 
 export const dataHeaders = [
   [

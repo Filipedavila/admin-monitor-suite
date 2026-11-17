@@ -1,164 +1,174 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { Button, InputSearch, SortingTable, Breadcrumb, RadioGroup } from "@a12e/accessmonitor-ds";
+import { useState, useEffect, useCallback } from "react";
+import qs from "qs";
+import { Button, InputSearch, SortingTable, Breadcrumb } from "@a12e/accessmonitor-ds";
 import "./style.users.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
-import { categoriesHeaders, columnsOptions, nameOfIcons, paginationButtonsTexts } from "./table.config.jsx";
+import { categoriesHeaders, columnsOptions, nameOfIcons, sortFields } from "./table.config.jsx";
+import { useServerSort, MAX_ITEMS_PER_PAGE } from "../../hooks/useServerSort";
 import { useTranslation } from 'react-i18next';
 import { api } from "../../config/api";
 import { Modal } from "../../components/Modal";
-import CrawlingModal from "../../components/CrawlingModal";
 import { setRootNavigationContext } from "../../utils/navigation";
+import { usePermissions } from "../../context/AuthContext";
+import { filterEditColumn } from "../../utils/permissions";
+import { crawlTags, getCrawlTagsFeedback } from "../../services/discovery";
 
 const CategoriesList = () => {
   const { theme } = useTheme();
-  const [allCategories, setAllCategories] = useState([]);
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { canCreate, canEdit, canDelete } = usePermissions();
+  const [data, setData] = useState([]);
   const [checkboxesSelected, setCheckboxesSelected] = useState([]);
+  const [totalItems, setTotalItems] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
+  const { sorts, onSortChange, sortHeaders } = useServerSort(sortFields, () => setCurrentPage(1));
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-  const [showCrawlingModal, setShowCrawlingModal] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
-  const [radioValue, setRadioValue] = useState(1);
-  const { t } = useTranslation();
-  const navigate = useNavigate();
+  const [feedbackRole, setFeedbackRole] = useState(null);
+  const [isCrawling, setIsCrawling] = useState(false);
+
   const breadcrumbs = [
     { children: <Link to="/dashboard/home">Início</Link> },
     { title: "Categorias" }
   ];
-  
+
   useEffect(() => {
-    // Clear root context when viewing category list
     setRootNavigationContext(null);
   }, []);
-  const fetchData = async () => {
-    const response = await api.get('/tag/all');
-    setAllCategories(response.data.result.map(item => ({
-      id: item.TagId,
-      Name: item.Name,
-      Websites: item.Websites,
-      edit: t('USERS_PAGE.LIST.table.edit_label'),
-    })));
-  };
-  useEffect(() => {
 
-    fetchData();
-  }, []);
-
-  // Filter categories based on search term
-  const filteredCategories = useMemo(() => {
-    if (!searchTerm.trim()) {
-      return allCategories;
+  const fetchData = useCallback(async (page, limit, search) => {
+    setCheckboxesSelected([]);
+    try {
+      const queryObj = { pagination: { limit, page } };
+      if (search) queryObj.filters = { searchTerm: search };
+      if (sorts) queryObj.sorts = sorts;
+      const query = qs.stringify(queryObj);
+      const response = await api.get(`/tags?${query}`);
+      const { data: items, pagination } = response.data;
+      setData(
+        items.map((item) => ({
+          id: item.id,
+          Name: item.name,
+          edit: t('USERS_PAGE.LIST.table.edit_label'),
+        }))
+      );
+      setTotalItems(pagination.totalItems);
+    } catch {
+      setFeedbackMessage("Erro ao carregar categorias!");
+      setShowFeedbackModal(true);
     }
-    return allCategories.filter(category =>
-      category.Name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [allCategories, searchTerm]);
+  }, [t, sorts]);
 
-  const totalItems = filteredCategories.length;
-  const paginatedData = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    return filteredCategories.slice(start, end);
-  }, [filteredCategories, currentPage, itemsPerPage]);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      fetchData(currentPage, itemsPerPage, searchTerm);
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [currentPage, itemsPerPage, searchTerm, fetchData]);
 
   const handlePageChange = (page) => setCurrentPage(page);
+
   const handleItemsPerPageChange = (n) => {
     setItemsPerPage(n);
     setCurrentPage(1);
   };
 
-  const handleSearchChange = (value) => {
-    setSearchTerm(value.target.value);
-    setCurrentPage(1); // Reset to first page when searching
+  const handleSearchChange = (e) => {
+    const value = typeof e === 'string' ? e : (e?.target?.value ?? "");
+    setSearchTerm(value);
+    setCurrentPage(1);
   };
 
   const handleDeletePagesCategories = async () => {
+    if (!canDelete) return;
     const categoriesId = checkboxesSelected.map(item => item.id);
-    const response = await api.post(`/tag/pages/deleteBulk`, {
-      tagsId: categoriesId
-    });
+    const response = await api.post(`/tag/pages/deleteBulk`, { tagsId: categoriesId });
     if (response.status === 201 || response.status === 200) {
       setFeedbackMessage("Páginas eliminadas com sucesso!");
-      setShowFeedbackModal(true);
       setCheckboxesSelected([]);
-      setSearchTerm("");
+      await fetchData(currentPage, itemsPerPage, searchTerm);
     } else {
       setFeedbackMessage("Ocorreu um erro ao eliminar as páginas.");
-      setShowFeedbackModal(true);
     }
-  }
-
-  // Delete selected categories
-  const handleDeleteCategories = async () => {
-    const categoriesId = checkboxesSelected.map(item => item.id);
-    const response = await api.post(`/tag/deleteBulk`, {
-      tagsId: categoriesId
-    });
-    if (response.status === 201 || response.status === 200) {
-      setFeedbackMessage("Categorias eliminadas com sucesso!");
-      setShowFeedbackModal(true);
-      setCheckboxesSelected([]);
-      setSearchTerm("");
-      await fetchData();
-    }
+    setShowFeedbackModal(true);
   };
 
-  // Re-evaluate selected categories
-  const handleReevaluateCategories = async () => {
-    const categoriesId = checkboxesSelected.map(item => item.id);
-    const reEvaluate = radioValue === 1 ? "all" : "observatory";
+  const handleDeleteCategories = async () => {
+    if (!canDelete) return;
     try {
-      const response = await api.post(`/tag/reEvaluate`, {
-        tagsId: categoriesId,
-        option: reEvaluate
+      await Promise.all(checkboxesSelected.map(item => api.delete(`/tags/${item.id}`)));
+      setFeedbackMessage("Categorias eliminadas com sucesso!");
+      setCheckboxesSelected([]);
+      setSearchTerm("");
+      setCurrentPage(1);
+      await fetchData(1, itemsPerPage, "");
+    } catch {
+      setFeedbackMessage("Erro ao eliminar categorias. Tente novamente.");
+    }
+    setShowFeedbackModal(true);
+  };
+
+  const handleReevaluateCategories = async () => {
+    if (!canEdit) return;
+    const categoriesId = checkboxesSelected.map(item => item.id);
+    try {
+      const response = await api.post('/evaluations', {
+        triggerType: "TAGS",
+        targetIds: categoriesId
       });
+      setShowModal(false);
       if (response.status === 201 || response.status === 200) {
-        setShowModal(false);
         setFeedbackMessage("As páginas irão ser avaliadas em segundo plano, e a sua informação estará disponível assim que possível.");
-        setShowFeedbackModal(true);
       } else {
-        setShowModal(false);
         setFeedbackMessage("Ocorreu um erro ao iniciar a reavaliação.");
-        setShowFeedbackModal(true);
       }
-    } catch (error) {
+      setShowFeedbackModal(true);
+    } catch {
       setShowModal(false);
       setFeedbackMessage("Ocorreu um erro ao iniciar a reavaliação.");
       setShowFeedbackModal(true);
     }
   };
 
-  // Handle crawling for categories
-  const handleCrawlingCategories = async ({ maxDepth, maxPages, waitJS, selectedItems }) => {
-    if (selectedItems.length === 0) {
-      setFeedbackMessage("Por favor, selecione pelo menos uma categoria para fazer crawling.");
+  // Crawl por categoria (v5 "Discovery > Crawl Website Tags"): um POST /discovery/:tagId por categoria.
+  const handleCrawlingCategories = async () => {
+    if (!canEdit || isCrawling) return;
+    if (checkboxesSelected.length === 0) {
+      setFeedbackMessage(t("CRAWL_TAGS.none_selected"));
+      setFeedbackRole("alert");
       setShowFeedbackModal(true);
       return;
     }
-    
-    const categoriesId = selectedItems.map(item => item.id);
-    
+    setIsCrawling(true);
     try {
-      const response = await api.post('/crawler/crawl/categories', {
-        categories: categoriesId,
-        maxDepth: maxDepth,
-        maxPages: maxPages,
-        waitJS: waitJS ? 1 : 0
-      });
-      
-      if (response.status === 201 || response.status === 200) {
-        setFeedbackMessage("O crawling foi iniciado com sucesso! O processo será executado em segundo plano.");
+      const result = await crawlTags(checkboxesSelected.map((item) => item.id));
+      const { key, params, role } = getCrawlTagsFeedback(result);
+      setFeedbackMessage(t(key, params));
+      setFeedbackRole(role);
+      if (result.failed.length === 0) {
         setCheckboxesSelected([]);
-        setShowCrawlingModal(false);
-        await fetchData();
+      } else {
+        // Mantém selecionadas só as categorias que falharam, para poder repetir.
+        const failedIds = new Set(result.failed.map((f) => f.id));
+        setCheckboxesSelected((prev) => prev.filter((item) => failedIds.has(Number(item.id))));
       }
-    } catch (error) {
-      setFeedbackMessage("Erro ao iniciar o crawling. Tente novamente.");
+    } catch {
+      setFeedbackMessage(t("CRAWL_TAGS.error"));
+      setFeedbackRole("alert");
+    } finally {
+      setIsCrawling(false);
     }
     setShowFeedbackModal(true);
+  };
+
+  const closeFeedbackModal = () => {
+    setShowFeedbackModal(false);
+    setFeedbackRole(null);
   };
 
   return (
@@ -166,7 +176,18 @@ const CategoriesList = () => {
       <Breadcrumb data={breadcrumbs} tagHere={t('BREADCRUMB.tag_here')} />
       <h1>{t('CATEGORIES_PAGE.LIST.title')}</h1>
       <p>Abaixo encontra a listagem de todas as categorias registadas no AdminMonitorSuite, num total de {totalItems} categorias.</p>
-      <div className="content bg-white bg-white">
+      <div className="content bg-white">
+        <div className="d-flex gap-2 mb-3">
+          {canCreate && (
+          <Button
+            darkTheme={theme}
+            text="Criar categoria"
+            icon={"AMA-Adicionar-Line"}
+            className="btn-primary"
+            onClick={() => navigate("/dashboard/categories/create")}
+          />
+          )}
+        </div>
         <h2>{t('CATEGORIES_PAGE.LIST.subtitle')}</h2>
         <div className="d-flex gap-2 align-items-center mb-3">
           <span>{t('MISC.filter')}</span>
@@ -178,57 +199,13 @@ const CategoriesList = () => {
             onChange={handleSearchChange}
           />
         </div>
-        <div className="d-flex gap-4 justify-content-start mb-4">
-          <Button
-            darkTheme={theme}
-            text={t('CATEGORIES_PAGE.LIST.re_evaluate_tags')}
-            icon={"AMA-Adicionar-Line"}
-            className="btn-primary"
-            onClick={() => setShowModal(true)}
-            disabled={checkboxesSelected.length === 0}
-          />
-          <Button
-            darkTheme={theme}
-            text={t('CATEGORIES_PAGE.LIST.crawler')}
-            icon={"AMA-Adicionar-Line"}
-            className="btn-primary"
-            onClick={() => setShowCrawlingModal(true)}
-            disabled={checkboxesSelected.length === 0}
-          />
-          <Button
-            darkTheme={theme}
-            text={t('CATEGORIES_PAGE.LIST.delete_pages')}
-            icon={"AMA-Adicionar-Line"}
-            className="btn-primary"
-            onClick={handleDeletePagesCategories}
-            disabled={checkboxesSelected.length === 0}
-          />
-          <Button
-            darkTheme={theme}
-            text={t('CATEGORIES_PAGE.LIST.delete_tags')}
-            icon={"AMA-Adicionar-Line"}
-            className="btn-primary"
-            onClick={handleDeleteCategories}
-            disabled={checkboxesSelected.length === 0}
-          />
-        </div>
         <SortingTable
           darkTheme={theme}
-          headers={categoriesHeaders}
-          setDataList={setAllCategories}
-          dataList={paginatedData}
+          headers={sortHeaders(filterEditColumn(categoriesHeaders, canEdit))}
+          setDataList={setData}
+          dataList={data}
           columnsOptions={columnsOptions(navigate)}
           nextPage={() => null}
-          nItemsPerPageTexts={[
-            "Ver",           // see
-            "por página",    // per_page
-            "Selector de itens por página", // selectorAria
-            "Navegação do seletor de itens por página" // selectorNav
-          ]}
-          itemsPaginationTexts={[
-            " de ",    // of
-            " itens "  // items
-          ]}
           caption={t('CATEGORIES_PAGE.LIST.table.title')}
           iconsAltTexts={nameOfIcons}
           paginationButtonsTexts={[
@@ -237,42 +214,82 @@ const CategoriesList = () => {
             "Página seguinte",
             "Última página"
           ]}
+          nItemsPerPageTexts={[
+            "Ver",
+            "por página",
+            "Selector de itens por página",
+            "Navegação do seletor de itens por página"
+          ]}
+          itemsPaginationTexts={[
+            " de ",
+            " itens "
+          ]}
           project={""}
           setCheckboxesSelected={setCheckboxesSelected}
           checkedItems={checkboxesSelected}
           pagination={true}
+          serverSidePagination={true}
+          onSortChange={onSortChange}
+          maxItemsPerPage={MAX_ITEMS_PER_PAGE}
           totalItems={totalItems}
           currentPage={currentPage}
-          serverSidePagination={true}
           itemsPerPage={itemsPerPage}
           onPageChange={handlePageChange}
           onItemsPerPageChange={handleItemsPerPageChange}
           rowKey="id"
         />
+        <div className="d-flex gap-4 justify-content-start mt-3">
+          {canEdit && (
+          <Button
+            darkTheme={theme}
+            text={t('CATEGORIES_PAGE.LIST.re_evaluate_tags')}
+            icon={"AMA-Adicionar-Line"}
+            className="btn-primary"
+            onClick={() => setShowModal(true)}
+            disabled={checkboxesSelected.length === 0}
+          />
+          )}
+          {canEdit && (
+          <Button
+            darkTheme={theme}
+            text={t('CRAWL_TAGS.button_selected')}
+            icon={"AMA-Adicionar-Line"}
+            className="btn-primary"
+            onClick={handleCrawlingCategories}
+            loading={isCrawling}
+            loadingText={t('CRAWL_TAGS.loading')}
+            aria-busy={isCrawling}
+            disabled={checkboxesSelected.length === 0 || isCrawling}
+          />
+          )}
+          {canDelete && (
+          <Button
+            darkTheme={theme}
+            text={t('CATEGORIES_PAGE.LIST.delete_pages')}
+            icon={"AMA-Adicionar-Line"}
+            className="btn-primary"
+            onClick={handleDeletePagesCategories}
+            disabled={checkboxesSelected.length === 0}
+          />
+          )}
+          {canDelete && (
+          <Button
+            darkTheme={theme}
+            text={t('CATEGORIES_PAGE.LIST.delete_tags')}
+            icon={"AMA-Adicionar-Line"}
+            className="btn-primary"
+            onClick={handleDeleteCategories}
+            disabled={checkboxesSelected.length === 0}
+          />
+          )}
+        </div>
       </div>
       <Modal
         isOpen={showModal}
         onRequestClose={() => setShowModal(false)}
         title={t('CATEGORIES_PAGE.LIST.re_evaluate_tags')}
       >
-        <p>Escolha que páginas quer reavaliar</p>
-        <RadioGroup
-          darkTheme={theme}
-          data={[
-            {
-              id: '1',
-              name: "Todas as páginas"
-            },
-            {
-              id: '2',
-              name: "Apenas as páginas do observatório"
-            }
-          ]}
-          inline
-          onChange={(value) => setRadioValue(value)}
-          value={radioValue}
-          name="format"
-        />
+        <p>Tem a certeza que pretende reavaliar as categorias selecionadas?</p>
         <Button
           darkTheme={theme}
           text={t('CATEGORIES_PAGE.LIST.re_evaluate_tags')}
@@ -283,25 +300,25 @@ const CategoriesList = () => {
       </Modal>
       <Modal
         isOpen={showFeedbackModal}
-        onRequestClose={() => setShowFeedbackModal(false)}
+        onRequestClose={closeFeedbackModal}
         title="Categorias"
       >
-        <p>{feedbackMessage}</p>
+        <p role={feedbackRole || undefined}>{feedbackMessage}</p>
         <Button
           darkTheme={theme}
           text="OK"
           className="btn-primary"
-          onClick={() => setShowFeedbackModal(false)}
+          onClick={closeFeedbackModal}
         />
       </Modal>
-      <CrawlingModal
+    { /* <CrawlingModal
         isOpen={showCrawlingModal}
         onRequestClose={() => setShowCrawlingModal(false)}
         onSubmit={handleCrawlingCategories}
         theme={theme}
         selectedItems={checkboxesSelected}
         itemType="categories"
-      />
+      />*/}
     </div>
   );
 };

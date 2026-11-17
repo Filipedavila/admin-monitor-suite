@@ -1,13 +1,11 @@
 // RadarGraph.jsx
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Radar } from 'react-chartjs-2';
 import { Tabs, SortingTable } from '@a12e/accessmonitor-ds';
 import { useTheme } from '../../context/ThemeContext';
-import { useTranslation } from 'react-i18next';
 
 export const RadarGraph = ({ websites = [], darkTheme, showTabs = true, labelDataSet = "Distribuição de Pontuações" }) => {
     const { theme } = useTheme();
-    const { t } = useTranslation();
     const currentTheme = darkTheme || theme;
 
     // Prepare radar chart data

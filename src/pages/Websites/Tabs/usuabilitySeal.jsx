@@ -1,14 +1,12 @@
-import React from 'react';
-import { Input, Button, Select, Tabs } from "@a12e/accessmonitor-ds";
+import { Input, Select } from "@a12e/accessmonitor-ds";
 import { useTranslation } from 'react-i18next';
 import moment from 'moment';
 
-const UsuabilitySeal = ({ 
-    register, 
-    errors, 
-    darkTheme, 
-    setValue, 
-    typeSealValidation, 
+const UsuabilitySeal = ({
+    register,
+    errors,
+    darkTheme,
+    typeSealValidation,
     onTypeSealChange,
     onDateFieldChange,
     sealDateValidation,
@@ -28,10 +26,10 @@ const UsuabilitySeal = ({
               required={false}
               value={watch("type_seal")}
               options={[
-                { value: "0", label: "Selecione" },
-                { value: "1", label: t('WEBSITES_PAGE.ADD.stamp_bronze') },
-                { value: "2", label: t('WEBSITES_PAGE.ADD.stamp_silver') },
-                { value: "3", label: t('WEBSITES_PAGE.ADD.stamp_gold') },
+                { value: "", label: "Selecione" },
+                { value: "BRONZE", label: t('WEBSITES_PAGE.ADD.stamp_bronze') },
+                { value: "SILVER", label: t('WEBSITES_PAGE.ADD.stamp_silver') },
+                { value: "GOLD", label: t('WEBSITES_PAGE.ADD.stamp_gold') },
               ]}
               onChange={onTypeSealChange}
             />

@@ -1,46 +1,35 @@
-import { ceil } from 'lodash';
 import i18n from '../../i18n';
-const apiUrl = import.meta.env.VITE_API_URL + "/";
+const apiUrl = import.meta.env.VITE_API_URL + import.meta.env.VITE_ROUTE_URL.replace(/\/$/, "") + "/";
 
 export const directoriesHeaders = [
   [
-    { type: "Checkbox", nRow: 2,center: true, name: i18n.t('MISC.select'), property: "id", label: i18n.t('MISC.select') },
-    { type: "SortingText", nRow: 2, center: true, name: i18n.t('WEBSITES_PAGE.LIST.table.url_label'), property: "Uri" },
-    { type: "SortingText", nRow: 2, center: true, name: i18n.t('WEBSITES_PAGE.LIST.table.score_label'), property: "Score", justifyCenter: true },
-    { type: "SortingText", nRow: 2, center: true, name: i18n.t('WEBSITES_PAGE.LIST.table.last_updated_label'), property: "Evaluation_Date", justifyCenter: true },
-    { type: "SortingText", nRow: 2, center: true, name: i18n.t('WEBSITES_PAGE.LIST.table.elements_label'), property: "Element_Count", justifyCenter: true },
-    { id: "conformidade", type: "Text", name: "Nº de Erros", property: "", justifyCenter: true, multiCol: true, nCol: 3 },
-    { type: "SortingText", nRow: 2, center: true, name: "E", property: "e", justifyCenter: true },
-    { type: "SortingText", nRow: 2, center: true, name: "Observatório", property: "OPAW", justifyCenter: true, label: "Observatório" },
+    { type: "Checkbox", nRow: 2, center: true, name: i18n.t('MISC.select'), property: "id", label: i18n.t('MISC.select') },
+    { type: "SortingText", nRow: 2, center: true, name: "Url", property: "Uri" },
+    { type: "SortingText", nRow: 2, center: true, name: "Pontuação", property: "Score", justifyCenter: true },
+    { type: "SortingText", nRow: 2, center: true, name: "Última avaliação", property: "LastEvaluation", justifyCenter: true },
+    { type: "SortingText", nRow: 2, center: true, name: "Nº de elementos", property: "ElementCount", justifyCenter: true },
+    { type: "Text", nCol: 3, center: true, name: "Nº de Erros", property: "", justifyCenter: true },
+    { type: "SortingText", nRow: 2, center: true, name: "E", property: "EvaluationStatus", justifyCenter: true },
+    { type: "SortingText", nRow: 2, center: true, name: "Observatório", property: "OPAW", justifyCenter: true },
   ],
   [
-    { id: "a", type: "SortingText", name:"A", property: "A", justifyCenter: true },
-    { id: "aa", type: "SortingText", name: "AA", property: "AA", justifyCenter: true },
-    { id: "aaa", type: "SortingText", name: "AAA", property: "AAA", justifyCenter: true },
+    { type: "SortingText", center: true, name: "A", property: "A", justifyCenter: true },
+    { type: "SortingText", center: true, name: "AA", property: "AA", justifyCenter: true },
+    { type: "SortingText", center: true, name: "AAA", property: "AAA", justifyCenter: true },
   ],
 ];
 
 export const columnsOptions = {
-  id: { type: "Checkbox", center: true, bold: false, decimalPlace: false, label:"Selecionar"},
+  id: { type: "Checkbox", center: true, bold: false, decimalPlace: false, label: "Selecionar" },
   Uri: { type: "Link", center: false, bold: false, decimalPlace: false, isCheckboxLabel: true, href: (row) => apiUrl + "dashboard/pages/view/" + encodeURIComponent(row.Uri) },
   Score: { type: "Text", center: true, bold: false, decimalPlace: true },
-  Evaluation_Date: {
-    type: "Text",
-    center: true,
-    bold: false,
-    decimalPlace: false,
-  },
-  e: { type: "Text", center: true, bold: false, decimalPlace: false },
-  A: { type: "Text", center: true, bold: false, decimalPlace: false, headers: "conformidade A" },
-  AA: { type: "Text", center: true, bold: false, decimalPlace: false, headers: "conformidade AA" },
-  AAA: { type: "Text", center: true, bold: false, decimalPlace: false, headers: "conformidade AAA" },
-  Element_Count: {
-    type: "Text",
-    center: true,
-    bold: false,
-    decimalPlace: false,
-  },
-  OPAW: { type: "Text", center: true, bold: false, decimalPlace: false, label:"Observatório"},
+  LastEvaluation: { type: "Text", center: true, bold: false, decimalPlace: false },
+  ElementCount: { type: "Text", center: true, bold: false, decimalPlace: false },
+  A: { type: "Text", center: true, bold: false, decimalPlace: false },
+  AA: { type: "Text", center: true, bold: false, decimalPlace: false },
+  AAA: { type: "Text", center: true, bold: false, decimalPlace: false },
+  EvaluationStatus: { type: "DangerousHTML", center: true, bold: false, decimalPlace: false },
+  OPAW: { type: "Text", center: true, bold: false, decimalPlace: false, label: "Observatório" },
 };
 
 export const nameOfIcons = [
@@ -177,7 +166,7 @@ export const columnsOptionsPage = (navigate, url)=>({
     if(row.id === 0){
       return;
     }
-    navigate(`${import.meta.env.VITE_ROUTE_URL}dashboard/pages/details/${encodeURIComponent(url)}/${row.id}`) 
+    navigate(`/dashboard/pages/details/${encodeURIComponent(url)}/${row.id}`)
   }},
 })
 
@@ -217,3 +206,5 @@ export const optionsPage = [
   },
 ];
 
+// Table column property -> backend sort field (sorts[field]=ASC|DESC)
+export const sortFields = { Uri: "url", Score: "score" };

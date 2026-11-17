@@ -11,14 +11,15 @@ export const getDefaultApiUrl = () => {
   const envUrl = import.meta?.env?.VITE_API_URL;
   return normalizeBaseUrl(envUrl);
 }
+
 const resolveBaseUrl = () => {
   if (typeof window === 'undefined') {
-    return '/api';
+    return '/v2';
   }
 
   const storedUrl = localStorage.getItem('@AMS:apiUrl');
   const base = normalizeBaseUrl(storedUrl || getDefaultApiUrl());
-  const pathApi = import.meta.env?.VITE_PATH_API || '/api';
+  const pathApi = import.meta.env?.VITE_PATH_API || '/v2';
 
   return base ? `${base}${pathApi}` : pathApi;
 };
@@ -66,6 +67,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+/*
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -81,5 +83,5 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
+*/
 export { api };

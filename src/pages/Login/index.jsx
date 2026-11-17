@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button, Input } from "@a12e/accessmonitor-ds";
 import Logo from "../../assets/logo-ams.svg";
@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 const Login = () => {
   const { t } = useTranslation();
-  const { register, handleSubmit, formState: { errors }, setValue } = useForm();
+  const { handleSubmit, formState: { errors }, setValue } = useForm();
   const { login, loading } = useAuth();
   const [loginError, setLoginError] = useState('');
   const navigate = useNavigate();
@@ -35,7 +35,6 @@ const Login = () => {
   };
 
   const handleInputChange = (e) => {
-    console.log(e.target.value);
     const { name, value } = e.target;
     setValue(name, value, { 
       shouldValidate: true,

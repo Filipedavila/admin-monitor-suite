@@ -1,39 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button, SortingTable, Icon, Breadcrumb } from "@a12e/accessmonitor-ds";
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { Link } from "react-router-dom";
-import {
-  directoriesHeaders,
-  columnsOptions,
-  dataRows,
-  nameOfIcons,
-  paginationButtonsTexts,
-  mainColumnsOptions,
-  mainTableHeaders,
-  mainTableRows,
-  Tab2ColumnsOptions,
-  Tab2DataRows,
-  Tab2Headers,
-  estadoDeclaracoesColumnsOptions,
-  estadoDeclaracoesHeaders,
-  estadoDeclaracoesRows,
-  conformidadeDeclaradaColumnsOptions,
-  conformidadeDeclaradaHeaders,
-  conformidadeDeclaradaRows,
-  estadoPorDiretorioHeaders,
-  estadoPorDiretorioRows,
-  estadoPorDiretorioColumnsOptions,
-  estadoPorNivelDiretorioHeaders,
-  estadoPorNivelDiretorioRows,
-  estadoPorNivelDiretorioColumnsOptions,
-  pesoConformidadeOPAWHeaders,
-  pesoConformidadeOPAWRows,
-  pesoConformidadeOPAWColumnsOptions,
-  balancoAvaliacoesHeaders,
-  balancoAvaliacoesRows,
-  balancoAvaliacoesColumnsOptions
-} from "./table.config.jsx";
+import { dataRows, nameOfIcons, paginationButtonsTexts, mainColumnsOptions, mainTableHeaders, mainTableRows, Tab2ColumnsOptions, Tab2DataRows, Tab2Headers, estadoDeclaracoesColumnsOptions, estadoDeclaracoesHeaders, estadoDeclaracoesRows, conformidadeDeclaradaColumnsOptions, conformidadeDeclaradaHeaders, conformidadeDeclaradaRows, estadoPorDiretorioHeaders, estadoPorDiretorioRows, estadoPorDiretorioColumnsOptions, estadoPorNivelDiretorioHeaders, estadoPorNivelDiretorioRows, estadoPorNivelDiretorioColumnsOptions, pesoConformidadeOPAWHeaders, pesoConformidadeOPAWRows, pesoConformidadeOPAWColumnsOptions, balancoAvaliacoesHeaders, balancoAvaliacoesRows, balancoAvaliacoesColumnsOptions } from "./table.config.jsx";
 // Mock data and configs for demonstration
 
 
@@ -41,7 +11,7 @@ const AccessibilityDeclarationList = () => {
   const { theme } = useTheme();
   const { t } = useTranslation();
   const [checkboxesSelected, setCheckboxesSelected] = useState([]);
-  const [data, setData] = useState(dataRows);
+  const [, setData] = useState(dataRows);
 const breadcrumbs = [
     { children: <Link to="/dashboard/home">Início</Link> },
 

@@ -1,0 +1,13 @@
+.chart-bar-btn {
+  background: transparent;
+  border: none;
+  cursor: default;
+  padding: 0;
+  box-sizing: border-box;
+  position: absolute;
+}
+
+.chart-bar-btn:focus-visible {
+  outline: 3px solid #000;
+  outline-offset: 1px;
+}

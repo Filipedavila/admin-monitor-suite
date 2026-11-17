@@ -1,28 +1,35 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { Button, InputSearch, SortingTable, Breadcrumb, RadioGroup } from "@a12e/accessmonitor-ds";
+import { useEffect, useState, useCallback } from "react";
+import qs from "qs";
+import { Button, InputSearch, SortingTable, Breadcrumb } from "@a12e/accessmonitor-ds";
 import { useTheme } from '../../context/ThemeContext';
 import "./style.users.css";
-import { directoriesHeaders, columnsOptions, nameOfIcons, paginationButtonsTexts } from "./table.config.jsx";
+import { directoriesHeaders, columnsOptions, nameOfIcons, sortFields } from "./table.config.jsx";
+import { useServerSort, MAX_ITEMS_PER_PAGE } from "../../hooks/useServerSort";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import { api } from "../../config/api";
 import { Modal } from "../../components/Modal";
 import { setRootNavigationContext } from "../../utils/navigation";
+import { usePermissions } from "../../context/AuthContext";
+import { filterEditColumn } from "../../utils/permissions";
 
 const DirectoriesList = () => {
   const { theme } = useTheme();
   const { t } = useTranslation();
   const location = useLocation();
-  const [allDirectories, setAllDirectories] = useState([]);
+  const navigate = useNavigate();
+  const { canCreate, canEdit, canDelete } = usePermissions();
+  const [data, setData] = useState([]);
   const [checkboxesSelected, setCheckboxesSelected] = useState([]);
+  const [totalItems, setTotalItems] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);
+  const { sorts, onSortChange, sortHeaders } = useServerSort(sortFields, () => setCurrentPage(1));
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [radioValue, setRadioValue] = useState(1);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
-  const navigate = useNavigate();
+
   useEffect(() => {
     const currentPath = location.pathname;
     const lastPath = localStorage.getItem('currentPath');
@@ -31,112 +38,104 @@ const DirectoriesList = () => {
     }
     localStorage.setItem('currentPath', currentPath);
   }, [location.pathname]);
-  
-  const fetchData = async () => {
-    const response = await api.get('/directory/all');
-    setAllDirectories(response.data.result.map(item => ({
-      id: item.DirectoryId,
-      Name: item.Name,
-      Show_in_Observatory: item.Show_in_Observatory ? "Sim" : "Não",
-      edit: t('USERS_PAGE.LIST.table.edit_label'),
-    })));
-  };
 
   useEffect(() => {
-
-    fetchData();
+    localStorage.setItem('openSubmenu', JSON.stringify({ id: "directories", label: "Diretórios", icon: "AMA-Pasta-Line", url: "/dashboard/directories" }));
+    localStorage.setItem('activeMenuItem', JSON.stringify({ id: "directories", label: "Diretórios", icon: "AMA-Pasta-Line", url: "/dashboard/directories" }));
+    setRootNavigationContext(null);
   }, []);
+
+  const fetchData = useCallback(async (page, limit, search) => {
+    setCheckboxesSelected([]);
+    try {
+      const queryObj = { pagination: { limit, page } };
+      if (search) queryObj.filters = { searchTerm: search };
+      if (sorts) queryObj.sorts = sorts;
+      const query = qs.stringify(queryObj);
+      const response = await api.get(`/directories?${query}`);
+      const { data: items, pagination } = response.data;
+      setData(
+        items.map((item) => ({
+          id: item.id,
+          Name: item.name,
+          Show_in_Observatory: item.isInObservatory ? "Sim" : "Não",
+          edit: t('USERS_PAGE.LIST.table.edit_label'),
+        }))
+      );
+      setTotalItems(pagination.totalItems);
+    } catch {
+      setFeedbackMessage("Erro ao carregar diretórios!");
+      setShowFeedbackModal(true);
+    }
+  }, [t, sorts]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      fetchData(currentPage, itemsPerPage, searchTerm);
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [currentPage, itemsPerPage, searchTerm, fetchData]);
 
   const breadcrumbs = [
     { children: <Link to="/dashboard/home">Início</Link> },
     { title: "Diretórios" },
   ];
 
-  useEffect(() => {
-    localStorage.setItem('openSubmenu', JSON.stringify({ id: "directories", label: "Diretórios", icon: "AMA-Pasta-Line", url: "/dashboard/directories" }));
-    localStorage.setItem('activeMenuItem', JSON.stringify({ id: "directories", label: "Diretórios", icon: "AMA-Pasta-Line", url: "/dashboard/directories" }));
-    
-    // Clear root context when viewing directory list
-    setRootNavigationContext(null);
-  }, []);
-
-  // Filter directories based on search term
-  const filteredDirectories = useMemo(() => {
-    if (!searchTerm.trim()) {
-      return allDirectories;
-    }
-    return allDirectories.filter(directory =>
-      directory.Name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [allDirectories, searchTerm]);
-
-  const totalItems = filteredDirectories.length;
-  const paginatedData = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    return filteredDirectories.slice(start, end);
-  }, [filteredDirectories, currentPage, itemsPerPage]);
-
   const handlePageChange = (page) => setCurrentPage(page);
+
   const handleItemsPerPageChange = (n) => {
     setItemsPerPage(n);
     setCurrentPage(1);
   };
 
-  const handleSearchChange = (value) => {
-    setSearchTerm(value.target.value);
-    setCurrentPage(1); // Reset to first page when searching
+  const handleSearchChange = (e) => {
+    const value = typeof e === 'string' ? e : (e?.target?.value ?? "");
+    setSearchTerm(value);
+    setCurrentPage(1);
   };
 
   const handleDeleteDirectories = async () => {
-    const directoriesId = checkboxesSelected.map(item => item.id);
-    const response = await api.post(`/directory/deleteBulk`, {
-      directoriesId: directoriesId
-    });
-    if (response.status === 201 || response.status === 200) {
+    if (!canDelete) return;
+    try {
+      await Promise.all(checkboxesSelected.map(item => api.delete(`/directories/${item.id}`)));
       setFeedbackMessage("Diretórios eliminados com sucesso!");
-      setShowFeedbackModal(true);
-      await fetchData();
       setCheckboxesSelected([]);
       setSearchTerm("");
-      setAllDirectories([])
       setCurrentPage(1);
-    
-    
+      await fetchData(1, itemsPerPage, "");
+    } catch {
+      setFeedbackMessage("Erro ao eliminar diretórios. Tente novamente.");
     }
-  }
+    setShowFeedbackModal(true);
+  };
 
   const handleDeleteDirectoriesPage = async () => {
-
+    if (!canDelete) return;
     const response = await api.post(`/directory/pages/deleteBulk`, {
       directoriesId: checkboxesSelected
     });
     if (response.status === 200) {
-      setAllDirectories(allDirectories.filter(directory => !checkboxesSelected.includes(directory.DirectoryId)));
       setCheckboxesSelected([]);
-      setSearchTerm("");
-  
+      await fetchData(currentPage, itemsPerPage, searchTerm);
     }
   };
 
   const handleReevaluatePages = async () => {
+    if (!canEdit) return;
     const directoriesId = checkboxesSelected.map(item => item.id);
-    const reEvaluate = radioValue === 1 ? "all" : "observatory";
     try {
-      const response = await api.post(`/directory/reEvaluate`, {
-        directoriesId: directoriesId,
-        option: reEvaluate
+      const response = await api.post('/evaluations', {
+        triggerType: "DIRECTORY",
+        targetIds: directoriesId
       });
+      setShowModal(false);
       if (response.status === 201 || response.status === 200) {
-        setShowModal(false);
         setFeedbackMessage("As páginas irão ser avaliadas em segundo plano, e a sua informação estará disponível assim que possível.");
-        setShowFeedbackModal(true);
       } else {
-        setShowModal(false);
         setFeedbackMessage("Ocorreu um erro ao iniciar a reavaliação.");
-        setShowFeedbackModal(true);
       }
-    } catch (error) {
+      setShowFeedbackModal(true);
+    } catch {
       setShowModal(false);
       setFeedbackMessage("Ocorreu um erro ao iniciar a reavaliação.");
       setShowFeedbackModal(true);
@@ -149,8 +148,19 @@ const DirectoriesList = () => {
       <h1>{t('DIRECTORIES_PAGE.LIST.title_list')}</h1>
       <p>Abaixo encontra a listagem de todos os diretórios registados no AdminMonitorSuite, num total de {totalItems} diretórios.</p>
       <div className="content bg-white">
+        <div className="d-flex gap-2 mb-3">
+          {canCreate && (
+          <Button
+            darkTheme={theme}
+            text="Criar diretório"
+            icon={"AMA-Adicionar-Line"}
+            className="btn-primary"
+            onClick={() => navigate("/dashboard/directories/create")}
+          />
+          )}
+        </div>
         <h2>{t('DIRECTORIES_PAGE.LIST.subtitle_list')}</h2>
-        <div className="d-flex  gap-2 align-items-center mb-3">
+        <div className="d-flex gap-2 align-items-center mb-3">
           <span>{t('MISC.filter')}</span>
           <InputSearch
             darkTheme={theme}
@@ -160,37 +170,11 @@ const DirectoriesList = () => {
             onChange={handleSearchChange}
           />
         </div>
-        <div className="d-flex gap-4 justify-content-start mb-4">
-          <Button
-            darkTheme={theme}
-            text={t('DIRECTORIES_PAGE.LIST.re_evaluate_pages')}
-            icon={"AMA-Adicionar-Line"}
-            className="btn-primary"
-            onClick={() => setShowModal(true)}
-            disabled={checkboxesSelected.length === 0}
-          />
-          <Button
-            darkTheme={theme}
-            text={t('DIRECTORIES_PAGE.LIST.delete_page')}
-            icon={"AMA-Adicionar-Line"}
-            className="btn-primary"
-            onClick={handleDeleteDirectoriesPage}
-            disabled={checkboxesSelected.length === 0}
-          />
-          <Button
-            darkTheme={theme}
-            text={t('DIRECTORIES_PAGE.LIST.delete_directories')}
-            icon={"AMA-Adicionar-Line"}
-            className="btn-primary"
-            onClick={handleDeleteDirectories}
-            disabled={checkboxesSelected.length === 0}
-          />
-        </div>
         <SortingTable
           darkTheme={theme}
-          headers={directoriesHeaders}
-          setDataList={setAllDirectories}
-          dataList={paginatedData}
+          headers={sortHeaders(filterEditColumn(directoriesHeaders, canEdit))}
+          setDataList={setData}
+          dataList={data}
           columnsOptions={columnsOptions(navigate)}
           nextPage={() => null}
           caption={t('DIRECTORIES_PAGE.LIST.table.title')}
@@ -199,9 +183,11 @@ const DirectoriesList = () => {
           setCheckboxesSelected={setCheckboxesSelected}
           checkedItems={checkboxesSelected}
           pagination={true}
+          serverSidePagination={true}
+          onSortChange={onSortChange}
+          maxItemsPerPage={MAX_ITEMS_PER_PAGE}
           totalItems={totalItems}
           currentPage={currentPage}
-          serverSidePagination={true}
           itemsPerPage={itemsPerPage}
           onPageChange={handlePageChange}
           onItemsPerPageChange={handleItemsPerPageChange}
@@ -212,42 +198,56 @@ const DirectoriesList = () => {
             "Última página"
           ]}
           nItemsPerPageTexts={[
-            "Ver",           // see
-            "por página",    // per_page
-            "Selector de itens por página", // selectorAria
-            "Navegação do seletor de itens por página" // selectorNav
+            "Ver",
+            "por página",
+            "Selector de itens por página",
+            "Navegação do seletor de itens por página"
           ]}
           itemsPaginationTexts={[
-            " de ",    // of
-            " itens "  // items
+            " de ",
+            " itens "
           ]}
-          rowKey="DirectoryId"
+          rowKey="id"
         />
+        <div className="d-flex gap-4 justify-content-start mt-3">
+          {canEdit && (
+          <Button
+            darkTheme={theme}
+            text={t('DIRECTORIES_PAGE.LIST.re_evaluate_pages')}
+            icon={"AMA-Adicionar-Line"}
+            className="btn-primary"
+            onClick={() => setShowModal(true)}
+            disabled={checkboxesSelected.length === 0}
+          />
+          )}
+          {canDelete && (
+          <Button
+            darkTheme={theme}
+            text={t('DIRECTORIES_PAGE.LIST.delete_page')}
+            icon={"AMA-Adicionar-Line"}
+            className="btn-primary"
+            onClick={handleDeleteDirectoriesPage}
+            disabled={checkboxesSelected.length === 0}
+          />
+          )}
+          {canDelete && (
+          <Button
+            darkTheme={theme}
+            text={t('DIRECTORIES_PAGE.LIST.delete_directories')}
+            icon={"AMA-Adicionar-Line"}
+            className="btn-primary"
+            onClick={handleDeleteDirectories}
+            disabled={checkboxesSelected.length === 0}
+          />
+          )}
+        </div>
         <Modal
           isOpen={showModal}
           onRequestClose={() => setShowModal(false)}
           title={t('DIRECTORIES_PAGE.LIST.re_evaluate_pages')}
         >
-          <p>Escolha que páginas quer reavaliar</p>
-          <RadioGroup
-                            darkTheme={theme}
-                            data={[
-                                {
-                                    id: '1',
-                                    name:"Todas as páginas"
-                                },
-                                {
-                                    id: '2',
-                                    name: "Apenas as páginas do observatório"
-                                }
-                            ]}
-                            inline
-                            onChange={(value) => setRadioValue(value)}
-                            value={radioValue}
-                            name="format"
-                        />
-
-                        <Button
+          <p>Tem a certeza que pretende reavaliar os diretórios selecionados?</p>
+          <Button
             darkTheme={theme}
             text={t('DIRECTORIES_PAGE.LIST.re_evaluate_pages')}
             icon={"AMA-Adicionar-Line"}
@@ -258,7 +258,7 @@ const DirectoriesList = () => {
         <Modal
           isOpen={showFeedbackModal}
           onRequestClose={() => setShowFeedbackModal(false)}
-          title="Reavaliação"
+          title="Diretórios"
         >
           <p>{feedbackMessage}</p>
           <Button

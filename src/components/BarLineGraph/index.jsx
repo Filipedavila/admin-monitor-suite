@@ -1,10 +1,10 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { Tabs, SortingTable } from "@a12e/accessmonitor-ds";
-import { Bar } from "react-chartjs-2";
+import { AccessibleBarChart } from "../AccessibleBarChart";
 
 import { useTheme } from '../../context/ThemeContext';
 
-export function BarLineGraphTabs({ columnsOptions, dataList, dataHeaders, barData, barOptions, darkTheme }) {
+export function BarLineGraphTabs({ columnsOptions, dataList, dataHeaders, barData, barOptions }) {
   const { theme } = useTheme();
   const memoBarData = useMemo(() => barData, [barData]);
   const memoBarOptions = useMemo(() => barOptions, [barOptions]);
@@ -15,12 +15,10 @@ export function BarLineGraphTabs({ columnsOptions, dataList, dataHeaders, barDat
       title: "Gráfico",
       component: (
         <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-            <Bar 
-              role="img"
-              aria-label="Histograma das pontuações do AccessMonitor"
-              data={memoBarData} 
-              options={memoBarOptions} 
-              darkTheme={darkTheme}
+            <AccessibleBarChart
+              ariaLabel="Histograma das pontuações do AccessMonitor"
+              data={memoBarData}
+              options={memoBarOptions}
             />
         </div>
       ),

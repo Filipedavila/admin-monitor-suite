@@ -1,4 +1,3 @@
-import React from "react";
 import { HtmlHorizontalBar, Tabs, SortingTable } from "@a12e/accessmonitor-ds";
 import { useTheme } from "../../context/ThemeContext";
 

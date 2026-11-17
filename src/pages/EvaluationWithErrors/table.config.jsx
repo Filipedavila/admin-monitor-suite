@@ -1,5 +1,5 @@
 import i18n from '../../i18n';
-const apiUrl = import.meta.env.VITE_API_URL + "/";
+const apiUrl = import.meta.env.VITE_API_URL + import.meta.env.VITE_ROUTE_URL.replace(/\/$/, "") + "/";
 
 export const directoriesHeaders = [
   [
@@ -47,7 +47,6 @@ export const dataRows = [
     CreatedAt: "05/06/2025",
     UpdatedAt: "05/06/2025",
     Error: 134,
-    id: "1",
   },
   {
     id: "2",
@@ -55,6 +54,5 @@ export const dataRows = [
     CreatedAt: "05/06/2025",
     UpdatedAt: "05/06/2025",
     Error: 134,
-    id: "1",
   },
 ];

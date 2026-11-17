@@ -1,14 +1,12 @@
-import React from 'react';
-import { Input, Button, Select, Tabs } from "@a12e/accessmonitor-ds";
+import { Input, Select } from "@a12e/accessmonitor-ds";
 import { useTranslation } from 'react-i18next';
 import moment from 'moment';
 
-const AcessibilityDeclaration = ({ 
-    register, 
-    errors, 
-    darkTheme, 
-    setValue, 
-    complianceValidation, 
+const AcessibilityDeclaration = ({
+    register,
+    errors,
+    darkTheme,
+    complianceValidation,
     onComplianceChange,
     onDateFieldChange,
     declarationDateValidation,
@@ -27,10 +25,10 @@ const AcessibilityDeclaration = ({
               error={complianceValidation?.isValid === false ? complianceValidation.message : errors.compliance?.message}
               required={false}
               options={[
-                { value: "0", label: "Selecione" },
-                { value: "2", label: "Declaração parcialmente conforme" },
-                { value: "3", label: "Declaração plenamente conforme" },
-                { value: "1", label:"Declaração não conforme" },
+                { value: "", label: "Selecione" },
+                { value: "PARTIALLY_CONFORM", label: "Declaração parcialmente conforme" },
+                { value: "CONFORM", label: "Declaração plenamente conforme" },
+                { value: "NON_CONFORM", label: "Declaração não conforme" },
               ]}
               onChange={onComplianceChange}
             />

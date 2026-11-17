@@ -1,4 +1,3 @@
-import React from 'react';
 import { TextArea, Button } from "@a12e/accessmonitor-ds";
 
 const InsertUrl = ({ register, errors, darkTheme, onSubmit, setUrls}) => {
@@ -17,7 +16,7 @@ const InsertUrl = ({ register, errors, darkTheme, onSubmit, setUrls}) => {
           <p>2a. Por submissão de lista de URLs</p>
           <p>
             Compile uma lista de URLs do sítio web pretendido (1 URL por
-            linha) e cole essa lista no campo "Novos URLs" abaixo.
+            linha) e cole essa lista no campo &quot;Novos URLs&quot; abaixo.
           </p>
           <TextArea
             id="urls"

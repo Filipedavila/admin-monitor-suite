@@ -1,4 +1,4 @@
-const apiUrl = import.meta.env.VITE_API_URL + import.meta.env.VITE_ROUTE_URL;
+import { SCORE_RANGE_LABELS } from "../../utils/utils.js";
 
 const theme = "light"
 
@@ -18,17 +18,6 @@ export const columnsOptions = {
   frequency_percent: { type: "Text", center: true, bold: false, decimalPlace: false, property: "frequency_percent" },
   cumulative: { type: "Number", center: true, bold: false, decimalPlace: false, property: "cumulative" },
   cumulative_percent: { type: "Text", center: true, bold: false, decimalPlace: false, property: "cumulative_percent" },
-};
-
-const generateAccessibleId = (name, type) => {
-  // Convert name to lowercase and replace spaces with hyphens
-  const sanitizedName = name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-  
-  // Add type and timestamp for uniqueness
-  return `${type.toLowerCase()}-${sanitizedName}-${Date.now()}`;
 };
 
 export const dataList = [
@@ -97,7 +86,7 @@ export const dataList = [
   }
 ];
 
-export const headersBarLine = ['[1 - 2[', '[2 - 3[', '[3 - 4[', '[4 - 5[', '[5 - 6[', '[6 - 7[', '[7 - 8[', '[8 - 9[', '[9 - 10[']
+export const headersBarLine = SCORE_RANGE_LABELS
 
 export const barData = {
   labels: headersBarLine,

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 const modalStyles = {
   overlay: {
@@ -41,7 +41,8 @@ const modalStyles = {
   },
 };
 
-export function Modal({ isOpen, onRequestClose, title, children }) {
+// initialFocusId (opcional): id do elemento a focar ao abrir; por omissão foca o primeiro focável.
+export function Modal({ isOpen, onRequestClose, title, children, initialFocusId }) {
   const modalRef = useRef(null);
   const previousActiveElement = useRef(null);
 
@@ -54,7 +55,13 @@ export function Modal({ isOpen, onRequestClose, title, children }) {
       const focusModal = () => {
         if (modalRef.current) {
           modalRef.current.focus();
-          
+
+          const initial = initialFocusId ? document.getElementById(initialFocusId) : null;
+          if (initial && modalRef.current.contains(initial)) {
+            initial.focus();
+            return;
+          }
+
           // Try to focus the first focusable element (button, input, etc.)
           const focusableElements = modalRef.current.querySelectorAll(
             'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -75,7 +82,7 @@ export function Modal({ isOpen, onRequestClose, title, children }) {
         previousActiveElement.current.focus();
       }
     }
-  }, [isOpen]);
+  }, [isOpen, initialFocusId]);
 
   // Handle escape key
   useEffect(() => {

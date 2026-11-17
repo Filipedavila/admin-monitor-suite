@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Button, StatisticsHeader, Breadcrumb, TableComponent, StatsTable } from "@a12e/accessmonitor-ds";
+import { useState, useEffect } from "react";
+import { Button, Breadcrumb, TableComponent, StatsTable } from "@a12e/accessmonitor-ds";
 import "./style.users.css";
 import { useParams } from "react-router-dom";
 import { Link, useLocation, useNavigate  } from "react-router-dom";
@@ -47,27 +47,11 @@ const DetailsPageUsers = () => {
   const { theme } = useTheme();
   const { t } = useTranslation();
   const location = useLocation();
-  const [loading, setLoading] = useState(true);
-  const [statsTitle, setWebsiteStatsTitle] = useState([
-    { subtitle: 'Sítios Web', subtitle2: "" },
-    { subtitle: 'Sítios Web não conformes', subtitle2: "" },
-    { subtitle: 'Sítios Web conformes', subtitle2: "" },
-    {
-      subtitle: "Conformidade A",
-      subtitle2: "Sem erros de nível A"
-    },
-    {
-      subtitle: "Conformidade AA",
-      subtitle2: "Sem Erros de Nível A + AA"
-    }, {
-      subtitle: "Conformidade AAA",
-      subtitle2: "Sem erros de nível A + AA + AAA"
-    }
-  ])
+  const [, setLoading] = useState(true);
   const { pageUrl, username, name, id } = useParams();
   const [openModal, setOpenModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [breadcrumbs, setBreadcrumbs] = useState([
+  const [breadcrumbs] = useState([
     { children: <Link to="/dashboard/home">Início</Link> },
     { children: <Link to="/dashboard/users">Utilizadores</Link> },
     { children: <Link to={`/dashboard/users/websites/${username}`}>Sítios Web do Utilizador {username}</Link> },
@@ -160,7 +144,7 @@ const DetailsPageUsers = () => {
 
       setData(mappedData);
       setMatrixData(calculateMatrix(mappedData));
-    } catch (error) {
+    } catch {
       setOpenModal(true);
       setErrorMessage("Erro ao carregar o relatório de acessibilidade da página");
     } finally {
@@ -206,7 +190,7 @@ const DetailsPageUsers = () => {
          col2={"Nível"} 
          col3={"Ver detalhe"} 
          lvlTitle={"Nível: "} 
-         imageTitlesCallback={t => ()=>{}} 
+         imageTitlesCallback={() => ()=>{}} 
          darkTheme={theme} 
          ariaLabels={{
           AA: "duplo ",

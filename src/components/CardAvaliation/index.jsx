@@ -1,10 +1,11 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import './CardAvaliation.css'; // Optional: Add styles in a separate CSS file
 import { Button } from "@a12e/accessmonitor-ds";
 import { Link } from 'react-router-dom';
 import moment from 'moment';
+import { usePermissions } from '../../context/AuthContext';
 const CardAvaliation = ({ title, description, darkTheme, data, handleReset, handleCancel, hasNoButtons }) => {
+    const { canEdit, canDelete } = usePermissions();
     return (
         <div className="d-flex flex-column justify-content-between p-4 card-avaliation">
             <h3 className="mb-3">{title}</h3>
@@ -22,7 +23,7 @@ const CardAvaliation = ({ title, description, darkTheme, data, handleReset, hand
             </ul>
 
 <div className="d-flex gap-3">
-{!hasNoButtons && (
+{!hasNoButtons && canEdit && (
             <Button
                 darkTheme={darkTheme}
                 text="Reiniciar"
@@ -31,7 +32,7 @@ const CardAvaliation = ({ title, description, darkTheme, data, handleReset, hand
                 onClick={handleReset}
             />
 )}
-{!hasNoButtons && ( 
+{!hasNoButtons && canDelete && ( 
             <Button
                 darkTheme={darkTheme}
                 text="Apagar"

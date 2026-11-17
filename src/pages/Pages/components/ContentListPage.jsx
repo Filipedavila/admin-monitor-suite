@@ -1,19 +1,15 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useMemo } from "react";
 import { Button, InputSearch, SortingTable } from "@a12e/accessmonitor-ds";
-import {
-  directoriesHeaders,
-  dataRows,
-  columnsOptions,
-  nameOfIcons,
-  paginationButtonsTexts,
-} from "../table.config";
+import { directoriesHeaders, columnsOptions, nameOfIcons, sortFields } from "../table.config";
+import { toServerSortHeaders, MAX_ITEMS_PER_PAGE } from "../../../hooks/useServerSort";
 import { useTheme } from "../../../context/ThemeContext";
 import { useTranslation } from 'react-i18next';
+import { usePermissions } from "../../../context/AuthContext";
 
-export default function ContentListPages ({ 
-  checkboxesSelected, 
-  setCheckboxesSelected, 
-  data, 
+export default function ContentListPages ({
+  checkboxesSelected,
+  setCheckboxesSelected,
+  data,
   setData,
   totalItems,
   currentPage,
@@ -27,23 +23,23 @@ export default function ContentListPages ({
   handleReevaluatePages,
   handleShowHideObservatory,
   onSortChange,
-  sortField = '',
-  sortDirection = '',
-  useClientSideSorting = false // Issue #60: Use client-side sorting for all data
+  useClientSideSorting = false
 }){
   const { theme } = useTheme();
   const { t } = useTranslation();
-  
+  const { canEdit, canDelete } = usePermissions();
+  // Server-side sorting only applies when the server paginates the data
+  const serverSort = !useClientSideSorting && Boolean(onSortChange);
+
   // Issue #60: Filter data by search if client-side sorting is enabled
   const filteredData = useMemo(() => {
     if (!useClientSideSorting || !search) {
       return data;
     }
     const searchLower = search.toLowerCase();
-    return data.filter(item => 
+    return data.filter(item =>
       item.Uri?.toLowerCase().includes(searchLower) ||
-      item.Score?.toString().includes(searchLower) ||
-      item.Element_Count?.toString().includes(searchLower)
+      item.Score?.toString().includes(searchLower)
     );
   }, [data, search, useClientSideSorting]);
   
@@ -60,35 +56,9 @@ export default function ContentListPages ({
             onChange={handleSearchChange}
             />
         </div>
-        <div className="d-flex gap-4 justify-content-start mb-4">
-          <Button
-            darkTheme={theme}
-            text={"Reavaliar"}
-            icon={"AMA-Adicionar-Line"}
-            className="btn-primary"
-            onClick={handleReevaluatePages}
-            disabled={checkboxesSelected.length === 0}
-            />
-          <Button
-            darkTheme={theme}
-            text={t('PAGES_PAGE.LIST.delete_pages')}
-            icon={"AMA-Adicionar-Line"}
-            className="btn-primary"
-            onClick={handleDeletePages}
-            disabled={checkboxesSelected.length === 0}
-            />
-          <Button
-            darkTheme={theme}
-            text={"Mostrar/Esconder no observatório"}
-            icon={"AMA-Adicionar-Line"}
-            className="btn-primary"
-            onClick={handleShowHideObservatory}
-            disabled={checkboxesSelected.length === 0}
-            />
-        </div>
           <SortingTable
             darkTheme={theme}
-            headers={directoriesHeaders}
+            headers={serverSort ? toServerSortHeaders(directoriesHeaders, sortFields) : directoriesHeaders}
             setDataList={setData}
             dataList={useClientSideSorting ? filteredData : data}
             columnsOptions={columnsOptions}
@@ -106,6 +76,8 @@ export default function ContentListPages ({
             setItemsPerPage={setItemsPerPage}
             onPageChange={onPageChange}
             onItemsPerPageChange={onItemsPerPageChange}
+            onSortChange={serverSort ? onSortChange : undefined}
+            maxItemsPerPage={useClientSideSorting ? undefined : MAX_ITEMS_PER_PAGE}
             paginationButtonsTexts={[
               "Primeira página",
               "Página anterior",
@@ -124,6 +96,38 @@ export default function ContentListPages ({
             ]}
             rowKey="id"
           />
+          <div className="d-flex gap-4 justify-content-start mt-3">
+            {canEdit && (
+            <Button
+              darkTheme={theme}
+              text={"Reavaliar"}
+              icon={"AMA-Adicionar-Line"}
+              className="btn-primary"
+              onClick={handleReevaluatePages}
+              disabled={checkboxesSelected.length === 0}
+            />
+            )}
+            {canDelete && (
+            <Button
+              darkTheme={theme}
+              text={t('PAGES_PAGE.LIST.delete_pages')}
+              icon={"AMA-Adicionar-Line"}
+              className="btn-primary"
+              onClick={handleDeletePages}
+              disabled={checkboxesSelected.length === 0}
+            />
+            )}
+            {canEdit && (
+            <Button
+              darkTheme={theme}
+              text={"Mostrar/Esconder no observatório"}
+              icon={"AMA-Adicionar-Line"}
+              className="btn-primary"
+              onClick={handleShowHideObservatory}
+              disabled={checkboxesSelected.length === 0}
+            />
+            )}
+          </div>
         </div>
   )
 }

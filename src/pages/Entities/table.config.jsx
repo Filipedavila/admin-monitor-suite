@@ -1,5 +1,5 @@
 import i18n from '../../i18n';
-const apiUrl = import.meta.env.VITE_API_URL + import.meta.env.VITE_ROUTE_URL;
+const apiUrl = import.meta.env.VITE_API_URL + import.meta.env.VITE_ROUTE_URL.replace(/\/$/, "") + "/";
 
 export const directoriesHeaders = [
   [
@@ -26,13 +26,6 @@ export const directoriesHeaders = [
     {
       type: "SortingText",
       nRow: 1,
-      name: i18n.t('ENTITIES_PAGE.LIST.table.websites_label'),
-      property: "Websites",
-      justifyCenter: true,
-    },
-    {
-      type: "SortingText",
-      nRow: 1,
       name: i18n.t('ENTITIES_PAGE.LIST.table.edit_label'),
       property: "edit",
       justifyCenter: true,
@@ -42,17 +35,11 @@ export const directoriesHeaders = [
 
 export const columnsOptions = (navigate)=>({
   id: { type: "Checkbox", center: true, bold: false, decimalPlace: false, label:"Selecionar"},
-  Short_Name: { type: "Link", isCheckboxLabel: true, center: false, bold: false, decimalPlace: false, href: (row) => apiUrl + "dashboard/entities/view/" + row.Long_Name },
-  Long_Name: { type: "Text", center: false, bold: false, decimalPlace: false },
+  Short_Name: { type: "Link", isCheckboxLabel: true, center: true, bold: false, decimalPlace: false, href: (row) => apiUrl + "dashboard/entities/view/" + row.Long_Name },
+  Long_Name: { type: "Text", center: true, bold: false, decimalPlace: false },
   Creation_at: { type: "Text", center: true, bold: false, decimalPlace: false },
-  Websites: {
-    type: "Text",
-    center: true,
-    bold: false,
-    decimalPlace: false,
-  },
-  edit: { type: "Button",text:i18n.t('USERS_PAGE.LIST.table.edit_label'), onClick: (row)=>{ 
-    navigate(`${import.meta.env.VITE_ROUTE_URL}dashboard/entities/edit/${row.id}`)
+  edit: { type: "Button", text: i18n.t('USERS_PAGE.LIST.table.edit_label'), onClick: (row) => {
+    navigate(`/dashboard/entities/edit/${row.id}`)
   }, center: true, bold: false, decimalPlace: false },
 });
 
@@ -107,3 +94,6 @@ export const options = [
     tdClassName: "warning-cell",
   },
 ];
+
+// Table column property -> backend sort field (sorts[field]=ASC|DESC)
+export const sortFields = { Short_Name: "shortName", Long_Name: "longName", Creation_at: "createdAt" };

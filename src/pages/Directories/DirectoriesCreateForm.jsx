@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Input, Button, CheckGroup, RadioGroup, Breadcrumb, MultiSelect } from "@a12e/accessmonitor-ds";
+import { useState, useEffect, useCallback, useRef } from 'react';
+import qs from 'qs';
+import { Input, Button, RadioGroup, Breadcrumb } from "@a12e/accessmonitor-ds";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +8,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { api } from '../../config/api';
 import { Modal } from '../../components/Modal';
 import { extractNavigationContext } from '../../utils/navigation';
+import MultiSelectTable from '../../components/MultiSelectTable';
 
 const DirectoriesCreateForm = () => {
     const { register, handleSubmit, formState: { errors }, setValue, watch, trigger, reset } = useForm({
@@ -21,79 +23,85 @@ const DirectoriesCreateForm = () => {
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
     const [feedbackMessage, setFeedbackMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isCategoriesLoading, setIsCategoriesLoading] = useState(false);
+    const searchTimeoutRef = useRef(null);
+    // Tags as loaded from the backend, used to compute the add/remove diff on submit
+    const originalTagIdsRef = useRef([]);
     const navigate = useNavigate();
     const { id } = useParams();
-    // Watch form values for validation
+
     const watchedName = watch("name");
-    const [defaultTags, setDefaultTags] = useState([]);
-    const [isNameInvalid, setIsNameInvalid] = useState(false);
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const response = await api.get('/tag/all');
-                setCategories(response.data.result.map(item => ({
-                    value: item.TagId,
-                    label: item.Name
-                })));
-            } catch (error) {
-                console.error('Error fetching categories:', error);
-                setFeedbackMessage("Erro ao carregar categorias. Tente novamente.");
-                setShowFeedbackModal(true);
-            }
+
+    const fetchCategories = useCallback(async (search) => {
+        setIsCategoriesLoading(true);
+        try {
+            const queryObj = { pagination: { limit: 20, page: 1 } };
+            if (search) queryObj.filters = { searchTerm: search };
+            const query = qs.stringify(queryObj);
+            const response = await api.get(`/tags?${query}`);
+            const fetched = response.data.data.map(item => ({
+                value: item.id,
+                label: item.name,
+            }));
+            setCategories(fetched);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        } finally {
+            setIsCategoriesLoading(false);
         }
+    }, []);
+
+    useEffect(() => {
+        fetchCategories("");
+    }, [fetchCategories]);
+
+    useEffect(() => {
+        if (!id) return;
         const fetchDirectory = async () => {
             try {
-                const response = await api.get(`/directory/info/${id}`);
-                const dir = response.data.result;
-                setValue("name", dir.Name);
-                setShowInObservatory(dir.Show_in_Observatory === 1 ? 'yes' : 'no');
-                setFormat(dir.Method ? String(dir.Method) : '1');
-                setTags(dir.tags.map(tag => tag.TagId));
-                setDefaultTags(dir.tags.map(tag => tag.TagId));
-                trigger("tags");
+                const response = await api.get(`/directories/${id}`);
+                const dir = response.data.data;
+                setValue("name", dir.name);
+                setShowInObservatory(dir.isInObservatory ? 'yes' : 'no');
+                setFormat(dir.tagMatchingStrategy);
+                const tags = await api.get(`/directory/${dir.id}/tags`);
+                const tagsFetched = tags.data.data.map(item => ({
+                    value: item.id,
+                    label: item.name,
+                }));
+                setTags(tagsFetched);
             } catch (error) {
                 console.error('Error fetching directory:', error);
             }
-        }
-        fetchCategories();
-        if (id) {
-            fetchDirectory();
-        }
+        };
+        fetchDirectory();
     }, [id, reset]);
 
-    // Dynamic breadcrumbs based on navigation context
+    const handleCategoryInputChange = (inputValue) => {
+        if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+        searchTimeoutRef.current = setTimeout(() => {
+            fetchCategories(inputValue);
+        }, 300);
+    };
+
     const previousPath = localStorage.getItem('previousPath') || '';
     const navContext = extractNavigationContext(previousPath);
-    
+
     let breadcrumbs = [
         { children: <Link to="/dashboard/home">Início</Link> },
         { children: <Link to="/dashboard/directories">Diretórios</Link> },
-        {
-            title: id ? t('DIRECTORIES_PAGE.EDIT.title') : t('DIRECTORIES_PAGE.ADD.title'),
-        }
+        { title: id ? t('DIRECTORIES_PAGE.EDIT.title') : t('DIRECTORIES_PAGE.ADD.title') }
     ];
 
-    // If editing from a specific directory view
     if (id && navContext && navContext.type === 'directory') {
         breadcrumbs = [
             { children: <Link to="/dashboard/home">Início</Link> },
             { children: <Link to="/dashboard/directories">Diretórios</Link> },
-            { children: <Link to={`/dashboard/directories/view/${id}`}>{watch("name")}</Link> },
-            {
-                title: "Editar Diretório",
-            }
+            { children: <Link to={`/dashboard/directories/view/${id}`}>{watchedName}</Link> },
+            { title: "Editar Diretório" }
         ];
     }
 
-    // Validation function for entities
-    const validateEntities = () => {
-        if (tags.length === 0) {
-            return "Pelo menos uma categoria deve ser selecionada";
-        }
-        return true;
-    };
-
-    // Handle radio button changes
     const handleShowInObservatoryChange = (value) => {
         setShowInObservatory(value);
         setValue("show_in_observatory", value);
@@ -104,73 +112,61 @@ const DirectoriesCreateForm = () => {
         setValue("format", value);
     };
 
-    // Handle entities change with validation
     const handleEntitiesChange = (newEntities) => {
-        console.log('New entities:', newEntities);
-        setTags(newEntities || []);
-        setValue("tags", newEntities || []);
+        const value = newEntities || [];
+        setTags(value);
+        setValue("tags", value.map(item => item.value));
         trigger("tags");
     };
 
-    const handleValidateName = async (data) => {
-        const response = await api.get(`/directory/exists/${data}`);
-        setIsNameInvalid(response.data.result);
-    }
-
     const onSubmit = async (data) => {
-        console.log('Form data:', data);
-        console.log('Tags:', tags);
-        // Validate entities before submission
-        const entitiesValidation = validateEntities();
-        if (entitiesValidation !== true) {
-            setFeedbackMessage(entitiesValidation);
+        if (tags.length === 0) {
+            setFeedbackMessage("Pelo menos uma categoria deve ser selecionada");
             setShowFeedbackModal(true);
             return;
         }
-
-        // Validate name length
-        if (data.name && data.name.length < 3) {
-            setFeedbackMessage("O nome do diretório deve ter pelo menos 3 caracteres");
-            setShowFeedbackModal(true);
-            return;
-        }
-
-        if (data.name && data.name.length > 100) {
-            setFeedbackMessage("O nome do diretório não pode exceder 100 caracteres");
-            setShowFeedbackModal(true);
-            return;
-        }
+        console.log(format)
 
         setIsSubmitting(true);
-
         try {
-            const formData = {
+            let formData = {
                 name: data.name,
-                observatory: showInObservatory === 'yes' ? 1 : 0,
-                method: format === '1' ? 1 : 0,
-                tags: tags
-
+                strategy: format,
+                isInObservatory: showInObservatory === 'yes',
             };
+
             let response;
+            let directoryId = id;
             if (id) {
-                formData.directoryId = Number(id);
-                formData.defaultTags = defaultTags;
-                response = await api.post(`/directory/update`, formData);
+                formData.directoryId = id;
+                response = await api.patch(`/directories`, formData);
             } else {
-                response = await api.post('/directory/create', formData);
+                response = await api.post('/directories', formData);
+                directoryId = response.data?.data?.id ?? response.data?.id;
             }
+
             if (response.status === 201 || response.status === 200) {
+                if (directoryId) {
+                    const currentTagIds = new Set(tags.map(item => Number(item.value)));
+                    const originalTagIds = new Set(originalTagIdsRef.current);
+                    const add = [...currentTagIds].filter(tagId => !originalTagIds.has(tagId));
+                    const remove = [...originalTagIds].filter(tagId => !currentTagIds.has(tagId));
+                    if (add.length > 0 || remove.length > 0) {
+                        await api.patch(`/directory/${directoryId}/tags`, { add, remove });
+                    }
+                }
+
                 setFeedbackMessage(id ? "Diretório atualizado com sucesso!" : "Diretório criado com sucesso!");
-                setValue("name", "");
+                reset();
                 setShowInObservatory('yes');
                 setFormat('1');
                 setTags([]);
                 navigate('/dashboard/directories');
             } else {
                 setFeedbackMessage("Erro ao salvar diretório. Tente novamente.");
+                setShowFeedbackModal(true);
             }
         } catch (error) {
-            console.error('Error saving directory:', error);
             if (error.response?.status === 409) {
                 setFeedbackMessage("Já existe um diretório com este nome. Escolha outro nome.");
             } else if (error.response?.status === 400) {
@@ -178,25 +174,25 @@ const DirectoriesCreateForm = () => {
             } else {
                 setFeedbackMessage("Erro ao salvar diretório. Tente novamente.");
             }
+            setShowFeedbackModal(true);
         } finally {
             setIsSubmitting(false);
-            setShowFeedbackModal(true);
         }
     };
 
     return (
         <div>
             <Breadcrumb data={breadcrumbs} />
-
             <h1>{id ? "Editar Diretório" : "Criar Diretório"}</h1>
-           
+
             <form className="bg-white p-4 mt-3" onSubmit={handleSubmit(onSubmit)}>
-                 <p>Um Diretório é um agregador de sítios web. Os Diretórios têm por objetivo publicar sítios web publicamente no Observatório. Os Diretórios são construídos com base nas Categorias/tags que se encontram agarradas aos sítios web.</p>
-            <p>Os Diretórios podem ser construídos:</p>
-            <ul>
-                <li>por interseção das Categorias. A interseção é uma operação entre conjuntos que resulta em um novo conjunto formado por todos os elementos que são comuns a dois ou mais conjuntos originais.</li>
-                <li>por reunião das Categorias. A reunião, ou união, de conjuntos refere-se à combinação de todos os elementos de dois ou mais conjuntos.</li>
-            </ul>
+                <p>Um Diretório é um agregador de sítios web. Os Diretórios têm por objetivo publicar sítios web publicamente no Observatório. Os Diretórios são construídos com base nas Categorias/tags que se encontram agarradas aos sítios web.</p>
+                <p>Os Diretórios podem ser construídos:</p>
+                <ul>
+                    <li>por interseção das Categorias. A interseção é uma operação entre conjuntos que resulta em um novo conjunto formado por todos os elementos que são comuns a dois ou mais conjuntos originais.</li>
+                    <li>por reunião das Categorias. A reunião, ou união, de conjuntos refere-se à combinação de todos os elementos de dois ou mais conjuntos.</li>
+                </ul>
+
                 <div className='w-50 d-flex flex-column gap-3'>
                     <Input
                         label={t('DIRECTORIES_PAGE.ADD.name_label')}
@@ -205,22 +201,13 @@ const DirectoriesCreateForm = () => {
                         value={watchedName}
                         placeholder="Nome do diretório"
                         type="text"
-                        {...register("name", { 
-                            required: <div dangerouslySetInnerHTML={{__html: t('MISC.required_field')}} />,
-                            minLength: {
-                                value: 3,
-                                message: "Nome deve ter pelo menos 3 caracteres"
-                            },
-                            maxLength: {
-                                value: 100,
-                                message: "Nome não pode exceder 100 caracteres"
-                            }
+                        {...register("name", {
+                            required: <div dangerouslySetInnerHTML={{ __html: t('MISC.required_field') }} />,
+                            minLength: { value: 3, message: "Nome deve ter pelo menos 3 caracteres" },
+                            maxLength: { value: 100, message: "Nome não pode exceder 100 caracteres" }
                         })}
-                            onChange={(e) => {
-                            setValue("name", e.target.value);
-                            handleValidateName(e.target.value);
-                        }}
-                        error={errors.name?.message || isNameInvalid ? "O nome do diretório já existe" : ""}
+                        onChange={(e) => setValue("name", e.target.value)}
+                        error={errors.name?.message}
                     />
 
                     <fieldset>
@@ -228,23 +215,14 @@ const DirectoriesCreateForm = () => {
                         <RadioGroup
                             darkTheme={theme}
                             data={[
-                                {
-                                    id: 'yes',
-                                    name: "Sim"
-                                },
-                                {
-                                    id: 'no',
-                                    name: "Não"
-                                }
+                                { id: 'yes', name: "Sim" },
+                                { id: 'no', name: "Não" }
                             ]}
                             inline
                             onChange={handleShowInObservatoryChange}
                             value={showInObservatory}
                             name="show_in_observatory"
                         />
-                        {errors.show_in_observatory && (
-                            <div className="text-danger mt-1">{errors.show_in_observatory.message}</div>
-                        )}
                     </fieldset>
 
                     <fieldset>
@@ -252,35 +230,32 @@ const DirectoriesCreateForm = () => {
                         <RadioGroup
                             darkTheme={theme}
                             data={[
-                                {
-                                    id: '1',
-                                    name: t('DIRECTORIES_PAGE.ADD.intersection')
-                                },
-                                {
-                                    id: '2',
-                                    name: t('DIRECTORIES_PAGE.ADD.union')
-                                }
+                                { id: 'INTERSECTION', name: t('DIRECTORIES_PAGE.ADD.intersection') },
+                                { id: 'UNION', name: t('DIRECTORIES_PAGE.ADD.union') }
                             ]}
                             inline
                             onChange={handleFormatChange}
                             value={format}
                             name="format"
                         />
-                        {errors.format && (
-                            <div className="text-danger mt-1">{errors.format.message}</div>
-                        )}
                     </fieldset>
 
                     <div>
                         <label>{t('DIRECTORIES_PAGE.ADD.select_categories')} *</label>
-                        <MultiSelect
+                        <MultiSelectTable
                             id="entities"
                             darkTheme={theme}
-                            name="tags"
-                            value={tags || []}
-                            onChange={handleEntitiesChange}
+                            selected={tags || []}
+                            onSelectedChange={handleEntitiesChange}
                             options={categories}
-                            placeholder="Selecione pelo menos uma categoria"
+                            onInputChange={handleCategoryInputChange}
+                            isLoading={isCategoriesLoading}
+                            placeholder="Pesquise e selecione categorias..."
+                            noOptionsMessage={() => "Nenhuma categoria encontrada"}
+                            loadingMessage={() => "A pesquisar..."}
+                            columnLabel="Categoria"
+                            tableCaption="Categorias selecionadas"
+                            emptyMessage="Nenhuma categoria selecionada."
                         />
                         {(tags || []).length === 0 && (
                             <div className="text-danger mt-1">Pelo menos uma categoria deve ser selecionada</div>
@@ -291,8 +266,11 @@ const DirectoriesCreateForm = () => {
                         <Button
                             type="submit"
                             darkTheme={theme}
-                            text={isSubmitting ? (id ? "A atualizar..." : "A guardar...") : (id ? "Atualizar e Sair" : t('ADMIN_CONSOLE.save_and_exit'))}
-                            disabled={isSubmitting || !watchedName || (tags || []).length === 0 || isNameInvalid}
+                            text={isSubmitting
+                                ? (id ? "A atualizar..." : "A guardar...")
+                                : (id ? "Atualizar e Sair" : t('ADMIN_CONSOLE.save_and_exit'))
+                            }
+                            disabled={isSubmitting || !watchedName || (tags || []).length === 0}
                         />
                         <Button
                             type="button"
@@ -316,16 +294,11 @@ const DirectoriesCreateForm = () => {
                     darkTheme={theme}
                     text="OK"
                     className="btn-primary"
-                    onClick={() => {
-                        setShowFeedbackModal(false);
-                        if (feedbackMessage === (id ? "Diretório atualizado com sucesso!" : "Diretório criado com sucesso!")) {
-                            navigate('/dashboard/directories');
-                        }
-                    }}
+                    onClick={() => setShowFeedbackModal(false)}
                 />
             </Modal>
         </div>
     );
-}
+};
 
 export default DirectoriesCreateForm;

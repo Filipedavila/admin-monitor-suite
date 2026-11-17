@@ -1,5 +1,4 @@
 // Table headers for SortingTable
-import i18n from "../../i18n";
 
 export const directoriesHeaders = [
   [

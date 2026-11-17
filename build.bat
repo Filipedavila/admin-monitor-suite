@@ -7,10 +7,10 @@ REM === Configurações ===
 powershell -Command "npm run build"
 
 REM Caminho da pasta que você quer zipar
-set "sourceFolder=C:\Users\bento.julio\Documents\projects\AMA\AMS(React)\dist"
+set "sourceFolder=C:\Users\bento.julio\Documents\projects\AMA\admin-monitor-suite\dist"
 
 REM Caminho e nome do arquivo zip de saída
-set "zipFile=C:\Users\bento.julio\Documents\projects\AMA\AMS(React)\dist.zip"
+set "zipFile=C:\Users\bento.julio\Documents\projects\AMA\admin-monitor-suite\dist.zip"
 
 REM === Comando PowerShell para criar o zip ===
 powershell -Command "Compress-Archive -Path '%sourceFolder%\*' -DestinationPath '%zipFile%' -Force"

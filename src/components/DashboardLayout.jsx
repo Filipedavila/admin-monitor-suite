@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import { DashboardMenu, Breadcrumb, InputSearch, Button, Icon } from "@a12e/accessmonitor-ds";
-import { useNavigate, Link } from "react-router-dom";
+import { DashboardMenu, Button, Icon } from "@a12e/accessmonitor-ds";
+import { useNavigate } from "react-router-dom";
 import Logo from "../assets/logo-header.svg"; 
 import { useTheme } from "../context/ThemeContext";
 import { useTranslation } from "react-i18next";
+import SessionInfo from "./SessionInfo";
+import ChangePassword from "./ChangePassword";
+import Toasts from "./Toasts";
 
 const DashboardLayout = () => {
 
@@ -26,65 +29,16 @@ const DashboardLayout = () => {
   const propsDashboardMenu = {
     menuItems: [
       { id: "/dashboard/home", label: "Início", icon: "AMA-MenuCimaGrande-Line", url: "/dashboard/home" },
-      { 
-        id: "see", 
-        label: "Ver/Gerir", 
-        icon: "AMA-Visible-Line", 
-        url: "/",
-        submenu: [
-          { id: "/dashboard/global", label: "Global", icon: "AMA-MarcadorGrande-Line", url: "/dashboard/global" },
-          { id: "/dashboard/directories", label: "Diretórios", icon: "AMA-Pasta-Line", url: "/dashboard/directories" },
-          { id: "/dashboard/categories", label: "Categorias/Tags", icon: "AMA-MarcadorGrande-Line", url: "/dashboard/categories" },
-          { id: "/dashboard/entities", label: "Entidades", icon: "AMA-Edificio-Line", url: "/dashboard/entities" },
-          { id: "/dashboard/websites", label: "Sítios web", icon: "AMA-Globo-Line", url: "/dashboard/websites" },
-          { id: "/dashboard/pages", label: "Páginas", icon: "AMA-Paginas-Line", url: "/dashboard/pages" },
-          { id: "/dashboard/users", label: "Utilizadores", icon: "AMA-Pessoa-Line", url: "/dashboard/users" },
-          { id: "/dashboard/usersgov", label: "Utilizadores Gov", icon: "AMA-DuasPessoas-Line", url: "/dashboard/usersgov" },
-               {
-            id: "/dashboard/crawler",
-            label: "Crawlers",
-            icon: "AMA-DownloadSetacurta-Line",
-            url: "/dashboard/crawler",
-          }
-        ],
-        activeItem: "/dashboard/home",
-      },
-      { 
-        id: "create",
-        label: "Criar",
-        icon: "AMA-Mais-Line",
-        url: "/dashboard/users/create",
-        submenu: [
-          { id: "/dashboard/directories/create", label: "Diretórios", icon: "AMA-Pasta-Line", url: "/dashboard/directories/create" },
-          { id: "/dashboard/categories/create", label: "Categorias", icon: "AMA-MarcadorGrande-Line", url: "/dashboard/categories/create" },
-          { id: "/dashboard/entities/create", label: "Entidades", icon: "AMA-Edificio-Line", url: "/dashboard/entities/create" },
-          { id: "/dashboard/websites/create", label: "Sítios web", icon: "AMA-Globo-Line", url: "/dashboard/websites/create" },
-          { id: "/dashboard/pages/create", label: "Páginas", icon: "AMA-Paginas-Line", url: "/dashboard/pages/create" },
-          { id: "/dashboard/users/create", label: "Utilizadores", icon: "AMA-Pessoa-Line", url: "/dashboard/users/create" },
-          { id: "/dashboard/usersgov/create", label: "Utilizadores Gov", icon: "AMA-DuasPessoas-Line", url: "/dashboard/usersgov/create" }
-        ],
-        activeItem: "home",
-      },
-      {
-        id: "dev",
-        label: "Ferramentas de programador",
-        icon: "AMA-Opcao-Line",
-        url: "/dashboard/statistics",
-        submenu: [
-          {
-            id: "/dashboard/logs",
-            label: "Logs",
-            icon: "AMA-SiteAcessibilidade-Line",
-            url: "/dashboard/logs"
-          }
-        ]
-      }
-     /* {
-        id: "/dashboard/acessiblityDeclaration",
-        label: "Declarações de Acessibilidade",
-        icon: "AMA-DeclaracaoDark-Line",
-        url: "/dashboard/acessiblityDeclaration"
-      }*/
+      { id: "/dashboard/global", label: "Global", icon: "AMA-MarcadorGrande-Line", url: "/dashboard/global" },
+      { id: "/dashboard/directories", label: "Diretórios", icon: "AMA-Pasta-Line", url: "/dashboard/directories" },
+      { id: "/dashboard/categories", label: "Categorias/Tags", icon: "AMA-MarcadorGrande-Line", url: "/dashboard/categories" },
+      { id: "/dashboard/entities", label: "Entidades", icon: "AMA-Edificio-Line", url: "/dashboard/entities" },
+      { id: "/dashboard/websites", label: "Sítios web", icon: "AMA-Globo-Line", url: "/dashboard/websites" },
+      { id: "/dashboard/pages", label: "Páginas", icon: "AMA-Paginas-Line", url: "/dashboard/pages" },
+      { id: "/dashboard/users", label: "Utilizadores", icon: "AMA-Pessoa-Line", url: "/dashboard/users" },
+      { id: "/dashboard/teams", label: "Equipas", icon: "AMA-DuasPessoas-Line", url: "/dashboard/teams" },
+      { id: "/dashboard/crawler", label: "Crawlers", icon: "AMA-DownloadSetacurta-Line", url: "/dashboard/crawler" },
+      { id: "/dashboard/logs", label: "Logs", icon: "AMA-SiteAcessibilidade-Line", url: "https://10.55.37.16/grafana" },
     ]
   };
 
@@ -122,6 +76,30 @@ const DashboardLayout = () => {
   }, [location.pathname]);
 
 
+  // O menu do design system renderiza <a href="{basename}{id}"> para todos os itens. Para itens com
+  // URL absoluta (Logs/Grafana) esse href é uma rota que não existe, por isso o clique é intercetado
+  // (ainda antes do React) e o URL externo abre numa nova janela, sem navegar a app.
+  useEffect(() => {
+    const externalItems = propsDashboardMenu.menuItems.filter((item) => /^https?:\/\//i.test(item.url ?? ""));
+    if (externalItems.length === 0) return undefined;
+    const onClick = (event) => {
+      if (event.button !== 0 && event.type !== "auxclick") return;
+      const link = event.target instanceof Element ? event.target.closest("aside a[href]") : null;
+      if (!link) return;
+      const item = externalItems.find((candidate) => link.getAttribute("href")?.endsWith(candidate.id));
+      if (!item) return;
+      event.preventDefault();
+      event.stopPropagation();
+      window.open(item.url, "_blank", "noopener,noreferrer");
+    };
+    document.addEventListener("click", onClick, true);
+    document.addEventListener("auxclick", onClick, true);
+    return () => {
+      document.removeEventListener("click", onClick, true);
+      document.removeEventListener("auxclick", onClick, true);
+    };
+  }, []);
+
   const handleMenuItemClick = (id) => {
     setActiveItem(id);
     localStorage.setItem("activeMenuItem", JSON.stringify(id));
@@ -130,6 +108,15 @@ const DashboardLayout = () => {
     }
     navigate(typeof id === "object" ? id.url : id);
   };
+
+  const apiUrl = localStorage.getItem("@AMS:apiUrl") || "";
+  const environmentLabel = apiUrl.includes("http://10.55.37.16")
+    ? { abbr: "DEV", title: "Desenvolvimento" }
+    : apiUrl.includes("http://10.55.37.17")
+      ? { abbr: "PPR", title: "Pré-produção" }
+      : apiUrl.includes("https://accessmonitor.acessibilidade.gov.pt")
+        ? { abbr: "PRD", title: "Produção" }
+        : null;
 
   return (
     <div className={`main-content-dashboard ${theme === 'dark' ? 'dark-theme' : 'light-theme'} ${isMenuCollapsed ? 'menu-collapsed' : ''}`}>
@@ -173,6 +160,8 @@ const DashboardLayout = () => {
             onClick={() => {
               localStorage.removeItem('@AMS:user');
               localStorage.removeItem('@AMS:token');
+              localStorage.removeItem('@AMS:authorizationLevel');
+              localStorage.removeItem('@AMS:amsEnv');
               navigate("/login");
             }}
             iconRight={<Icon
@@ -185,13 +174,13 @@ const DashboardLayout = () => {
       </header>
       <aside>
 
-      {
-        (localStorage.getItem("@AMS:apiUrl") || "").includes("http://10.55.37.17")  ?
-         <h2>AMS - <abbr title="Desenvolvimento">DEV</abbr></h2> :
-        (localStorage.getItem("@AMS:apiUrl") || "").includes("https://accessmonitor.acessibilidade.gov.pt")
-        ? <h2>AMS - <abbr title="Produção">PRD</abbr></h2>
-        : <h2>AMS - <abbr title="Pré-produção">PPR</abbr></h2>
-        }
+        {environmentLabel && (
+          <h2>
+            AMS - <abbr title={environmentLabel.title}>{environmentLabel.abbr}</abbr>
+          </h2>
+        )}
+        {/* The sidebar background is always dark, so the button uses the DS dark variant. */}
+        <SessionInfo userAction={<ChangePassword theme="dark" size="sm" />} />
         <DashboardMenu
           basename="/ams"
           activeItem={activeItem}
@@ -213,6 +202,7 @@ const DashboardLayout = () => {
           />
         <Outlet />
       </main>
+      <Toasts />
       <footer className="app-footer p-4">
         <div className="footer-inner d-flex flex-column justify-content-between align-items-center">
           <strong>AdminMonitorSutie v.1.0.1</strong>

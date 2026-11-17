@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Tabs } from "@a12e/accessmonitor-ds";
 import { 
   dataHeaders, 
@@ -14,7 +14,7 @@ export default function GoodBadTab() {
     const { theme } = useTheme();
     const [dataGood, setDataGood] = useState(dataRows)
     const [dataBad, setDataBad] = useState(dataRows)
-    const [checkboxesSelected, setCheckboxesSelected] = useState([])
+    const [, setCheckboxesSelected] = useState([])
 
     useEffect(() => {
         // Initialize data if needed

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { Button, StatisticsHeader, Breadcrumb, SortingTable } from "@a12e/accessmonitor-ds";
+import { useState, useEffect } from "react";
+import qs from "qs";
+import { Button, Breadcrumb, SortingTable } from "@a12e/accessmonitor-ds";
 import "./style.users.css";
 import { useParams } from "react-router-dom";
 import { directoriesHeadersPage, dataRowsPage, columnsOptionsPage, nameOfIcons, paginationButtonsTexts } from "./table.config.jsx";
-import GoodBadTab from "../../components/GoodBadTab/GoodBadTab.jsx";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from '../../context/ThemeContext';
 import { api } from "../../config/api";
@@ -13,22 +13,6 @@ import { calculateTotalElements } from "../../utils/utils";
 const ViewPages = () => {
   const { theme } = useTheme();
   const location = useLocation();
-  const [statsTitle, setWebsiteStatsTitle] = useState([
-    { subtitle: 'Sítios Web', subtitle2: "" },
-    { subtitle: 'Sítios Web não conformes', subtitle2: "" },
-    { subtitle: 'Sítios Web conformes', subtitle2: "" },
-    {
-      subtitle: "Conformidade A",
-      subtitle2: "Sem erros de nível A"
-    },
-    {
-      subtitle: "Conformidade AA",
-      subtitle2: "Sem Erros de Nível A + AA"
-    }, {
-      subtitle: "Conformidade AAA",
-      subtitle2: "Sem erros de nível A + AA + AAA"
-    }
-  ])
   const [breadcrumbs, setBreadcrumbs] = useState([]);
   const [data, setData] = useState(dataRowsPage)
   const [checkboxesSelected, setCheckboxesSelected] = useState([])
@@ -91,18 +75,39 @@ const ViewPages = () => {
     }
 
     const fetchData = async () => {
-      const response = await api.get(`/evaluation/admin/page/${encodeURIComponent(pageUrl)}`);
-      console.log(response)
-      setData(response.data.result.map(item => ({
-        id: item.EvaluationId,
-        date_avaliation: moment(item.Evaluation_Date).format('DD/MM/YYYY'),
-        score: item.Score,
-        elementsNumber: calculateTotalElements(JSON.parse(item.Tag_Count)),
-        A: item.A,
-        AA: item.AA,
-        AAA: item.AAA,
-        state: "Relatório",
-      })));
+      const pagesQuery = qs.stringify({ filters: { searchTerm: pageUrl } });
+      const pagesResponse = await api.get(`/pages?${pagesQuery}`);
+      const page = pagesResponse.data.data.find(item => item.url === pageUrl) ?? pagesResponse.data.data[0];
+      if (!page) {
+        setData([]);
+        return;
+      }
+      const websiteId = page.websiteId ?? page.website?.id;
+
+      const evaluationsQuery = qs.stringify(
+        { contexts: ["MONITOR", "AMS"], sorts: { createdAt: "DESC" } },
+        { arrayFormat: "brackets" }
+      );
+      const response = await api.get(`/evaluations/website/${websiteId}/page/${page.id}?${evaluationsQuery}`);
+      const evaluations = response.data.data.data;
+      setData(evaluations.map(item => {
+        const elementCount = item.tagCount && typeof item.tagCount === "object"
+          ? calculateTotalElements(item.tagCount)
+          : Number(item.tagCount) || 0;
+
+        return {
+          id: item.id,
+          date_avaliation: item.evaluationDate
+            ? moment(item.evaluationDate).format('DD/MM/YYYY')
+            : (item.createdAt ? moment(item.createdAt).format('DD/MM/YYYY') : 'Pendente'),
+          score: item.score ?? "-",
+          elementsNumber: elementCount,
+          A: item.A,
+          AA: item.AA,
+          AAA: item.AAA,
+          state: "Relatório",
+        };
+      }));
     };
     fetchData();
   }, [pageUrl]);
@@ -131,7 +136,7 @@ const ViewPages = () => {
 
       <div className="mt-5 bg-white">
         <h2>Exportação de dados</h2>
-        <p>Para exportar os dados da última avaliação da página pressione o botão "Exportar úlitma avaliação da página em CSV". Para exportar os dados de todas as avaliações efetuadas à página pressione "Exportar todas as avaliações da página em CSV".
+        <p>Para exportar os dados da última avaliação da página pressione o botão &quot;Exportar úlitma avaliação da página em CSV&quot;. Para exportar os dados de todas as avaliações efetuadas à página pressione &quot;Exportar todas as avaliações da página em CSV&quot;.
         </p>
         <div className="d-flex justify-content-start align-items-end gap-3">
           <Button

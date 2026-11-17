@@ -1,5 +1,5 @@
 import moment from "moment";
-import { getSimplifiedPracticesData } from "./utils.js";
+import { getSimplifiedPracticesData, SCORE_BUCKETS, scoreBucketIndex, scoreRangeLabel } from "./utils.js";
 /**
  * Optimized function to fetch and aggregate data for multiple directories
  * @param {string[]} directoryNames - Array of directory names to aggregate data for
@@ -49,7 +49,7 @@ export const aggregateDirectoriesData = async (directoryNames, api) => {
     let newestDate = new Date(evaluatedPages[0].Evaluation_Date);
     
     // Initialize score distribution buckets
-    const scoreDistribution = new Array(9).fill(0);
+    const scoreDistribution = new Array(SCORE_BUCKETS).fill(0);
     
     // Single iteration for multiple calculations
     evaluatedPages.forEach(page => {
@@ -61,10 +61,7 @@ export const aggregateDirectoriesData = async (directoryNames, api) => {
       if (evalDate > newestDate) newestDate = evalDate;
       
       // Calculate score distribution in single pass
-      const bucketIndex = Math.min(Math.floor(score) - 1, 8);
-      if (bucketIndex >= 0 && bucketIndex < 9) {
-        scoreDistribution[bucketIndex]++;
-      }
+      scoreDistribution[scoreBucketIndex(score)]++;
     });
 
     const averageScore = totalScore / evaluatedPages.length;
@@ -101,7 +98,7 @@ export const aggregateDirectoriesData = async (directoryNames, api) => {
     let nonConformantWebsites = 0;
     let conformCounts = { A: 0, AA: 0, AAA: 0 };
 
-    Object.entries(websiteConformanceData).forEach(([websiteId, conformanceData]) => {
+    Object.entries(websiteConformanceData).forEach(([, conformanceData]) => {
       if (conformanceData.hasErrors) {
         nonConformantWebsites++;
       } else {
@@ -139,6 +136,14 @@ export const aggregateDirectoriesData = async (directoryNames, api) => {
       errors: {}
     };
 
+    const toCriteriaList = (scs) => {
+      if (!scs) return [];
+      const list = Array.isArray(scs)
+        ? scs
+        : (typeof scs === 'string' ? scs.split(',') : []);
+      return list.map(c => String(c).trim()).filter(Boolean);
+    };
+
     // Process successful practices
     const dataListDetails = [];
     simplifiedPracticesData.success.forEach(item => {
@@ -150,23 +155,18 @@ export const aggregateDirectoriesData = async (directoryNames, api) => {
       });
 
       // Group by success criteria (scs is already available in the item)
-      const scs = item.scs;
-      if (scs && scs !== '') {
-        const criteriaList = scs.split(',');
-        criteriaList.forEach(criteria => {
-          const trimmedCriteria = criteria.trim();
-          if (!practicesBySuccessCriteria.success[trimmedCriteria]) {
-            practicesBySuccessCriteria.success[trimmedCriteria] = [];
-          }
-          practicesBySuccessCriteria.success[trimmedCriteria].push({
-            practice: `ELEMS.${item.practice}`,
-            pages: item.pages,
-            occurrences: item.occurrences,
-            level: item.level.toUpperCase(),
-            websiteCount: item.pages
-          });
+      toCriteriaList(item.scs).forEach(trimmedCriteria => {
+        if (!practicesBySuccessCriteria.success[trimmedCriteria]) {
+          practicesBySuccessCriteria.success[trimmedCriteria] = [];
+        }
+        practicesBySuccessCriteria.success[trimmedCriteria].push({
+          practice: `ELEMS.${item.practice}`,
+          pages: item.pages,
+          occurrences: item.occurrences,
+          level: item.level.toUpperCase(),
+          websiteCount: item.pages
         });
-      }
+      });
     });
     
     // Process error practices
@@ -180,23 +180,18 @@ export const aggregateDirectoriesData = async (directoryNames, api) => {
       });
 
       // Group by success criteria (scs is already available in the item)
-      const scs = item.scs;
-      if (scs && scs !== '') {
-        const criteriaList = scs.split(',');
-        criteriaList.forEach(criteria => {
-          const trimmedCriteria = criteria.trim();
-          if (!practicesBySuccessCriteria.errors[trimmedCriteria]) {
-            practicesBySuccessCriteria.errors[trimmedCriteria] = [];
-          }
-          practicesBySuccessCriteria.errors[trimmedCriteria].push({
-            practice: `ELEMS.${item.practice}`,
-            pages: item.pages,
-            occurrences: item.occurrences.toString().includes("lang") ? "N/A" : item.occurrences,
-            level: item.level.toUpperCase(),
-            websiteCount: item.pages
-          });
+      toCriteriaList(item.scs).forEach(trimmedCriteria => {
+        if (!practicesBySuccessCriteria.errors[trimmedCriteria]) {
+          practicesBySuccessCriteria.errors[trimmedCriteria] = [];
+        }
+        practicesBySuccessCriteria.errors[trimmedCriteria].push({
+          practice: `ELEMS.${item.practice}`,
+          pages: item.pages,
+          occurrences: item.occurrences.toString().includes("lang") ? "N/A" : item.occurrences,
+          level: item.level.toUpperCase(),
+          websiteCount: item.pages
         });
-      }
+      });
     });
 
     // Format data for WCAG Success Criteria display
@@ -223,7 +218,7 @@ export const aggregateDirectoriesData = async (directoryNames, api) => {
     const dataListBar = scoreDistribution.map((frequency, index) => {
       const cumulative = scoreDistribution.slice(0, index + 1).reduce((acc, curr) => acc + curr, 0);
       return {
-        range: `[${index + 1} - ${index + 2}[`,
+        range: scoreRangeLabel(index),
         frequency: frequency,
         frequency_percent: `${((frequency / totalPages) * 100).toFixed(2)}%`,
         cumulative: cumulative,

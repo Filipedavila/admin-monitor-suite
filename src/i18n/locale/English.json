@@ -2,7 +2,24 @@
   "HEADER": {
     "name": "Admin console",
     "logout": "Logout",
-    "optional": "(optional)"
+    "optional": "(optional)",
+    "session": {
+      "label": "Current session",
+      "environment": "Environment",
+      "profile": "Profile",
+      "user": "User",
+      "environments": {
+        "development": "Development",
+        "test": "Test",
+        "preproduction": "Pre-production",
+        "production": "Production"
+      },
+      "profiles": {
+        "manager": "Manager",
+        "editor": "Editor",
+        "viewer": "Viewer"
+      }
+    }
   },
   "LOGIN": {
     "title": "Login",
@@ -419,6 +436,16 @@
     }
   },
   "WEBSITES_PAGE": {
+    "URL": {
+      "label": "Starting URL",
+      "required": "The starting URL is required.",
+      "invalid": "Invalid URL. Use a full address starting with http:// or https://, without spaces or characters such as < > \" { } | \\ ^ `.",
+      "update_error": "The other website details were saved, but the URL could not be changed. Please try again.",
+      "update_invalid": "The other website details were saved, but the server rejected the new URL as invalid.",
+      "update_conflict": "The other website details were saved, but the URL was not changed because a website with this URL already exists.",
+      "update_forbidden": "The other website details were saved, but you do not have permission to change the URL.",
+      "general_update_error": "The website details could not be saved. The URL was not changed. Please try again."
+    },
     "LIST": {
       "title_list": "Websites",
       "subtitle_list": "List of website pages",
@@ -552,6 +579,13 @@
         "see_tooltip": "See page"
       }
     },
+    "DELETE": {
+      "none_selected": "Select at least one page to delete.",
+      "success_one": "Page deleted successfully.",
+      "success_other": "{{count}} pages deleted successfully.",
+      "error": "The pages could not be deleted. Please try again.",
+      "forbidden": "You do not have permission to delete these pages."
+    },
     "ADD": {
       "title": "Create a new page",
       "description": "Create a new page for the applications Study Monitor or My Monitor",
@@ -611,7 +645,9 @@
     }
   },
   "BREADCRUMB": {
-    "tag_here": "You are here"
+    "tag_here": "You are here",
+    "edit_website": "Edit website",
+    "create_website": "Create website"
   },
   "ELEMENT_RESULTS": {
     "result": {
@@ -622,6 +658,89 @@
       "code": "Code",
       "content": "Content",
       "location": "Location"
+    }
+  },
+  "EVENTS": {
+    "actor_you": "you",
+    "actor_user": "user {{id}}"
+  },
+  "CRAWLER_EVENTS": {
+    "started_by": "Crawler started by {{actor}}: website {{website}} ({{url}}).",
+    "started": "Crawler started: website {{website}} ({{url}}).",
+    "completed": "Crawler completed: website {{website}} ({{url}}).",
+    "failed": "Crawler failed: website {{website}} ({{url}}). Reason: {{reason}}",
+    "stalled": "Crawler stalled with no progress: website {{website}} ({{url}})."
+  },
+  "EVALUATIONS": {
+    "event_started_by": "Evaluation started by {{actor}}: website {{website}}{{scope}}.",
+    "event_started": "Evaluation started: website {{website}}{{scope}}.",
+    "event_completed": "Evaluation completed: website {{website}}{{scope}}.",
+    "event_completed_failed": "Evaluation completed with failures ({{failed}} of {{total}} pages): website {{website}}{{scope}}.",
+    "scope_institution": "entity {{id}}",
+    "scope_directories": "directories {{ids}}",
+    "started_one": "Evaluation of 1 website was requested. Its pages will be evaluated in the background and the results will be available as soon as possible.",
+    "started_other": "Evaluation of {{count}} websites was requested. Their pages will be evaluated in the background and the results will be available as soon as possible.",
+    "partial": "Evaluation could not be requested for {{failed}} of {{total}} websites (for example, websites without pages). The others will be evaluated in the background.",
+    "error": "The evaluation could not be started. Please try again.",
+    "forbidden": "You do not have permission to evaluate these websites.",
+    "no_websites": "There are no websites to evaluate in the selection.",
+    "none_selected_websites": "Select at least one website to re-evaluate."
+  },
+  "WEBSITES_DELETE": {
+    "none_selected": "Select at least one website to delete.",
+    "success_one": "Website deleted successfully.",
+    "success_other": "{{count}} websites deleted successfully.",
+    "error": "The websites could not be deleted. Please try again.",
+    "forbidden": "You do not have permission to delete these websites."
+  },
+  "CRAWL_TAGS": {
+    "button_selected": "Crawling categories",
+    "button_one": "Find pages of the category",
+    "loading": "Requesting page discovery...",
+    "description": "Requests automatic page discovery (crawling) for all websites in this category. The process runs in the background and the results appear in the Crawler.",
+    "feedback_title": "Automatic page discovery",
+    "started_one": "Page discovery was requested for 1 category. The process runs in the background and the results appear in the Crawler.",
+    "started_other": "Page discovery was requested for {{count}} categories. The process runs in the background and the results appear in the Crawler.",
+    "partial": "Page discovery could not be requested for {{failed}} of {{total}} categories. The others will be processed in the background.",
+    "error": "Page discovery could not be started. Please try again.",
+    "forbidden": "You do not have permission to run page discovery for these categories.",
+    "none_selected": "Select at least one category to find pages."
+  },
+  "CHANGE_PASSWORD": {
+    "open_button": "Change password",
+    "title": "Change password",
+    "description": "To change your account password, enter your current password and the new password twice.",
+    "current_password_label": "Current password",
+    "new_password_label": "New password",
+    "confirm_password_label": "Confirm new password",
+    "required": "Required field",
+    "submit": "Change password",
+    "submitting": "Changing...",
+    "cancel": "Cancel",
+    "success": "Your password was changed successfully.",
+    "errors": {
+      "bad_request": "The submitted data is not valid. Check your current password and the new password.",
+      "unauthorized": "The current password is incorrect.",
+      "forbidden": "You do not have permission to change the password.",
+      "generic": "The password could not be changed. Please try again."
+    },
+    "policy": {
+      "title": "The new password must have:",
+      "met": "met",
+      "unmet": "not met",
+      "error": "The new password does not meet all the listed rules.",
+      "rules": {
+        "minLength_one": "at least {{count}} character",
+        "minLength_other": "at least {{count}} characters",
+        "minLowercase_one": "at least {{count}} lowercase letter",
+        "minLowercase_other": "at least {{count}} lowercase letters",
+        "minUppercase_one": "at least {{count}} uppercase letter",
+        "minUppercase_other": "at least {{count}} uppercase letters",
+        "minNumbers_one": "at least {{count}} number (0-9)",
+        "minNumbers_other": "at least {{count}} numbers (0-9)",
+        "minSymbols_one": "at least {{count}} symbol (for example ! ? @ # _)",
+        "minSymbols_other": "at least {{count}} symbols (for example ! ? @ # _)"
+      }
     }
   }
 } 

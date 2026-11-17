@@ -1,18 +1,28 @@
-import React, { useState, useEffect } from "react";
-import { Button, StatisticsHeader, Breadcrumb, TableComponent, StatsTable } from "@a12e/accessmonitor-ds";
+import { useState, useEffect } from "react";
+import qs from "qs";
+import { Breadcrumb, TableComponent, StatsTable } from "@a12e/accessmonitor-ds";
 import "./style.users.css";
 import { useParams } from "react-router-dom";
-import { directoriesHeadersPage, dataRowsPage, columnsOptionsPage, nameOfIcons, paginationButtonsTexts } from "./table.config.jsx";
-import GoodBadTab from "../../components/GoodBadTab/GoodBadTab.jsx";
 import { Link, useLocation, useNavigate  } from "react-router-dom";
 import { useTheme } from '../../context/ThemeContext.jsx';
 import { api } from "../../config/api.js";
-import moment from "moment";
 import Indicators from "../../components/Indicators/index.jsx";
 import { ruleset } from  "@a12e/accessmonitor-rulesets";
 import { useTranslation } from "react-i18next";
 import { getEffectiveNavigationContext } from "../../utils/navigation";
-import { calculateTotalElements, getTestDisplayValue } from "../../utils/utils";
+import { calculateTotalElements } from "../../utils/utils";
+
+// `ruleset` is keyed by internal rule ids (e.g. "title_06"), each with a `.test`
+// field holding the test name (e.g. "titleOk"). The `/nodes` evaluation endpoint
+// keys its results by that test name, so build a reverse lookup to resolve the
+// rule definition (level, ref, scs) and the original rule key for i18n lookups.
+const ruleByTest = Object.entries(ruleset).reduce((acc, [key, def]) => {
+  if (def?.test && !acc[def.test]) {
+    acc[def.test] = { key, ...def };
+  }
+  return acc;
+}, {});
+
 const calculateMatrix = (data) => {
   const matrix = {
     A: { ok: 0, err: 0, war: 0 },
@@ -51,24 +61,7 @@ const DetailsPage = () => {
   const { theme } = useTheme();
   const { t } = useTranslation();
   const location = useLocation();
-  const [resultData, setResult] = useState({});
 
-  const [statsTitle, setWebsiteStatsTitle] = useState([
-    { subtitle: 'Sítios Web', subtitle2: "" },
-    { subtitle: 'Sítios Web não conformes', subtitle2: "" },
-    { subtitle: 'Sítios Web conformes', subtitle2: "" },
-    {
-      subtitle: "Conformidade A",
-      subtitle2: "Sem erros de nível A"
-    },
-    {
-      subtitle: "Conformidade AA",
-      subtitle2: "Sem Erros de Nível A + AA"
-    }, {
-      subtitle: "Conformidade AAA",
-      subtitle2: "Sem erros de nível A + AA + AAA"
-    }
-  ])
   const [breadcrumbs, setBreadcrumbs] = useState([]);
   const [data, setData] = useState([
     {
@@ -175,63 +168,104 @@ const DetailsPage = () => {
     }
 
     const fetchData = async () => {
-      const response = await api.get(`/evaluation/${encodeURIComponent(pageUrl)}/${id}`); 
-      const result = response.data.result.data;
-      localStorage.setItem('@AMS:evalData', JSON.stringify(result));
-      setListItems([
-        { title: 'Pontuação média', value: result.score },
-        { title: 'URL', value: result.tot.info.url},
-        { title: 'Título', value: result.tot.info.title },
-        { title: 'Nº de elementos (x)HTML	', value: calculateTotalElements(result.tot.info.cTags) },
-        { title: 'Tamanho da página	', value: result.tot.info.size + " bytes"},
-      ]);
-  
-  const mappedData = Object.keys(result.tot.results).map(itemKey => {
-    
-  const testData = ruleset[itemKey] || {};
-  const level = testData.level?.toUpperCase() ?? '';
-  const resultType = testData.result ?? 'passed';
-  const displayValue = getTestDisplayValue(testData.test, itemKey, result.tot);
-  const title = typeof displayValue === 'number' && displayValue > 1 ? '.p' : '.s';
-  const successCriteria = testData.scs ? testData.scs : [];
+      let websiteId;
+      let pageId;
+      let pageUrlValue = pageUrl;
+      try {
+        const pagesQuery = qs.stringify({ filters: { searchTerm: pageUrl } });
+        const pagesResponse = await api.get(`/pages?${pagesQuery}`);
+        const page = pagesResponse.data.data.find(item => item.url === pageUrl) ?? pagesResponse.data.data[0];
+        websiteId = page?.websiteId ?? page?.website?.id;
+        pageId = page?.id;
+        pageUrlValue = page?.url ?? pageUrl;
+      } catch (error) {
+        console.error("Erro ao localizar a página", error);
+      }
 
-  return {
-    id: itemKey,
-    title: <div dangerouslySetInnerHTML={{__html: t('TESTS_RESULTS.' + itemKey + title, {value: displayValue})}} />,
-    lvl: level,
-    component: (
-      <div className="text-start">
-        <div dangerouslySetInnerHTML={{ __html: t('TXT_TECHNIQUES.' + (testData.ref ?? '')) }} />
-        {successCriteria.length > 0 && (
-          <>
-            <span>Esta técnica WCAG 2.1 está relacionada com:</span>
-            <ul>
-              {successCriteria.map(sc => (
-                <li className="list-table" key={sc}>
-                  Critério de sucesso {sc} <em>(Nível {level})</em>
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
-      </div>
-    ),
-    iconName: resultType === "warning" ? "AMA-Middle-Line" : resultType === "failed" ? "AMA-Wrong-Line" : "AMA-Check-Line",
-    ele: itemKey,
-    tdClassName: resultType === "warning" ? "warning-cell" : resultType === "failed" ? "error-cell" : "success-cell"
-  };
-});
-      setData(mappedData);
-      setMatrixData(calculateMatrix(mappedData));
+      let pageSize;
+      try {
+        const legacyResponse = await api.get(`/evaluation/${encodeURIComponent(pageUrl)}/${id}`);
+        const legacyResult = legacyResponse.data.result.data;
+        pageSize = legacyResult?.tot?.info?.size;
+      } catch (error) {
+        console.error("Erro ao carregar dados legados da avaliação (tamanho da página)", error);
+      }
 
+      if (!websiteId || !pageId) {
+        return;
+      }
+
+      try {
+        const summaryResponse = await api.get(`/evaluations/website/${websiteId}/page/${pageId}/evaluation/${id}`);
+        const summary = summaryResponse.data?.data ?? summaryResponse.data;
+        const elementCount = summary.tagCount && typeof summary.tagCount === "object"
+          ? calculateTotalElements(summary.tagCount)
+          : Number(summary.tagCount) || 0;
+
+        setListItems([
+          { title: 'Pontuação média', value: summary.score },
+          { title: 'URL', value: pageUrlValue },
+          { title: 'Título', value: summary.pageTitle },
+          { title: 'Nº de elementos (x)HTML	', value: elementCount },
+          { title: 'Tamanho da página	', value: pageSize != null ? pageSize + " bytes" : "-" },
+        ]);
+      } catch (error) {
+        console.error("Erro ao carregar o sumário da avaliação da página", error);
+      }
+
+      try {
+        const nodesResponse = await api.get(`/evaluations/website/${websiteId}/page/${pageId}/evaluation/${id}/nodes`);
+        const nodesPayload = nodesResponse.data?.data ?? nodesResponse.data;
+
+        const mappedData = Object.keys(nodesPayload).map(itemKey => {
+          const entries = nodesPayload[itemKey] || [];
+          // nodesPayload is keyed by test name (e.g. "titleOk"); resolve the matching
+          // ruleset entry (and its own rule key, e.g. "title_06") through ruleByTest.
+          const testData = ruleByTest[itemKey] || {};
+          const ruleKey = testData.key ?? itemKey;
+          const level = testData.level?.toUpperCase() ?? '';
+          const resultType = entries.some(entry => entry.verdict === 'failed')
+            ? 'failed'
+            : entries.some(entry => entry.verdict === 'warning')
+              ? 'warning'
+              : 'passed';
+          const displayValue = entries.reduce((sum, entry) => sum + (entry.elements?.length || 0), 0);
+          const title = displayValue > 1 ? '.p' : '.s';
+          const successCriteria = testData.scs ? testData.scs : [];
+
+          return {
+            id: itemKey,
+            title: <div dangerouslySetInnerHTML={{__html: t('TESTS_RESULTS.' + ruleKey + title, {value: displayValue})}} />,
+            lvl: level,
+            component: (
+              <div className="text-start">
+                <div dangerouslySetInnerHTML={{ __html: t('TXT_TECHNIQUES.' + (testData.ref ?? '')) }} />
+                {successCriteria.length > 0 && (
+                  <>
+                    <span>Esta técnica WCAG 2.1 está relacionada com:</span>
+                    <ul>
+                      {successCriteria.map(sc => (
+                        <li className="list-table" key={sc}>
+                          Critério de sucesso {sc} <em>(Nível {level})</em>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </div>
+            ),
+            iconName: resultType === "warning" ? "AMA-Middle-Line" : resultType === "failed" ? "AMA-Wrong-Line" : "AMA-Check-Line",
+            ele: ruleKey,
+            tdClassName: resultType === "warning" ? "warning-cell" : resultType === "failed" ? "error-cell" : "success-cell"
+          };
+        });
+        setData(mappedData);
+        setMatrixData(calculateMatrix(mappedData));
+      } catch (error) {
+        console.error("Erro ao carregar a matriz de práticas e a tabela de avaliação da página", error);
+      }
     }
-    try {
-      fetchData();
-    } catch (error) {
-      console.log(mappedData);
-      setOpenModal(true);
-      setErrorMessage("Erro ao carregar o relatório de acessibilidade da página");
-    }
+    fetchData();
   }, [pageUrl, id, t]);
   return (
     <div>
@@ -262,14 +296,14 @@ const DetailsPage = () => {
      
         <div className="d-flex justify-content-start align-items-end gap-3">
          <TableComponent 
-            onClick={(e, i) => {navigate(`/dashboard/pages/detailed/${encodeURIComponent(pageUrl)}/${e}/${id}`)}} 
+            onClick={(e) => {navigate(`/dashboard/pages/detailed/${encodeURIComponent(pageUrl)}/${e}/${id}`)}} 
             data={data} 
             caption={"Práticas avaliadas"} 
             col1={"Prática encontrada"} 
             col2={"Nível"} 
             col3={"Ver detalhe"} 
             lvlTitle={"Nível: "} 
-            imageTitlesCallback={t => ()=>{}} 
+            imageTitlesCallback={() => ()=>{}} 
             darkTheme={theme} 
             ariaLabels={{ 
               AA: "duplo ",

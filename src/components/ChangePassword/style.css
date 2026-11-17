@@ -1,0 +1,35 @@
+/* Password fields at a comfortable reading width; full width on narrow screens (w-100 caps at the container). */
+.change-password-form__field {
+  max-width: 28rem;
+}
+
+/*
+ * New password rules: icon shape (circled check vs. circled X, same DS icon family) and hidden text
+ * carry the state; colour only reinforces it. Non-text contrast: light on #fff, green 6.5:1, red 5.3:1;
+ * dark on #21242c, green 10.3:1, red 4.6:1.
+ */
+.change-password-policy__rule {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.change-password-policy__rule i {
+  margin-top: 0.2em;
+}
+
+.change-password-policy__rule.is-met i {
+  color: var(--ama-color-green-700, #206b35);
+}
+
+.change-password-policy__rule.is-unmet i {
+  color: var(--ama-color-red-500, #c8313b);
+}
+
+.dark-theme .change-password-policy__rule.is-unmet i {
+  color: var(--ama-color-red-400, #db6872);
+}
+
+.dark-theme .change-password-policy__rule.is-met i {
+  color: var(--ama-color-green-300, #6deb98);
+}
