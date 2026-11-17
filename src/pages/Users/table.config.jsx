@@ -1,64 +1,46 @@
+import { Link } from "react-router-dom";
 import i18n from '../../i18n';
 
 export const directoriesHeaders = [
   [
     { type: "Checkbox", nRow: 1, name: i18n.t('MISC.select'), property: "id", label: i18n.t('MISC.select') },
     { type: "SortingText", nRow: 1, name: i18n.t('USERS_PAGE.LIST.table.username_label'), property: "Username" },
-    { type: "SortingText", nRow: 1, name: i18n.t('USERS_PAGE.LIST.table.app_label'), property: "Type" },
-    { type: "SortingText", nRow: 1, name: i18n.t('USERS_PAGE.LIST.table.websites_label'), property: "Websites", justifyCenter: true },
-    { type: "SortingText", nRow: 1, name: i18n.t('USERS_PAGE.LIST.table.last_login_label'), property: "Last_Login", justifyCenter: true },
-    { type: "SortingText", nRow: 1, name: i18n.t('USERS_PAGE.LIST.table.register_label'), property: "Register_Date", justifyCenter: true },
+    { type: "SortingText", nRow: 1, name: "Aplicação", property: "Aplicacao", justifyCenter: true },
+    { type: "SortingText", nRow: 1, name: "Perfil", property: "Perfil", justifyCenter: true },
+    { type: "SortingText", nRow: 1, name: "Equipas", property: "Equipas", justifyCenter: true },
+    { type: "SortingText", nRow: 1, name: "Sítios Web", property: "SitiosWeb", justifyCenter: true },
     { type: "SortingText", nRow: 1, name: i18n.t('USERS_PAGE.LIST.table.edit_label'), property: "edit", justifyCenter: true },
   ],
 ];
 
 export const columnsOptions = (navigate)=>({
-  id: { type: "Checkbox", center: true, bold: false, decimalPlace: false, 
-   },
+  id: { type: "Checkbox", center: true, bold: false, decimalPlace: false },
   Username: {
-    type: "Link",
+    type: "Text",
     center: true,
-    bold: false,
+    bold: true,
     decimalPlace: false,
-    isCheckboxLabel: true,
-    href: (row) => (row.Type === "MyMonitor" ? `.${import.meta.env.VITE_ROUTE_URL}users/websites/${row.Username}` : "#"),
     children: (row, value) => {
-      const linkClass = "ama-typography-body bold";
-      if (row.Type === "MyMonitor") {
-        const href = `.${import.meta.env.VITE_ROUTE_URL}users/websites/${row.Username}`;
+      if (row.Aplicacao === "MONITOR") {
         return (
-          <a href={href} className={linkClass} id={`link_${row.id}_Username`}>
+          <Link to={`/dashboard/users/websites/${row.Username}`} className="ama-typography-body bold">
             {value}
-          </a>
-        );
-      }
-      return (
-        <label htmlFor={'checkbox_' + row.id} className={linkClass}>
-          {value}
+          </Link>
+        )
+      } else{
+        return (
+          <label htmlFor={'checkbox_' + row.id} className="ama-typography-body bold">
+            {value}
         </label>
-      );
+      )
+    }
     }
   },
-  Type: { type: "Text", center: false, bold: false, decimalPlace: false },
-  Websites: {
-    type: "Text",
-    center: true,
-    bold: false,
-    decimalPlace: false,
-  },
-  Last_Login: {
-    type: "Text",
-    center: true,
-    bold: false,
-    decimalPlace: false,
-  },
-  Register_Date: {
-    type: "Text",
-    center: true,
-    bold: false,
-    decimalPlace: false,
-  },
-  edit: { type: "Button",text:i18n.t('USERS_PAGE.LIST.table.edit_label'), onClick: (row)=>{navigate(`/dashboard/users/edit/${row.id}`)}, center: true, bold: false, decimalPlace: false },
+  Aplicacao: { type: "Text", center: true, bold: false, decimalPlace: false },
+  Perfil: { type: "Text", center: true, bold: false, decimalPlace: false },
+  Equipas: { type: "Text", center: true, bold: false, decimalPlace: false },
+  SitiosWeb: { type: "Text", center: true, bold: false, decimalPlace: false },
+  edit: { type: "Button", text: i18n.t('USERS_PAGE.LIST.table.edit_label'), onClick: (row) => { navigate(`/dashboard/users/edit/${row.id}`) }, center: true, bold: false, decimalPlace: false },
 });
 
 export const dataRows = [
@@ -131,7 +113,7 @@ export const websiteUsersColumnsOptions = (navigate, handleImportWebsite)=>({
   id: { type: "Skip", center: false, bold: false, decimalPlace: false },
   StartingUrl: { type: "Skip", center: false, bold: false, decimalPlace: false },
   Name: { type: "Link", center: false, bold: false, decimalPlace: false,
-   href: (row)=>`.${import.meta.env.VITE_ROUTE_URL}pages/${row.Username}/${row.Name}` },
+   href: (row)=>`${import.meta.env.VITE_ROUTE_URL.replace(/\/$/, "")}/dashboard/users/websites/pages/${row.Username}/${row.Name}` },
   Creation_Date: { type: "Text", center: true, bold: false, decimalPlace: false},
   import: { type: "Button",text:i18n.t('WEBSITES_PAGE.LIST.table.import'), onClick: (row)=>{ 
     handleImportWebsite(row);
@@ -152,7 +134,7 @@ export const pagesUsersHeaders = [
   ],
 ];
 
-export const pagesUsersColumnsOptions = (navigate, handleImportPage, canImportPage)=>({
+export const pagesUsersColumnsOptions = (navigate, handleImportPage)=>({
   id: { type: "Skip", center: false, bold: false, decimalPlace: false },
   ShowIn: { type: "Skip", center: false, bold: false, decimalPlace: false },
   Username: { type: "Skip", center: false, bold: false, decimalPlace: false },
@@ -171,3 +153,6 @@ export const pagesUsersColumnsOptions = (navigate, handleImportPage, canImportPa
     decimalPlace: false 
   },
 });
+
+// Table column property -> backend sort field (sorts[field]=ASC|DESC)
+export const sortFields = { Username: "username", Aplicacao: "role" };

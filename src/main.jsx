@@ -1,5 +1,4 @@
 import './i18n';
-import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import "@a12e/accessmonitor-ds/dist/index.css";
@@ -22,7 +21,6 @@ import {
   ArcElement,
   Filler,
 } from "chart.js";
-import App from './App';
 
 ChartJS.register(
   CategoryScale,

@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Button, StatisticsHeader, Breadcrumb, Tabs } from "@a12e/accessmonitor-ds";
+import { Breadcrumb, Tabs } from "@a12e/accessmonitor-ds";
 import "./style.users.css";
-import { directoriesHeaders, dataRows, columnsOptions, nameOfIcons, paginationButtonsTexts } from "../Directories/table.config.jsx";
 import { Link } from "react-router-dom";
 import { 
     dataHeaders as dataHeadersBar, 
@@ -19,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 const GlobalDirectories = () => {
   const { theme } = useTheme();
   const { t } = useTranslation();
-  const [statsTitle, setWebsiteStatsTitle] = useState([
+  const [statsTitle] = useState([
 
     { subtitle: 'Sítios Web', subtitle2: "" },
     { subtitle: 'Sítios Web não conformes', subtitle2: "" },
@@ -41,8 +40,6 @@ const GlobalDirectories = () => {
     { children: <Link to="/dashboard/home">Início</Link> },
     { title: "Global" }
   ];
-  const [data, setData] = useState(dataRows)
-  const [checkboxesSelected, setCheckboxesSelected] = useState([])
 const barDataCopy = JSON.parse(JSON.stringify(barDataBar));
 const barOptionsCopy = JSON.parse(JSON.stringify(barOptionsBar));
 const tabs = [

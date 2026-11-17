@@ -1,96 +1,100 @@
-import { useState, useEffect, useMemo, memo, useRef } from "react";
-import { Button, StatisticsHeader, Breadcrumb, SortingTable, RadioGroup, Tabs } from "@a12e/accessmonitor-ds";
+import { useState, useEffect, useMemo, memo } from "react";
+import { sortFields } from "../Websites/table.config.jsx";
+import { useServerSort } from "../../hooks/useServerSort";
+import qs from "qs";
+import { Button, Breadcrumb, SortingTable, Tabs } from "@a12e/accessmonitor-ds";
 import "./style.users.css";
-import { Bar, Radar } from "react-chartjs-2";
-import { Link, useParams, useLocation } from "react-router-dom";
+import { Bar } from "react-chartjs-2";
+import { ScoreDistributionRadar } from "../../components/ScoreDistributionRadar";
+import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import {
   barData,
   barOptions,
 } from "../../components/BarLineGraph/table.config.jsx";
-import {
-  columnsOptionsDetails,
-  detailsTableHeaders,
-  detailsTable,
-  ariaLabels
-} from "../Directories/table.config.jsx";
+import { columnsOptionsDetails, detailsTableHeaders, ariaLabels } from "../Directories/table.config.jsx";
 import { useTheme } from "../../context/ThemeContext.jsx";
 import ContentListWebSites from "../Websites/components/ContentListWebSites.jsx";
-import { barOptionsDark, dataRows as dataRowsWebSites } from "../Websites/table.config.jsx";
+import { barOptionsDark } from "../Websites/table.config.jsx";
 import { useTranslation } from "react-i18next";
 import Indicators from "../../components/Indicators";
 import { api } from "../../config/api";
-import moment from "moment";
-import { downloadCSV, getSimplifiedPracticesData } from "../../utils/utils.js";
-import { translations } from "@a12e/accessmonitor-rulesets";
-import CrawlingModal from "../../components/CrawlingModal";
+import { buildScopedAnalyticsView } from "../../utils/utils.js";
+import { downloadAnalyticsExport } from "../../services/analytics.js";
 import { Modal } from "../../components/Modal";
 import { setRootNavigationContext } from "../../utils/navigation";
+import { usePermissions } from "../../context/AuthContext";
+import { deleteWebsites, getDeleteWebsitesErrorKey } from "../../services/websites";
+import { evaluateWebsites, getEvaluationFeedback } from "../../services/evaluations";
 
 const ViewEntitiesComponent = () => {
   const location = useLocation();
   const { entityName } = useParams();
   const { theme } = useTheme();
+  const { canEdit, canDelete } = usePermissions();
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [breadcrumbs, setBreadcrumbs] = useState([]);
   const [data, setData] = useState([]);
   const [checkboxesSelected, setCheckboxesSelected] = useState([]);
-  const [radarWebsites, setRadarWebsites] = useState([]);
   const [barDataDynamic, setBarDataDynamic] = useState(barData);
   const [dataListBar, setDataListBar] = useState([]);
   // Memoize initial empty states
   const initialSuccessCriteria = useMemo(() => ({}), []);
-  const [radioValue, setRadioValue] = useState(1)
   const [listItems, setListItems] = useState([]);
   const [listItemsGlobal, setListItemsGlobal] = useState([]);
   const [dataListDetails, setDataListDetails] = useState([]);
   const [dataListDetailsBad, setDataListDetailsBad] = useState([]);
   const [successCriteriaSuccess, setSuccessCriteriaSuccess] = useState(initialSuccessCriteria);
   const [successCriteriaErrors, setSuccessCriteriaErrors] = useState(initialSuccessCriteria);
-  const barDataCopy = JSON.parse(JSON.stringify(barData || {}));
   const barOptionsCopy = JSON.parse(JSON.stringify(barOptions || {}));
 
-  const radarData = useMemo(() => ({
-    labels: radarWebsites.map(w => w.url.split('/').slice(2).join('/') || w.url),
-    datasets: [{
-      label: "Pontuação por sítio Web",
-      data: radarWebsites.map(w => Number(w.averageScore)),
-      backgroundColor: 'rgba(255, 136, 136, 0.4)',
-      borderColor: 'rgba(255, 136, 136, 1)',
-      borderWidth: 2,
-      pointBackgroundColor: 'rgba(255, 136, 136, 1)',
-      pointRadius: 4,
-    }]
-  }), [radarWebsites]);
-
-  const radarOptions = useMemo(() => ({
-    responsive: true,
-    plugins: {
-      legend: { labels: { color: theme === "light" ? "black" : "white" } }
-    },
-    scales: {
-      r: {
-        beginAtZero: true,
-        suggestedMin: 0,
-        suggestedMax: 10,
-        pointLabels: { display: false },
-        ticks: { color: theme === "light" ? "black" : "white", backdropColor: 'transparent' },
-        grid: { color: theme === "light" ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.1)" },
-        angleLines: { color: theme === "light" ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.1)" },
-      }
-    }
-  }), [theme]);
   const [showModal, setShowModal] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-  const [showCrawlingModal, setShowCrawlingModal] = useState(false);
+  const [, setShowCrawlingModal] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [search, setSearch] = useState("");
-  const [originalData, setOriginalData] = useState([]); 
-  const [dataForCSV, setDataForCSV] = useState([]);
-  const [counter, setCounter] = useState(0);
-  const [isLoadingWebsites, setIsLoadingWebsites] = useState(true);
+  const [institutionId, setInstitutionId] = useState(null);
+  const [totalItems, setTotalItems] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
+  const { sorts, onSortChange } = useServerSort(sortFields, () => setCurrentPage(1));
+  const [websitesVersion, setWebsitesVersion] = useState(0);
+  const [, setIsLoadingWebsites] = useState(true);
   const [isProcessingStats, setIsProcessingStats] = useState(true);
-  const [websitesError, setWebsitesError] = useState(null);
-  const [hasInitialLoad, setHasInitialLoad] = useState(false);
+  const [, setWebsitesError] = useState(null);
+  const [, setHasInitialLoad] = useState(false);
+
+
+  const resolveEntityId = async () => {
+    const query = qs.stringify({ filters: { searchTerm: entityName }, pagination: { limit: 20, page: 1 } });
+    const response = await api.get(`/institutions/?${query}`);
+    const match = (response.data?.data || []).find(item => item.longName === entityName);
+    return match?.id ?? null;
+  };
+
+
+  // Same endpoint/query shape as the Websites page (src/pages/Websites/index.jsx),
+  // scoped to this entity via filters[institutionId] — server-side pagination + search.
+  const fetchWebsitesPage = async (id, page, limit, searchTerm) => {
+    const queryObj = {
+      pagination: { limit, page },
+      filters: { institutionId: id },
+    };
+    if (searchTerm) queryObj.filters.searchTerm = searchTerm;
+    if (sorts) queryObj.sorts = sorts;
+    const query = qs.stringify(queryObj);
+    const response = await api.get(`/websites?${query}`);
+    const { data: items, pagination } = response.data;
+    const mapped = (items || []).map(item => ({
+      id: item.id,
+      Title: item.title,
+      BaseUrl: item.baseUrl,
+      Creation_Date: new Date(item.createdAt),
+      edit: "Editar",
+    }));
+    return { mapped, totalItems: pagination?.totalItems ?? mapped.length };
+  };
+
   useEffect(() => {
     setBreadcrumbs([
       { children: <Link to="/dashboard/home">Início</Link> },
@@ -118,218 +122,83 @@ const ViewEntitiesComponent = () => {
 
   useEffect(() => {
     let isCancelled = false;
+    const resolve = async () => {
+      setIsLoadingWebsites(true);
+      setWebsitesError(null);
+      setCurrentPage(1);
+      setSearch("");
+      try {
+        const id = await resolveEntityId();
+        if (isCancelled) return;
+        setInstitutionId(id);
+        if (!id) {
+          setData([]);
+          setTotalItems(0);
+          setIsLoadingWebsites(false);
+        }
+      } catch (error) {
+        console.error("Error resolving entity:", error);
+        setWebsitesError('Erro ao carregar dados da entidade');
+        setIsLoadingWebsites(false);
+      }
+    };
+    resolve();
+    return () => {
+      isCancelled = true;
+    };
+  }, [entityName]);
+
+  // Fetch the (paginated/searched) website list for the table — mirrors the debounced
+  // fetch in Websites/index.jsx — whenever the entity, paging, search or a mutation
+  // (via websitesVersion) changes.
+  useEffect(() => {
+    if (!institutionId) return;
+    let isCancelled = false;
+    const timeout = setTimeout(async () => {
+      try {
+        const { mapped, totalItems: total } = await fetchWebsitesPage(institutionId, currentPage, itemsPerPage, search);
+        if (isCancelled) return;
+        setData(mapped);
+        setTotalItems(total);
+        setIsLoadingWebsites(false);
+      } catch (error) {
+        console.error("Error fetching entity websites:", error);
+        setWebsitesError('Erro ao carregar sítios web da entidade');
+        setIsLoadingWebsites(false);
+      }
+    }, 300);
+    return () => {
+      isCancelled = true;
+      clearTimeout(timeout);
+    };
+  }, [institutionId, currentPage, itemsPerPage, search, websitesVersion, sorts]);
+
+  // Load entity-wide metrics from /analytics/institution/{id} once the institution id
+  // is resolved — independent of the table's pagination/search.
+  useEffect(() => {
+    if (!institutionId) {
+      setHasInitialLoad(true);
+      return;
+    }
+    let isCancelled = false;
 
     const fetchData = async () => {
       try {
-        // Reset flags for new entity
         setHasInitialLoad(false);
-        
-        // Phase 1: Load websites quickly
-        setIsLoadingWebsites(true);
-        setWebsitesError(null);
-        const response = await api.get(`/entity/websites/${entityName}`);
-        const websites = response.data.result || [];
-
-        if (isCancelled) return;
-
-        const websitesRows = websites.map(item => ({
-          id: item.WebsiteId,
-          Name: item.Name,
-          StartingUrl: item.StartingUrl,
-          Pages: item.Pages + "(" + item.Evaluated_Pages + ")",
-          Creation_Date: moment(item.Creation_Date).format('DD/MM/YYYY'),
-          Declaration: item.Declaration === null ? "Não avaliado" : item.Declaration === 1 ? "Selo de Ouro" : item.Declaration === 2 ? "Selo de Prata" : item.Declaration === 3 ? "Selo de Bronze" : "Declaração não conforme",
-          edit: "Editar",
-        }));
-
-        setData(websitesRows);
-        setOriginalData(websitesRows);
-        setDataForCSV(websites.map(item => ({WebsiteId: item.WebsiteId, Name: item.Name})));
-        setIsLoadingWebsites(false);
-        setHasInitialLoad(true); // Mark initial load complete
-
-        // Phase 2: Load pages and compute metrics
         setIsProcessingStats(true);
-        const responsePages = await api.get(`/entity/websites/pages/${entityName}`);
-        const pages = responsePages.data.result || [];
 
+        const response = await api.get(`/analytics/institution/${institutionId}`);
         if (isCancelled) return;
+        const view = buildScopedAnalyticsView(response.data.data.ams, t, { dateFormat: 'D [de] MMMM [de] YYYY' });
 
-      // Safe translation helper — avoids i18next v25 throwing on unresolved keys
-      const language = localStorage.getItem('i18nextLng')?.split('-')[0] ?? 'pt';
-      const getElemTrans = (key) =>
-        translations?.[language]?.translation?.ELEMS?.[key] ?? t(`ELEMS.${key}`);
-
-      const simplifiedPracticesData = getSimplifiedPracticesData(pages)
-      setDataListDetails(simplifiedPracticesData.success.map(item => ({
-        practice: getElemTrans(item.practice),
-        pages: item.pages,
-        occurrences: item.occurrences,
-        level: item.level.toUpperCase()
-      })))
-      setDataListDetailsBad(simplifiedPracticesData.errors.map(item => ({
-        practice: getElemTrans(item.practice),
-        pages: item.pages,
-        occurrences: item.occurrences,
-        level: item.level.toUpperCase()
-      })))
-
-      // Process practices by WCAG Success Criteria
-      const practicesBySuccessCriteria = {
-        success: {},
-        errors: {}
-      };
-
-      const toCriteriaList = (scs) => {
-        if (!scs) return [];
-        const list = Array.isArray(scs)
-          ? scs
-          : (typeof scs === 'string' ? scs.split(',') : []);
-        return list.map(c => String(c).trim()).filter(Boolean);
-      };
-
-      // Process successful practices
-      simplifiedPracticesData.success.forEach(item => {
-        toCriteriaList(item.scs).forEach(trimmedCriteria => {
-          if (!practicesBySuccessCriteria.success[trimmedCriteria]) {
-            practicesBySuccessCriteria.success[trimmedCriteria] = [];
-          }
-          practicesBySuccessCriteria.success[trimmedCriteria].push({
-            practice: getElemTrans(item.practice),
-            pages: item.pages,
-            occurrences: item.occurrences,
-            level: item.level.toUpperCase(),
-            websiteCount: item.pages
-          });
-        });
-      });
-
-      // Process error practices
-      simplifiedPracticesData.errors.forEach(item => {
-        toCriteriaList(item.scs).forEach(trimmedCriteria => {
-          if (!practicesBySuccessCriteria.errors[trimmedCriteria]) {
-            practicesBySuccessCriteria.errors[trimmedCriteria] = [];
-          }
-          practicesBySuccessCriteria.errors[trimmedCriteria].push({
-            practice: getElemTrans(item.practice),
-            pages: item.pages,
-            occurrences: item.occurrences.toString().includes("lang") ? "N/A" : item.occurrences,
-            level: item.level.toUpperCase(),
-            websiteCount: item.pages
-          });
-        });
-      });
-
-      // Format data for WCAG Success Criteria display
-      const formatSuccessCriteriaData = (practicesData) => {
-        const formatted = {};
-        Object.keys(practicesData).sort().forEach(criteria => {
-          const practices = practicesData[criteria];
-          formatted[criteria] = {
-            criteriaCode: criteria,
-            practiceCount: practices.length,
-            practices: practices
-          };
-        });
-        return formatted;
-      };
-
-      const formattedSuccessData = formatSuccessCriteriaData(practicesBySuccessCriteria.success);
-      const formattedErrorData = formatSuccessCriteriaData(practicesBySuccessCriteria.errors);
-
-      setSuccessCriteriaSuccess(formattedSuccessData);
-      setSuccessCriteriaErrors(formattedErrorData);
-
-      const evaluatedPages = pages.filter(page => page.Evaluation_Date !== null);
-      const averageScore = evaluatedPages.reduce((acc, page) => acc + Number(page.Score || 0), 0) / (evaluatedPages.length || 1);
-      const oldestPage = moment(
-        evaluatedPages.reduce((a, b) => new Date(a.Evaluation_Date) < new Date(b.Evaluation_Date) ? a : b)
-          .Evaluation_Date
-      ).format('D [de] MMMM [de] YYYY');
-      const newestPage = moment(
-        evaluatedPages.reduce((a, b) => new Date(a.Evaluation_Date) > new Date(b.Evaluation_Date) ? a : b)
-          .Evaluation_Date
-      ).format('D [de] MMMM [de] YYYY');
-      const totalPages = pages.length;
-
-      // Group pages by WebsiteId
-      const websitePageMap = {};
-      pages.forEach(page => {
-        if (!websitePageMap[page.WebsiteId]) websitePageMap[page.WebsiteId] = [];
-        websitePageMap[page.WebsiteId].push(page);
-      });
-      const totalWebsites = Object.keys(websitePageMap).length;
-      const totalEvaluatedPages = Object.keys(websitePageMap).reduce((acc, websiteId) => acc + websitePageMap[websiteId].filter(page => page.Evaluation_Date !== null).length, 0);
-
-      let conformantWebsites = 0;
-      let nonConformantWebsites = 0;
-      let conformCounts = { A: 0, AA: 0, AAA: 0 };
-      Object.entries(websitePageMap).forEach(([websiteId, pageList]) => {
-        const isNonConform = pageList.some(p => p.A > 0 || p.AA > 0 || p.AAA > 0);
-        if (isNonConform) {
-          nonConformantWebsites++;
-        } else {
-          conformantWebsites++;
-          if (pageList.every(p => p.A <= 0)) conformCounts.A++;
-          if (pageList.every(p => p.AA <= 0 && p.A <= 0)) conformCounts.AA++;
-          if (pageList.every(p => p.AAA <= 0 && p.AA <= 0 && p.A <= 0)) conformCounts.AAA++;
-        }
-      });
-
-      // Bar chart data: frequency is by website average score
-      const websiteAverages = Object.values(websitePageMap).map(pageList => {
-        const scores = pageList
-          .filter(p => p.Evaluation_Date !== null)
-          .map(p => Number(p.Score));
-        const avg = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
-        return avg;
-      });
-      const barDataDynamicArr = [
-        websiteAverages.filter(score => score >= 1 && score < 2).length,
-        websiteAverages.filter(score => score >= 2 && score < 3).length,
-        websiteAverages.filter(score => score >= 3 && score < 4).length,
-        websiteAverages.filter(score => score >= 4 && score < 5).length,
-        websiteAverages.filter(score => score >= 5 && score < 6).length,
-        websiteAverages.filter(score => score >= 6 && score < 7).length,
-        websiteAverages.filter(score => score >= 7 && score < 8).length,
-        websiteAverages.filter(score => score >= 8 && score < 9).length,
-        websiteAverages.filter(score => score >= 9 && score < 10).length,
-      ];
-
-      // Build radar websites data with domain and averageScore
-      const websitesWithScores = Object.entries(websitePageMap).map(([websiteId, pageList]) => {
-        const website = websites.find(w => w.WebsiteId.toString() === websiteId.toString());
-        if(!website) {
-          return null 
-        }
-        // Calculate average score for this website
-        const scores = pageList
-          .filter(p => p.Evaluation_Date !== null)
-          .map(p => Number(p.Score));
-        const averageScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
-        return {
-          url: website.StartingUrl,
-          averageScore: averageScore.toFixed(2)
-        };
-      });
-
-      setRadarWebsites(websitesWithScores.filter(item => item !== null));
-      setDataListBar(
-        barDataDynamicArr.map((item, index) => ({
-          range: `[${index + 1} - ${index + 2}[`,
-          frequency: barDataDynamicArr[index],
-          frequency_percent: `${((barDataDynamicArr[index] / totalWebsites) * 100).toFixed(2)}%`,
-          cumulative: barDataDynamicArr.slice(0, index + 1).reduce((acc, curr) => acc + curr, 0),
-          cumulative_percent: `${((barDataDynamicArr.slice(0, index + 1).reduce((acc, curr) => acc + curr, 0) / totalWebsites) * 100).toFixed(2)}%`
-        }))
-      );
+      setDataListBar(view.dataListBar);
       setBarDataDynamic({
         ...barData,
         datasets: [
           {
             type: 'bar',
-            label: "Frequência (nº de sítios web)",
-            data: barDataDynamicArr,
+            label: "Frequência (nº de páginas)",
+            data: view.scoreDistribution,
             backgroundColor: '#339',
             categoryPercentage: 1,
             barPercentage: 1,
@@ -337,82 +206,51 @@ const ViewEntitiesComponent = () => {
           }
         ]
       });
-      setListItems([
-        { title: 'Pontuação média', value: averageScore.toFixed(1) },
-        { title: 'Avaliação mais antiga de uma página', value: oldestPage },
-        { title: 'Avaliação mais recente de uma página', value: newestPage },
-        { title: 'Nº de Sítios Web', value: totalWebsites },
-        { title: 'Nº de Páginas(Avaliadas)', value: `${totalPages} (${totalEvaluatedPages})` },
-        { title: 'Nº médio de Páginas por Sítio', value: (totalPages / totalWebsites).toFixed(1) },
-      ]);
-      setListItemsGlobal([
-        { title: 'Sítios Web', value: totalWebsites },
-        { title: 'Sítios Web não conformes', value: nonConformantWebsites },
-        {
-          title: 'Sítios Web conformes', value: conformantWebsites,
-          itemsList: [
-            { title: 'Conformidade A', value: `${conformCounts.A} (${((conformCounts.A / totalWebsites) * 100).toFixed(1)}%)` },
-            { title: 'Conformidade AA', value: `${conformCounts.AA} (${((conformCounts.AA / totalWebsites) * 100).toFixed(1)}%)` },
-            { title: 'Conformidade AAA', value: `${conformCounts.AAA} (${((conformCounts.AAA / totalWebsites) * 100).toFixed(1)}%)` },
-          ]
-        },
-      ]);
-      // Don't overwrite table data - already set in Phase 1
+      setListItems(view.listItems);
+      setListItemsGlobal(view.listItemsGlobal);
+      setDataListDetails(view.details);
+      setDataListDetailsBad(view.detailsBad);
+      setSuccessCriteriaSuccess(view.successCriteriaSuccess);
+      setSuccessCriteriaErrors(view.successCriteriaErrors);
       setIsProcessingStats(false);
+      setHasInitialLoad(true);
       } catch (error) {
+        console.error("Error loading entity metrics:", error);
         setWebsitesError('Erro ao carregar dados da entidade');
-        setIsLoadingWebsites(false);
         setIsProcessingStats(false);
         setHasInitialLoad(true); // Mark as complete even on error
       }
     };
-    
+
     fetchData();
 
     return () => {
       isCancelled = true;
     };
-  }, [entityName, t]);
-  const fetchDataWebsite = async () => {
-    const response = await api.get(`/directory/${directoryName}/websites`);
-    const websites = response.data.result || [];
-    setData(websites.map(item => ({
-      id: item.WebsiteId,
-      Name: item.Name,
-      StartingUrl: item.StartingUrl,
-      Pages: item.Pages + "(" + item.Evaluated_Pages + ")",
-      Creation_Date: moment(item.Creation_Date).format('DD/MM/YYYY'),
-      Declaration: item.Declaration === null ? "Não avaliado" : item.Declaration === 1 ? "Selo de Ouro" : item.Declaration === 2 ? "Selo de Prata" : item.Declaration === 3 ? "Selo de Bronze" : "Declaração não conforme",
-      edit: "Editar",
-    })));
-  }
-  const handleCrawlingWebsites = async ({ maxDepth, maxPages, waitJS, selectedItems }) => {
+  }, [institutionId, t]);
+  const handleCrawlingWebsites = async (selectedItems) => {
+    if (!canEdit) return;
     if (selectedItems.length === 0) {
       setFeedbackMessage("Por favor, selecione pelo menos um sítio web para fazer crawling.");
-      setShowFeedbackModal(true);
+    //  setShowFeedbackModal(true);
       return;
     }
 
-    const websites = selectedItems.map(item => ({
-      url: data.find(d => d.id === item.id).StartingUrl,
-      websiteId: item.id
-    }));
+    const websites_ids = selectedItems.map(item => item.id);
 
     try {
-      const response = await api.post('/crawler/crawl', {
-        websites: websites,
-        maxDepth: maxDepth,
-        maxPages: maxPages,
-        waitJS: waitJS ? 1 : 0
-      });
-
-      if (response.status === 201 || response.status === 200) {
+      const responses = await api.post(`/discovery`, {
+        websitesId: websites_ids
+      })
+      if (responses.status === 201 || responses.status === 200) {
         setFeedbackMessage("O crawling foi iniciado com sucesso! O processo será executado em segundo plano.");
         setCheckboxesSelected([]);
         setShowCrawlingModal(false);
 
+      } else {
+        setFeedbackMessage("Erro ao iniciar o crawling. Tente novamente.");
       }
-    } catch (error) {
+    } catch {
       setFeedbackMessage("Erro ao iniciar o crawling. Tente novamente.");
     }
     setShowFeedbackModal(true);
@@ -420,49 +258,29 @@ const ViewEntitiesComponent = () => {
 
   // Handle delete websites
   const handleDeleteWebsites = async () => {
+    if (!canDelete) return;
     if (checkboxesSelected.length === 0) {
-      setFeedbackMessage("Por favor, selecione pelo menos um sítio web para eliminar.");
+      setFeedbackMessage(t("WEBSITES_DELETE.none_selected"));
       setShowFeedbackModal(true);
       return;
     }
     const websiteIds = checkboxesSelected.map(item => item.id);
     try {
-      const response = await api.post('/website/deleteBulk', {
-        websitesId: websiteIds
-      });
-
-      if (response.status === 201 || response.status === 200) {
-        setFeedbackMessage("Sítios web eliminados com sucesso!");
-        setCheckboxesSelected([]);
-        setData(originalData.filter(item => !websiteIds.includes(item.id)));
-        setOriginalData(originalData.filter(item => !websiteIds.includes(item.id)));
-      }
+      await deleteWebsites(websiteIds);
+      setFeedbackMessage(t("WEBSITES_DELETE.success", { count: websiteIds.length }));
+      setCheckboxesSelected([]);
+      setSearch("");
+      setCurrentPage(1);
+      setWebsitesVersion(v => v + 1);
     } catch (error) {
-      setFeedbackMessage("Erro ao eliminar sítios web. Tente novamente.");
+      setFeedbackMessage(t(getDeleteWebsitesErrorKey(error)));
     }
     setShowFeedbackModal(true);
   };
 
-  // Client-side search filtering for entity websites
-  useEffect(() => {
-    // Only run after initial load is complete
-    if (!hasInitialLoad) return;
-    
-    if (search.trim() === '') {
-      // No search, show all websites
-      setData(originalData);
-    } else {
-      // Filter websites by search term (client-side)
-      const filtered = originalData.filter(item => 
-        item.Name?.toLowerCase().includes(search.toLowerCase()) ||
-        item.StartingUrl?.toLowerCase().includes(search.toLowerCase())
-      );
-      setData(filtered);
-    }
-  }, [search, hasInitialLoad, originalData]);
-
   // Handle delete pages
   const handleDeletePagesWebsites = async () => {
+    if (!canDelete) return;
     if (checkboxesSelected.length === 0) {
       setFeedbackMessage("Por favor, selecione pelo menos um sítio web para eliminar páginas.");
       setShowFeedbackModal(true);
@@ -478,9 +296,9 @@ const ViewEntitiesComponent = () => {
         setFeedbackMessage("Páginas dos sítios web eliminadas com sucesso!");
         setCheckboxesSelected([]);
         setSearch("");
-        await fetchDataWebsite();
+        setWebsitesVersion(v => v + 1);
       }
-    } catch (error) {
+    } catch {
       setFeedbackMessage("Erro ao eliminar páginas dos sítios web. Tente novamente.");
     }
     setShowFeedbackModal(true);
@@ -488,57 +306,62 @@ const ViewEntitiesComponent = () => {
 
   // Handle re-evaluate websites
   const handleReevaluateWebsites = async () => {
-    const websiteIds = checkboxesSelected.map(item => item.id);
-    const reEvaluate = radioValue === "1" ? "all" : "observatory";
+    if (!canEdit) return;
     try {
-      const response = await api.post('/website/reEvaluate', {
-        websitesId: websiteIds,
-        option: reEvaluate
-      });
-      if (response.status === 201) {
-        setFeedbackMessage("As páginas irão ser avaliadas em segundo plano, e a sua informação estará disponível assim que possível.");
+      const result = await evaluateWebsites(checkboxesSelected.map(item => item.id));
+      const { key, params } = getEvaluationFeedback(result);
+      setFeedbackMessage(t(key, params));
+      if (result.succeeded.length > 0) {
         setCheckboxesSelected([]);
         setShowModal(false);
         setSearch("");
-        await fetchDataWebsite();
+        setWebsitesVersion(v => v + 1);
       }
-    } catch (error) {
-      setFeedbackMessage("Erro ao iniciar reavaliação dos sítios web. Tente novamente.");
+    } catch {
+      setFeedbackMessage(t("EVALUATIONS.error"));
     }
     setShowFeedbackModal(true);
   };
 
-  const handleOpenCrawlingModal = () => {
-    setShowCrawlingModal(true);
-  };
   const handleExportCSV = async () => {
     try {
-      downloadCSV(
-        dataForCSV,
-        "Entidade"
-      );
+      await downloadAnalyticsExport({ resource: "institution", format: "csv", context: "ams", entityId: institutionId });
     } catch (error) {
-      //TODO - handle error 
+      console.error("Error exporting CSV:", error);
     }
   }
   return (
     <div>
       <Breadcrumb data={breadcrumbs || []} />
-      <h1>{t('ENTITIES_PAGE.LIST.title', { entityName })}</h1>
+      <h1 id="lista-sitios-web" tabIndex={-1}>{t('ENTITIES_PAGE.LIST.title', { entityName })}</h1>
 
 
       <ContentListWebSites
+        onSortChange={onSortChange}
         title={t('WEBSITES_PAGE.LIST.subtitle_list', { entityName })}
         checkboxesSelected={checkboxesSelected}
         setCheckboxesSelected={setCheckboxesSelected}
         data={data}
         setData={setData}
-        handleSearchChange={e => setSearch(e.target.value)}
+        totalItems={totalItems}
+        currentPage={currentPage}
+        itemsPerPage={itemsPerPage}
+        onPageChange={(page) => setCurrentPage(page)}
+        onItemsPerPageChange={(n) => { setItemsPerPage(n); setCurrentPage(1); }}
+        setItemsPerPage={setItemsPerPage}
+        search={search}
+        handleSearchChange={e => {
+          const value = typeof e === 'string' ? e : (e?.target?.value ?? "");
+          setSearch(value);
+          setCurrentPage(1);
+        }}
         onDeleteWebsites={handleDeleteWebsites}
         onDeletePagesWebsites={handleDeletePagesWebsites}
         onReevaluateWebsites={handleReevaluateWebsites}
-        onCrawlWebsites={handleOpenCrawlingModal}
-        serverSidePagination={false}
+        onCrawlWebsites={handleCrawlingWebsites}
+        navigate={navigate}
+        origin={{ type: "entity", name: entityName }}
+        serverSidePagination={true}
       />
       <div className="bg-white mt-5">
         <div>
@@ -625,48 +448,20 @@ const ViewEntitiesComponent = () => {
       </div>
       <div className="mt-5 bg-white p-4">
         <h2 className="mb-4">Mancha Gráfica da Acessibilidade</h2>
+        <Button
+          darkTheme={theme}
+          text="Ir para a lista de sítios web da entidade"
+          className="btn-primary mb-4"
+          onClick={() => {
+            const el = document.getElementById("lista-sitios-web");
+            el?.scrollIntoView({ behavior: "smooth", block: "start" });
+            el?.focus({ preventScroll: true });
+          }}
+        />
         {isProcessingStats ? (
           <p className="text-muted">A preparar gráfico radar...</p>
         ) : (
-          <Tabs
-            defaultActiveKey="chart"
-            darkTheme={theme}
-            tabs={[
-              {
-                eventKey: "chart",
-                title: "Gráfico",
-                component: (
-                  <Radar
-                    role="img"
-                    aria-label="Gráfico de Radar mostrando a distribuição de pontuações de acessibilidade"
-                    data={radarData}
-                    options={radarOptions}
-                  />
-                ),
-              },
-              {
-                eventKey: "table",
-                title: "Tabela",
-                component: (
-                  <SortingTable
-                    darkTheme={theme}
-                    hasSort={false}
-                    pagination={false}
-                    caption="Mancha gráfica da acessibilidade — pontuação média por sítio web"
-                    headers={[[
-                      { type: "Text", nRow: 1, name: "Sítio web", property: "url" },
-                      { type: "Text", nRow: 1, name: "Pontuação média", property: "averageScore", justifyCenter: true },
-                    ]]}
-                    dataList={radarWebsites}
-                    columnsOptions={{
-                      url: { type: "Text", center: false, bold: false },
-                      averageScore: { type: "Text", center: true, bold: false },
-                    }}
-                  />
-                ),
-              },
-            ]}
-          />
+          <ScoreDistributionRadar dataListBar={dataListBar} theme={theme} caption="Mancha gráfica da acessibilidade — número de páginas por nota das páginas da entidade" />
         )}
       </div>
       <div className="mt-5 bg-white p-4">
@@ -782,24 +577,7 @@ const ViewEntitiesComponent = () => {
         onRequestClose={() => setShowModal(false)}
         title={t('WEBSITES_PAGE.LIST.re_evaluate_websites')}
       >
-        <p>Escolha que páginas quer reavaliar</p>
-        <RadioGroup
-          darkTheme={theme}
-          data={[
-            {
-              id: '1',
-              name: "Todas as páginas"
-            },
-            {
-              id: '2',
-              name: "Apenas as páginas do observatório"
-            }
-          ]}
-          inline
-          onChange={(value) => setRadioValue(value)}
-          value={radioValue}
-          name="format"
-        />
+        <p>Tem a certeza que pretende reavaliar os sítios web selecionados?</p>
         <Button
           darkTheme={theme}
           text={t('WEBSITES_PAGE.LIST.re_evaluate_websites')}
@@ -821,14 +599,7 @@ const ViewEntitiesComponent = () => {
           onClick={() => setShowFeedbackModal(false)}
         />
       </Modal>
-      <CrawlingModal
-        isOpen={showCrawlingModal}
-        onRequestClose={() => setShowCrawlingModal(false)}
-        onSubmit={handleCrawlingWebsites}
-        theme={theme}
-        selectedItems={checkboxesSelected}
-        itemType="websites"
-      />
+
     </div>
   )
 }

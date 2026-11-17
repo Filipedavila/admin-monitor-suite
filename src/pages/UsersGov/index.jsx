@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Button,
   InputSearch,
@@ -6,12 +6,7 @@ import {
   Breadcrumb,
 } from "@a12e/accessmonitor-ds";
 import "./style.users.css";
-import {
-  dataHeaders,
-  nameOfIcons,
-  paginationButtonsTexts,
-} from "./table.config";
-import { useForm } from "react-hook-form";
+import { dataHeaders, nameOfIcons } from "./table.config";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
 import { useTranslation } from 'react-i18next';
@@ -19,13 +14,16 @@ import { api } from "../../config/api";
 import moment from "moment";
 import { Modal } from "../../components/Modal";
 import { useUniqueCheckboxSelection } from "../../hooks/useUniqueCheckboxSelection";
+import { usePermissions } from "../../context/AuthContext";
+import { filterEditColumn } from "../../utils/permissions";
 
 const UserGovList = () => {
+  const { canEdit, canDelete } = usePermissions();
   const location = useLocation();
   const [allUsersGov, setAllUsersGov] = useState([]);
   const [checkboxesSelected, setCheckboxesSelected] = useUniqueCheckboxSelection([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
   const [searchTerm, setSearchTerm] = useState("");
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
@@ -55,11 +53,6 @@ const UserGovList = () => {
     fetchData();
   }, []);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
   
   const { theme } = useTheme();
   const { t } = useTranslation();
@@ -109,6 +102,7 @@ const UserGovList = () => {
   
   // Handle delete government users
   const handleDeleteUsersGov = async () => {
+    if (!canDelete) return;
     if (checkboxesSelected.length === 0) {
       setFeedbackMessage("Por favor, selecione pelo menos um utilizador gov para eliminar.");
       setShowFeedbackModal(true);
@@ -128,15 +122,10 @@ const UserGovList = () => {
       setSearchTerm("");
       fetchData();
       
-    } catch (error) {
+    } catch {
       setFeedbackMessage("Erro ao eliminar utilizadores gov. Tente novamente.");
     }
     setShowFeedbackModal(true);
-  };
-
-  const onSubmit = (formData) => {
-    console.log("User data:", formData);
-    // Lógica de criação de utilizador, se for o caso
   };
 
   return (
@@ -161,6 +150,7 @@ const UserGovList = () => {
             />
           </div>
 
+          {canDelete && (
           <Button
             darkTheme={theme}
             text={t('GOV_USERS_PAGE.LIST.delete_users')}
@@ -169,10 +159,11 @@ const UserGovList = () => {
             onClick={handleDeleteUsersGov}
             disabled={checkboxesSelected.length === 0}
           />
+          )}
 
         <SortingTable
           darkTheme={theme}
-          headers={dataHeaders}
+          headers={filterEditColumn(dataHeaders, canEdit)}
           setDataList={setAllUsersGov}
           dataList={paginatedData}
           columnsOptions={columnsOptions}

@@ -1,19 +1,19 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button, Input, CheckGroup } from "@a12e/accessmonitor-ds";
 import { Modal } from "./Modal";
+import { usePermissions } from "../context/AuthContext";
 
-const CrawlingModal = ({ 
-    isOpen, 
-    onRequestClose, 
-    onSubmit, 
-    theme, 
-    selectedItems = [],
-    itemType = "websites" // "websites" or "categories"
+const CrawlingModal = ({
+    isOpen,
+    onRequestClose,
+    onSubmit,
+    theme,
+    selectedItems = []
 }) => {
+    const { canEdit } = usePermissions();
     const [maxDepth, setMaxDepth] = useState(0);
     const [maxPages, setMaxPages] = useState(0);
     const [waitJS, setWaitJS] = useState(false);
-    const [value, setValue] = useState("1");
     const handleClear = () => {
         setMaxDepth(0);
         setMaxPages(0);
@@ -21,6 +21,7 @@ const CrawlingModal = ({
     };
 
     const handleSubmit = () => {
+        if (!canEdit) return;
         onSubmit({
             maxDepth,
             maxPages,

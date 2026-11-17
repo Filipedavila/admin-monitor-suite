@@ -1,0 +1,76 @@
+/* Session info sits in the sidebar, above the dashboard menu. */
+.session-info {
+  color: var(--ama-color-grey-0, #ffffff);
+  background-color: var(--ama-color-background-dark-darker);
+  padding: 0 15px 20px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.session-info__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin: 0;
+}
+
+.session-info__item {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.session-info__item dt {
+  font-size: 0.8125rem;
+  font-weight: 400;
+}
+
+.session-info__item dd {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.session-info__item--user {
+  flex-basis: 100%;
+}
+
+.session-info__item--environment dd {
+  border: 2px solid currentColor;
+  border-radius: 4px;
+  padding: 0 8px;
+  align-self: flex-start;
+}
+
+/* No h2 above it: keep the same top spacing the menu title would give. */
+aside > .session-info:first-child {
+  padding-top: 30px;
+}
+
+.main-content-dashboard.menu-collapsed .session-info {
+  display: none;
+}
+
+/* User name and the "Alterar palavra-passe" button on the same line; wraps when the sidebar is narrow. */
+.session-info__user-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+
+.session-info__user-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.session-info__user-action {
+  flex-shrink: 0;
+  font-weight: 400;
+}
+
+.session-info > .session-info__user-action {
+  margin-top: 12px;
+}

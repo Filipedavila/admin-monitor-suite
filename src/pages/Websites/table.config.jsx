@@ -1,6 +1,7 @@
 import i18n from "../../i18n";
+import { buildWebsiteOriginState } from "../../utils/navigation";
 // headers da tabela
-const apiUrl = import.meta.env.VITE_API_URL + import.meta.env.VITE_ROUTE_URL;
+const apiUrl = import.meta.env.VITE_API_URL + import.meta.env.VITE_ROUTE_URL.replace(/\/$/, "") + "/";
 
 const theme = "light";
 
@@ -18,24 +19,17 @@ export const directoriesHeaders = [
       type: "SortingText",
       nRow: 1,
       name: i18n.t("WEBSITES_PAGE.LIST.table.name_label"),
-      property: "Name",
+      property: "Title",
     },
     {
       type: "SortingText",
       nRow: 1,
       name: i18n.t("WEBSITES_PAGE.LIST.table.url_label"),
-      property: "StartingUrl",
+      property: "BaseUrl",
       justifyCenter: false,
     },
     {
-      type: "SortingText",
-      nRow: 1,
-      name: i18n.t("WEBSITES_PAGE.LIST.table.pages_label"),
-      property: "Pages",
-      justifyCenter: true,
-    },
-    {
-      type: "SortingText",
+      type: "SortingDate",
       nRow: 1,
       name: i18n.t("WEBSITES_PAGE.LIST.table.creation_label"),
       property: "Creation_Date",
@@ -52,7 +46,9 @@ export const directoriesHeaders = [
 ];
 
 // opções de renderização de colunas
-export const columnsOptions = (navigate) => ({
+// `origin` ({type: 'directory'|'entity'|'category', name} ou null para a lista de
+// Sítios web) segue no state da navegação para o breadcrumb da edição (issue #131).
+export const columnsOptions = (navigate, origin = null) => ({
   id: {
     type: "Checkbox",
     center: true,
@@ -60,25 +56,24 @@ export const columnsOptions = (navigate) => ({
     decimalPlace: false,
     label: "Selecionar",
   },
-  Name: {
+  Title: {
     type: "Link",
     center: true,
     bold: false,
     isCheckboxLabel: true,
     decimalPlace: false,
     href: (row) => {
-      return `${apiUrl}dashboard/websites/view/${row.id}/${encodeURIComponent(row.Name)}`;
+      return `${apiUrl}dashboard/websites/view/${row.id}/${encodeURIComponent(row.Title)}`;
     },
   },
-  StartingUrl: {
+  BaseUrl: {
     type: "Text",
     center: true,
     bold: false,
     decimalPlace: false,
   },
-  Pages: { type: "Text", center: true, bold: false, decimalPlace: false }, // alinhado ao centro
   Creation_Date: {
-    type: "Text",
+    type: "Date",
     center: true,
     bold: false,
     decimalPlace: false,
@@ -87,9 +82,9 @@ export const columnsOptions = (navigate) => ({
     type: "Button",
     text: i18n.t("WEBSITES_PAGE.LIST.table.edit_label"),
     onClick: (row) => {
-      navigate(
-        `${import.meta.env.VITE_ROUTE_URL}dashboard/websites/edit/${row.id}`
-      );
+      navigate(`/dashboard/websites/edit/${row.id}`, {
+        state: buildWebsiteOriginState(origin),
+      });
     },
     center: true,
     bold: false,
@@ -415,3 +410,6 @@ export const horizontalData = {
     },
   ],
 };
+
+// Table column property -> backend sort field (sorts[field]=ASC|DESC)
+export const sortFields = { Title: "title", Creation_Date: "createdAt" };

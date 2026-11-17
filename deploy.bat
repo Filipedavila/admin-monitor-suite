@@ -5,7 +5,7 @@ REM === Configurações ===
 set "USER=dev"
 set "SERVER=10.55.37.17"
 set "DEST_PATH=/var/www/html/ams"
-set "LOCAL_ZIP=C:\Users\bento.julio\Documents\projects\AMA\AMS(React)\dist.zip"
+set "LOCAL_ZIP=C:\Users\bento.julio\Documents\projects\AMA\admin-monitor-suite\dist.zip"
 
 REM === Verifica se o arquivo zip existe ===
 if not exist "%LOCAL_ZIP%" (

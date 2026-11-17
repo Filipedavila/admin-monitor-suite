@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Input, Button, RadioGroup, Select, Breadcrumb, MultiSelect } from "@a12e/accessmonitor-ds";
+import { useState, useEffect } from 'react';
+import { Input, Button, Breadcrumb } from "@a12e/accessmonitor-ds";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTheme } from '../../context/ThemeContext';
 import { api } from '../../config/api';
 import { Modal } from '../../components/Modal';
+import MultiSelectTable from '../../components/MultiSelectTable';
 
 const UsersGovCreateForm = () => {
     const { t } = useTranslation();
-    const { register, handleSubmit, formState: { errors }, setValue, watch, trigger, reset } = useForm({ mode: 'onChange' });
+    const { register, handleSubmit, formState: { errors }, setValue, watch, trigger } = useForm({ mode: 'onChange' });
     const { theme } = useTheme();
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,10 +30,9 @@ const UsersGovCreateForm = () => {
     ];
 
     const handleUpdateGovUser = async (payload) => {
-        const selectedUserIds = Array.isArray(associatedUser) ? associatedUser : [];
-        const result = associatedUsersOptions.filter(item => selectedUserIds.includes(item.value));
-        
-        payload.entities = result.map(item => ({
+        const selected = Array.isArray(associatedUser) ? associatedUser : [];
+
+        payload.entities = selected.map(item => ({
             UserId: item.value,
             Username: item.label,
             Last_Login: item.Last_Login,
@@ -92,10 +92,18 @@ const UsersGovCreateForm = () => {
         if(id){
             const fetchUser = async () => {
                 const response = await api.get(`/gov-user/${id}`);
-                setAssociatedUser(response.data.result.entities.map(item => item.UserId));
+                const selected = response.data.result.entities.map(item => ({
+                    value: item.UserId,
+                    label: item.Username,
+                    Last_Login: item.Last_Login,
+                    Register_Date: item.Register_Date,
+                    Websites: item.Websites,
+                    Type: item.Type,
+                }));
+                setAssociatedUser(selected);
                 setValue("username", response.data.result.name);
                 setValue("citizen_card_number", response.data.result.ccNumber);
-                setValue("associated_users", response.data.result.entities.map(item => item.UserId));
+                setValue("associated_users", selected.map(item => item.value));
                 trigger("associated_users");
             };
             fetchUser();
@@ -115,8 +123,9 @@ const UsersGovCreateForm = () => {
     }, []);
 
     const handleAssociatedUsersChange = (newUsers) => {
-        setAssociatedUser(newUsers || []);
-        setValue("associated_users", newUsers || []);
+        const selected = newUsers || [];
+        setAssociatedUser(selected);
+        setValue("associated_users", selected.map(item => item.value));
         trigger("associated_users");
     };
 
@@ -170,15 +179,17 @@ const UsersGovCreateForm = () => {
                         error={errors.citizen_card_number?.message}
                     />
 
-                    <MultiSelect
+                    <MultiSelectTable
                         id="associated_users"
                         darkTheme={theme}
                         label={t('GOV_USERS_PAGE.ADD.users_associated_label')}
-                        name="associated_users"
-                        value={associatedUser  || []}
-                        onChange={handleAssociatedUsersChange}
+                        selected={associatedUser || []}
+                        onSelectedChange={handleAssociatedUsersChange}
                         options={associatedUsersOptions}
                         placeholder="Selecione utilizadores associados"
+                        columnLabel="Utilizador"
+                        tableCaption="Utilizadores associados selecionados"
+                        emptyMessage="Nenhum utilizador associado selecionado."
                     />
 
                     <div className="d-flex justify-content-start">

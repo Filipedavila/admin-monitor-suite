@@ -6,32 +6,19 @@ import {
   Breadcrumb,
 } from "@a12e/accessmonitor-ds";
 import "./style.users.css";
-import {
-  directoriesHeaders,
-  columnsOptions,
-  nameOfIcons,
-  paginationButtonsTexts,
-  websiteUsersHeaders,
-  websiteUsersColumnsOptions,
-  pagesUsersHeaders,
-  pagesUsersColumnsOptions,
-} from "./table.config";
-import { useForm } from "react-hook-form";
+import { nameOfIcons, pagesUsersHeaders, pagesUsersColumnsOptions } from "./table.config";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
 import { useTranslation } from "react-i18next";
 import { api } from "../../config/api";
 import moment from "moment";
 import { Modal } from "../../components/Modal";
+import { usePermissions } from "../../context/AuthContext";
 
 const PagesForUsers = () => {
+  const { canEdit } = usePermissions();
   const navigate = useNavigate();
   const location = useLocation();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
   const { theme } = useTheme();
   const { t } = useTranslation();
   const [pagesData, setPagesData] = useState([]);
@@ -78,7 +65,6 @@ const PagesForUsers = () => {
       Evaluation_Date: moment(item.Evaluation_Date).format("DD/MM/YYYY"),
       import: "Importar",
     }));
-    console.log("Fetched pages data:", mappedData);
     setPagesData(mappedData);
   };
 
@@ -109,49 +95,13 @@ const PagesForUsers = () => {
     setCurrentPage(1); // Reset to first page when searching
   };
 
-  // Handle delete users
-  const handleDeleteUsers = async () => {
-    if (checkboxesSelected.length === 0) {
-      setFeedbackMessage(
-        "Por favor, selecione pelo menos um utilizador para eliminar."
-      );
-      setShowFeedbackModal(true);
-      return;
-    }
-
-    try {
-      const userIds = checkboxesSelected.map(async (item) => {
-        const response = await api.post("/user/delete", {
-          userId: item.id,
-          app: "nimda",
-        });
-        return response.data.result.UserId;
-      });
-      setFeedbackMessage("Utilizadores eliminados com sucesso!");
-      setCheckboxesSelected([]);
-      setSearchTerm("");
-      fetchData();
-    } catch (error) {
-      setFeedbackMessage("Erro ao eliminar utilizadores. Tente novamente.");
-    }
-    setShowFeedbackModal(true);
-  };
-
-  const onSubmit = (formData) => {
-    console.log("User data:", formData);
-    // Lógica de criação de utilizador, se for o caso
-  };
-
   // Handle import page
   const handleImportPage = React.useCallback(
     async (page) => {
-      console.log("Importing page:", page);
-      console.log("User:", username, "Website:", name);
-      console.log("ShowIn value:", page.ShowIn);
-
+      if (!canEdit) return;
+      
       // Check if button should be disabled
       if (page.ShowIn === "010") {
-        console.log("Button is disabled for this page");
         setFeedbackMessage(
           "Esta página não pode ser importada (ShowIn = 010)."
         );
@@ -160,13 +110,12 @@ const PagesForUsers = () => {
       }
 
       try {
-        const response = await api.post("/page/import", {
+        await api.post("/page/import", {
           pageId: page.id,
           user: username,
           website: name,
         });
 
-        console.log("Import response:", response);
         setFeedbackMessage("Página importada com sucesso!");
         fetchData(); // Refresh the data
       } catch (error) {
@@ -175,7 +124,7 @@ const PagesForUsers = () => {
       }
       setShowFeedbackModal(true);
     },
-    [username, name, fetchData]
+    [username, name, fetchData, canEdit]
   );
 
   // Check if page can be imported
@@ -203,7 +152,7 @@ const PagesForUsers = () => {
 
         <SortingTable
           darkTheme={theme}
-          headers={pagesUsersHeaders}
+          headers={canEdit ? pagesUsersHeaders : pagesUsersHeaders.map((row) => row.filter((header) => header.property !== "import"))}
           setDataList={setPagesData}
           dataList={filteredPages}
           columnsOptions={pagesUsersColumnsOptions(

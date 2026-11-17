@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Input, Button, Breadcrumb, MultiSelect } from "@a12e/accessmonitor-ds";
+import { useState, useEffect, useCallback, useRef } from 'react';
+import qs from 'qs';
+import { Input, Button, Breadcrumb } from "@a12e/accessmonitor-ds";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
@@ -7,7 +8,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { api } from '../../config/api';
 import { Modal } from '../../components/Modal';
 import { extractNavigationContext } from '../../utils/navigation';
-import debounce from 'lodash/debounce';
+import MultiSelectTable from '../../components/MultiSelectTable';
 
 const CategoriesCreateForm = () => {
     const { register, handleSubmit, formState: { errors }, setValue, watch, trigger, reset } = useForm({ mode: 'onChange' });
@@ -15,137 +16,136 @@ const CategoriesCreateForm = () => {
     const { theme } = useTheme();
     const navigate = useNavigate();
     const { id } = useParams();
+
     const [directories, setDirectories] = useState([]);
-    const [websites, setWebsites] = useState([]);
     const [directoriesOptions, setDirectoriesOptions] = useState([]);
-    const [websitesOptions, setWebsitesOptions] = useState([]);
+    const [isDirectoriesLoading, setIsDirectoriesLoading] = useState(false);
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
     const [feedbackMessage, setFeedbackMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const [websites, setWebsites] = useState([]);
+    const [websitesOptions, setWebsitesOptions] = useState([]);
+    const [isWebsitesLoading, setIsWebsitesLoading] = useState(false);
+
     const watchedName = watch("categoryName");
-    const [websitesSearch, setWebsitesSearch] = useState("");
-    const [defaultDirectories, setDefaultDirectories] = useState([]);
-    const [defaultWebsites, setDefaultWebsites] = useState([]);
-    const [isNameInvalid, setIsNameInvalid] = useState(false);
-    const websitesValueRef = useRef([]);
-    // Example options, replace with API data if needed
 
-    const websiteOptions = [
-        { value: "1", label: "Sítio Web 1" },
-        { value: "2", label: "Sítio Web 2" },
-        { value: "3", label: "Sítio Web 3" },
-        { value: "4", label: "Sítio Web 4" },
-    ];
+    // Original (as loaded) relations, used to compute add/remove diffs on submit
+    const originalDirectoryIdsRef = useRef([]);
+    const originalWebsiteIdsRef = useRef([]);
+    const dirSearchTimeoutRef = useRef(null);
+    const webSearchTimeoutRef = useRef(null);
 
-    // Dynamic breadcrumbs based on navigation context
     const previousPath = localStorage.getItem('previousPath') || '';
     const navContext = extractNavigationContext(previousPath);
-    
+
     let breadcrumbs = [
         { children: <Link to="/dashboard/home">Início</Link> },
         { children: <Link to="/dashboard/categories">Categorias</Link> },
         { title: id ? "Editar Categoria" : t('CATEGORIES_PAGE.ADD.title') },
     ];
 
-    // If editing from a specific category view
     if (id && navContext && navContext.type === 'category') {
         const { categoryName } = navContext.data;
         breadcrumbs = [
             { children: <Link to="/dashboard/home">Início</Link> },
             { children: <Link to="/dashboard/categories">Categorias</Link> },
             { children: <Link to={`/dashboard/categories/view/${encodeURIComponent(categoryName)}`}>{categoryName}</Link> },
-            { title: "Editar Categoria"},
+            { title: "Editar Categoria" },
         ];
     }
 
+    const fetchDirectories = useCallback(async (search) => {
+        setIsDirectoriesLoading(true);
+        try {
+            const queryObj = { pagination: { limit: 20, page: 1 } };
+            if (search) queryObj.filters = { searchTerm: search };
+            const query = qs.stringify(queryObj);
+            const response = await api.get(`/directories?${query}`);
+            const fetched = response.data.data.map(item => ({
+                value: item.id,
+                label: item.name,
+            }));
+            setDirectoriesOptions(fetched);
+        } catch (error) {
+            console.error('Error fetching directories:', error);
+        } finally {
+            setIsDirectoriesLoading(false);
+        }
+    }, []);
+
+    const fetchWebsites = useCallback(async (search) => {
+        setIsWebsitesLoading(true);
+        try {
+            const queryObj = { pagination: { limit: 20, page: 1 } };
+            if (search) queryObj.filters = { searchTerm: search };
+            const query = qs.stringify(queryObj);
+            const response = await api.get(`/websites?${query}`);
+            const fetched = response.data.data.map(item => ({
+                value: item.id,
+                label: item.title,
+            }));
+            setWebsitesOptions(fetched);
+        } catch (error) {
+            console.error('Error fetching websites:', error);
+        } finally {
+            setIsWebsitesLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
-        const fetchDirectories = async () => {
-            const response = await api.get('/directory/all');
-            setDirectoriesOptions(response.data.result.map(item => ({
-                value: item.DirectoryId,
-                label: item.Name
-            })));
-        };
-        fetchDirectories();
-        
+        fetchDirectories("");
+        fetchWebsites("");
+    }, [fetchDirectories, fetchWebsites]);
+
+    useEffect(() => {
+        if (!id) return;
         const fetchCategory = async () => {
-            const response = await api.get(`/tag/info/${id}`);
-            const cat = response.data.result;
-            setValue("categoryName", cat.Name);
-            setDirectories(cat.directories.map(dir => dir.DirectoryId));
-            
-            const websiteIds = cat.websites.map(web => web.WebsiteId);
-            const selectedWebsiteOptions = cat.websites.map(web => ({
-                value: web.WebsiteId,
-                label: web.Name
-            }));
-            
-            websitesValueRef.current = websiteIds;
-            setWebsites(websiteIds);
-            setDefaultDirectories(cat.directories.map(dir => dir.DirectoryId));
-            setWebsitesOptions(selectedWebsiteOptions);
-            setDefaultWebsites(selectedWebsiteOptions);
-            
-            fetchWebsites("");
+            try {
+                const response = await api.get(`/tags/${id}`);
+                const cat = response.data.data;
+                setValue("categoryName", cat.name);
+
+                const dirSelected = (cat.directories || []).map(dir => ({ value: dir.id, label: dir.name }));
+                originalDirectoryIdsRef.current = dirSelected.map(dir => dir.value);
+                setDirectories(dirSelected);
+
+                const webSelected = (cat.websites || []).map(web => ({ value: web.id, label: web.title }));
+                originalWebsiteIdsRef.current = webSelected.map(web => web.value);
+                setWebsites(webSelected);
+
+                await Promise.all([fetchDirectories(""), fetchWebsites("")]);
+            } catch (error) {
+                console.error('Error fetching category:', error);
+            }
         };
-        
-        if (id) {
-            fetchCategory();
-        } else {
-            fetchWebsites("");
-        }
+        fetchCategory();
     }, [id, reset]);
 
-
-    // Função para buscar websites conforme pesquisa
-    const fetchWebsites = async (searchTerm) => {
-        const responseWebsites = await api.get(`/website/all/100/0/sort=/direction=/search=${searchTerm}`);
-        const fetchedOptions = responseWebsites.data.result.map(item => ({
-            value: item.WebsiteId,
-            label: item.Name
-        }));
-        
-        setWebsitesOptions(prevOptions => {
-            const currentValues = websitesValueRef.current;
-            const preservedOptions = prevOptions.filter(opt => currentValues.includes(opt.value));
-            const allOptions = [...preservedOptions];
-            const existingIds = new Set(allOptions.map(opt => opt.value));
-            fetchedOptions.forEach(opt => {
-                if (!existingIds.has(opt.value)) {
-                    allOptions.push(opt);
-                }
-            });
-            return allOptions;
-        });
+    const handleDirectoriesInputChange = (inputValue) => {
+        if (dirSearchTimeoutRef.current) clearTimeout(dirSearchTimeoutRef.current);
+        dirSearchTimeoutRef.current = setTimeout(() => {
+            fetchDirectories(inputValue);
+        }, 300);
     };
 
-    // Debounced handler para pesquisa
-    const debouncedFetchWebsites = debounce((value) => {
-        fetchWebsites(value);
-    }, 400);
-
-    const handleWebsitesSearch = (value) => {
-        setWebsitesSearch(value);
-        debouncedFetchWebsites(value);
+    const handleWebsitesInputChange = (inputValue) => {
+        if (webSearchTimeoutRef.current) clearTimeout(webSearchTimeoutRef.current);
+        webSearchTimeoutRef.current = setTimeout(() => {
+            fetchWebsites(inputValue);
+        }, 300);
     };
 
     const handleDirectoriesChange = (newDirs) => {
-        setDirectories(newDirs || []);
-        setValue("directories", newDirs || []);
+        const value = newDirs || [];
+        setDirectories(value);
+        setValue("directories", value.map(item => item.value));
         trigger("directories");
     };
-    const handleWebsitesChange = (newWebs) => {
-        setWebsites(newWebs || []);
-        websitesValueRef.current = newWebs || [];
-        setValue("websites", newWebs || []);
-        trigger("websites");
-    };
 
-    const handleValidateNameAndShortName = async (data) => {
-        const response = await api.get(`/tag/exists/${data}`);
-        setIsNameInvalid(response.data.result);
-    }
+    const handleWebsitesChange = (newWebsites) => {
+        setWebsites(newWebsites || []);
+    };
 
     const onSubmit = async (data) => {
         if (!data.categoryName || data.categoryName.length < 3) {
@@ -155,21 +155,38 @@ const CategoriesCreateForm = () => {
         }
         setIsSubmitting(true);
         try {
-            const payload = {
-                name: data.categoryName,
-                directories: directories,
-                websites: websites
-            };
             let response;
+            let tagId = id ? Number(id) : undefined;
             if (id) {
-                payload.defaultDirectories = defaultDirectories;
-                payload.defaultWebsites = defaultWebsites.map(web => web.value);
-                payload.tagId = id;
-                response = await api.post(`/tag/update`, payload);
+                response = await api.patch(`/tags`, { tagId: Number(id), name: data.categoryName });
             } else {
-                response = await api.post('/tag/create', payload);
+                response = await api.post('/tags', { name: data.categoryName });
+                tagId = response.data?.data?.id ?? response.data?.id;
             }
+
             if (response.status === 201 || response.status === 200) {
+                // The Tag resource has no endpoint of its own to save its websites/directories —
+                // that relation is only exposed from the Website/Directory side, so we diff and
+                // call their allocation endpoints once per affected website/directory.
+                if (tagId) {
+                    const currentDirIds = new Set(directories.map(item => Number(item.value)));
+                    const originalDirIds = new Set(originalDirectoryIdsRef.current);
+                    const dirsToAdd = [...currentDirIds].filter(dId => !originalDirIds.has(dId));
+                    const dirsToRemove = [...originalDirIds].filter(dId => !currentDirIds.has(dId));
+
+                    const currentWebIds = new Set(websites.map(item => Number(item.value)));
+                    const originalWebIds = new Set(originalWebsiteIdsRef.current);
+                    const websitesToAdd = [...currentWebIds].filter(wId => !originalWebIds.has(wId));
+                    const websitesToRemove = [...originalWebIds].filter(wId => !currentWebIds.has(wId));
+
+                    await Promise.all([
+                        ...dirsToAdd.map(dId => api.patch(`/directory/${dId}/tags`, { add: [tagId] })),
+                        ...dirsToRemove.map(dId => api.patch(`/directory/${dId}/tags`, { remove: [tagId] })),
+                        ...websitesToAdd.map(wId => api.patch(`/websites/${wId}/tags`, { add: [tagId] })),
+                        ...websitesToRemove.map(wId => api.patch(`/websites/${wId}/tags`, { remove: [tagId] })),
+                    ]);
+                }
+
                 setFeedbackMessage(id ? "Categoria atualizada com sucesso!" : "Categoria criada com sucesso!");
                 reset();
                 setDirectories([]);
@@ -177,7 +194,7 @@ const CategoriesCreateForm = () => {
             } else {
                 setFeedbackMessage("Erro ao salvar categoria. Tente novamente.");
             }
-        } catch (error) {
+        } catch {
             setFeedbackMessage("Erro ao salvar categoria. Tente novamente.");
         } finally {
             setIsSubmitting(false);
@@ -189,65 +206,83 @@ const CategoriesCreateForm = () => {
         <div>
             <Breadcrumb data={breadcrumbs} />
             <h1>{id ? "Editar Categoria" : "Criar Categoria"}</h1>
-            <form className="bg-white p-4 mt-3" onSubmit={handleSubmit(onSubmit)}>
+            <div className="bg-white p-4 mt-3">
                 <p>{t('CATEGORIES_PAGE.ADD.description_category')}</p>
                 <p>{t('CATEGORIES_PAGE.ADD.note')}</p>
                 <div className='w-50 d-flex flex-column gap-4'>
                     <h2>{id ? "Editar Categoria" : "Nova Categoria"}</h2>
-                    <Input
-                        id="categoryName"
-                        label={t('CATEGORIES_PAGE.ADD.name_label')}
-                        name="categoryName"
-                        type="text"
-                        darkTheme={theme}
-                        placeholder="Nome da categoria"
-                        {...register("categoryName", {
-                            required: "Campo obrigatório",
-                            minLength: { value: 3, message: "Nome deve ter pelo menos 3 caracteres" },
-                            maxLength: { value: 100, message: "Nome não pode exceder 100 caracteres" }
-                        })}
-                        onChange={e => {
-                            setValue("categoryName", e.target.value);
-                            handleValidateNameAndShortName(e.target.value);
-                        }}
-                        value={watchedName}    error={errors.categoryName?.message || isNameInvalid ? "O nome da categoria já existe" : ""}
-                    />
 
-                    <MultiSelect
-                        id="directories"
-                        darkTheme={theme}
-                        label={t('CATEGORIES_PAGE.ADD.directories_label') + ` ${t('HEADER.optional')}`}
-                        name="directories"
-                        value={directories || []}
-                        onChange={handleDirectoriesChange}
-                        options={directoriesOptions}
-                        placeholder="Selecione diretórios (opcional)"
-                        isValid={true}
-                    />
+                    {/* form only wraps fields that don't render internal buttons */}
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        <div className="d-flex flex-column gap-4">
+                            <Input
+                                id="categoryName"
+                                label={t('CATEGORIES_PAGE.ADD.name_label')}
+                                name="categoryName"
+                                type="text"
+                                darkTheme={theme}
+                                placeholder="Nome da categoria"
+                                {...register("categoryName", {
+                                    required: "Campo obrigatório",
+                                    minLength: { value: 3, message: "Nome deve ter pelo menos 3 caracteres" },
+                                    maxLength: { value: 100, message: "Nome não pode exceder 100 caracteres" }
+                                })}
+                                onChange={e => setValue("categoryName", e.target.value)}
+                                value={watchedName}
+                                error={errors.categoryName?.message}
+                            />
 
-                    <MultiSelect
-                        id="websites"
+                            <MultiSelectTable
+                                id="directories"
+                                darkTheme={theme}
+                                label={t('CATEGORIES_PAGE.ADD.directories_label') + ` ${t('HEADER.optional')}`}
+                                selected={directories}
+                                onSelectedChange={handleDirectoriesChange}
+                                options={directoriesOptions}
+                                onInputChange={handleDirectoriesInputChange}
+                                isLoading={isDirectoriesLoading}
+                                placeholder="Pesquise e selecione diretórios..."
+                                noOptionsMessage={() => "Nenhum diretório encontrado"}
+                                loadingMessage={() => "A pesquisar..."}
+                                isValid={true}
+                                columnLabel="Diretório"
+                                tableCaption="Diretórios selecionados"
+                                emptyMessage="Nenhum diretório selecionado."
+                            />
+                        </div>
+                    </form>
+
+                    {/* Website picker lives outside the form to prevent internal buttons from submitting */}
+                    <MultiSelectTable
+                        id="websitePicker"
                         darkTheme={theme}
                         label={`${t('CATEGORIES_PAGE.ADD.websites_label')} ${t('HEADER.optional')}`}
-                        name="websites"
-                        value={websites || []}
-                        onChange={handleWebsitesChange}
-                        onInputChange={handleWebsitesSearch}
-                        options={websitesOptions || []}
-                        placeholder="Selecione websites (opcional)"
+                        selected={websites}
+                        onSelectedChange={handleWebsitesChange}
+                        options={websitesOptions}
+                        onInputChange={handleWebsitesInputChange}
+                        isLoading={isWebsitesLoading}
+                        placeholder="Pesquise e selecione sítios web para adicionar..."
+                        noOptionsMessage={() => "Nenhum sítio web encontrado"}
+                        loadingMessage={() => "A pesquisar..."}
                         isValid={true}
-                        
+                        columnLabel="Sítio Web"
+                        tableCaption="Sítios web selecionados"
+                        emptyMessage="Nenhum sítio web selecionado."
                     />
 
+                    {/* Submit buttons outside the form, trigger submit via onClick */}
                     <div className="d-flex justify-content-start">
                         <Button
                             darkTheme={theme}
-                            type="submit"
-                            text={isSubmitting ? (id ? "A atualizar..." : "A guardar...") : (id ? "Atualizar e Sair" : t('ADMIN_CONSOLE.save_and_exit'))}
-                            disabled={isSubmitting || !watchedName || watchedName.length < 3 || isNameInvalid}
+                            text={isSubmitting
+                                ? (id ? "A atualizar..." : "A guardar...")
+                                : (id ? "Atualizar e Sair" : t('ADMIN_CONSOLE.save_and_exit'))
+                            }
+                            disabled={isSubmitting || !watchedName || watchedName?.length < 3}
+                            onClick={handleSubmit(onSubmit)}
                         />
                         <Button
-                            type="button"
                             className="ms-3"
                             darkTheme={theme}
                             text="Sair"
@@ -256,7 +291,8 @@ const CategoriesCreateForm = () => {
                         />
                     </div>
                 </div>
-            </form>
+            </div>
+
             <Modal
                 isOpen={showFeedbackModal}
                 onRequestClose={() => setShowFeedbackModal(false)}
@@ -277,5 +313,6 @@ const CategoriesCreateForm = () => {
             </Modal>
         </div>
     );
-}
+};
+
 export default CategoriesCreateForm;

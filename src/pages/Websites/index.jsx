@@ -1,32 +1,24 @@
-import React, { useState, useEffect } from "react";
-import {
-  Button,
-  InputSearch,
-  SortingTable,
-  Breadcrumb,
-  RadioGroup,
-} from "@a12e/accessmonitor-ds";
+import { useState, useEffect, useCallback } from "react";
+import { sortFields } from "./table.config.jsx";
+import { useServerSort } from "../../hooks/useServerSort";
+import qs from "qs";
+import { Button, Breadcrumb } from "@a12e/accessmonitor-ds";
 import "./style.users.css";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  directoriesHeaders,
-  dataRows,
-  columnsOptions,
-  nameOfIcons,
-  paginationButtonsTexts,
-} from "./table.config.jsx";
 import ContentListWebSites from "./components/ContentListWebSites.jsx";
 import { useTranslation } from "react-i18next";
 import { api } from "../../config/api";
-import moment from "moment";
 import { Modal } from "../../components/Modal";
 import { useTheme } from "../../context/ThemeContext";
-import CrawlingModal from "../../components/CrawlingModal";
 import { setRootNavigationContext, setWebsiteNavigationContext } from "../../utils/navigation";
 import { useUniqueCheckboxSelection } from "../../hooks/useUniqueCheckboxSelection";
+import { usePermissions } from "../../context/AuthContext";
+import { deleteWebsites, getDeleteWebsitesErrorKey } from "../../services/websites";
+import { evaluateWebsites, getEvaluationFeedback } from "../../services/evaluations";
 
 const WebSiteList = () => {
   const { t } = useTranslation();
+  const { canCreate, canEdit, canDelete } = usePermissions();
   const { theme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
@@ -35,12 +27,12 @@ const WebSiteList = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);
+  const { sorts, onSortChange } = useServerSort(sortFields, () => setCurrentPage(1));
   const [search, setSearch] = useState("");
-  const [showModal, setShowModal] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-  const [showCrawlingModal, setShowCrawlingModal] = useState(false);
+  const [, setShowCrawlingModal] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
-  const [radioValue, setRadioValue] = useState(1);
+  const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
   const breadcrumbs = [
     { children: <Link to="/dashboard/home">Início</Link> },
     {
@@ -63,55 +55,46 @@ const WebSiteList = () => {
     localStorage.setItem("currentPath", currentPath);
   }, [location.pathname]);
 
-  const handleSearchChange = (value) => {
-    setSearch(value.target.value);
-    setCurrentPage(1); // Reset to first page when searching
+  const handleSearchChange = (e) => {
+    const value = typeof e === 'string' ? e : (e?.target?.value ?? "");
+    setSearch(value);
+    setCurrentPage(1);
   };
-  
-  const fetchData = async (searchValue, page, perPage) => {
-    // Use passed parameters to ensure consistency
-    const searchParam = searchValue !== undefined ? searchValue : search;
-    const pageParam = page !== undefined ? page : currentPage;
-    const perPageParam = perPage !== undefined ? perPage : itemsPerPage;
-    
-    const responseTotal = await api.get(`/website/all/count/search=${searchParam}`);
-    setTotalItems(Number(responseTotal.data.result));
-    const offset = pageParam - 1;
-    const response = await api.get(
-      `/website/all/${perPageParam}/${offset}/sort=/direction=/search=${searchParam}`
-    );
+
+  const fetchData = useCallback(async (page, limit, search) => {
+    const queryObj = { pagination: { limit, page } };
+    if (search) queryObj.filters = { searchTerm: search };
+    if (sorts) queryObj.sorts = sorts;
+    const query = qs.stringify(queryObj);
+    const response = await api.get(`/websites?${query}`);
+    const { data, pagination } = response.data;
     setData(
-      response.data.result.map((item) => ({
-        id: item.WebsiteId,
-        Name: item.Name,
-        StartingUrl: item.StartingUrl,
-        Pages: item.Pages + "(" + item.Evaluated_Pages + ")",
-        Creation_Date: moment(item.Creation_Date).format("DD/MM/YYYY"),
+      data.map((item) => ({
+        id: item.id,
+        Title: item.title,
+        BaseUrl: item.baseUrl,
+        Creation_Date: new Date(item.createdAt),
         edit: "Editar",
       }))
     );
-  };
-  
-  // Fetch total count and current page data
-  useEffect(() => {
-    fetchData(search, currentPage, itemsPerPage);
-  }, [currentPage, itemsPerPage, search]);
+    setTotalItems(pagination.totalItems);
+  }, [sorts]);
 
-  // Handle page change
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      fetchData(currentPage, itemsPerPage, search);
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [currentPage, itemsPerPage, search, fetchData]);
+
   const handlePageChange = (page) => setCurrentPage(page);
 
-  // Handle items per page change
   const handleItemsPerPageChange = (n) => {
     setItemsPerPage(n);
-    setCurrentPage(1); // Reset to first page
+    setCurrentPage(1);
   };
 
-  const handleCrawlingWebsites = async ({
-    maxDepth,
-    maxPages,
-    waitJS,
-    selectedItems,
-  }) => {
+  const handleCrawlingWebsites = async (selectedItems) => {
     if (selectedItems.length === 0) {
       setFeedbackMessage(
         "Por favor, selecione pelo menos um sítio web para fazer crawling."
@@ -120,61 +103,53 @@ const WebSiteList = () => {
       return;
     }
 
-    const websites = selectedItems.map((item) => ({
-      url: data.find((d) => d.id === item.id).StartingUrl,
-      websiteId: item.id,
-    }));
+    const websitesId = selectedItems.map(item => item.id);
 
     try {
-      const response = await api.post("/crawler/crawl", {
-        websites: websites,
-        maxDepth: maxDepth,
-        maxPages: maxPages,
-        waitJS: waitJS ? 1 : 0,
+      const responses = await api.post(`/discovery`, {
+        websitesId
       });
 
-      if (response.status === 201 || response.status === 200) {
-        setFeedbackMessage(
-          "O crawling foi iniciado com sucesso! O processo será executado em segundo plano."
-        );
+      if (responses.status === 201 || responses.status === 200) {
+        setFeedbackMessage("O crawling foi iniciado com sucesso! O processo será executado em segundo plano.");
         setCheckboxesSelected([]);
         setShowCrawlingModal(false);
-        await fetchData(search, currentPage, itemsPerPage);
+        await fetchData(1, itemsPerPage, "");
       }
-    } catch (error) {
+    } catch {
       setFeedbackMessage("Erro ao iniciar o crawling. Tente novamente.");
     }
     setShowFeedbackModal(true);
   };
 
-  // Handle delete websites
-  const handleDeleteWebsites = async () => {
+  const handleDeleteWebsites = () => {
+    if (!canDelete) return;
     if (checkboxesSelected.length === 0) {
-      setFeedbackMessage(
-        "Por favor, selecione pelo menos um sítio web para eliminar."
-      );
+      setFeedbackMessage("Por favor, selecione pelo menos um sítio web para eliminar.");
       setShowFeedbackModal(true);
       return;
     }
+    setShowConfirmDeleteModal(true);
+  };
+
+  const confirmDeleteWebsites = async () => {
+    if (!canDelete) return;
     const websiteIds = checkboxesSelected.map((item) => item.id);
     try {
-      const response = await api.post("/website/deleteBulk", {
-        websitesId: websiteIds,
-      });
-
-      if (response.status === 201 || response.status === 200) {
-        setFeedbackMessage("Sítios web eliminados com sucesso!");
-        setCheckboxesSelected([]);
-        await fetchData(search, currentPage, itemsPerPage);
-      }
+      await deleteWebsites(websiteIds);
+      setFeedbackMessage(t("WEBSITES_DELETE.success", { count: websiteIds.length }));
+      setCheckboxesSelected([]);
+      await fetchData(currentPage, itemsPerPage, search);
     } catch (error) {
-      setFeedbackMessage("Erro ao eliminar sítios web. Tente novamente.");
+      setFeedbackMessage(t(getDeleteWebsitesErrorKey(error)));
     }
+    setShowConfirmDeleteModal(false);
     setShowFeedbackModal(true);
   };
 
   // Handle delete pages
   const handleDeletePagesWebsites = async () => {
+    if (!canDelete) return;
     if (checkboxesSelected.length === 0) {
       setFeedbackMessage(
         "Por favor, selecione pelo menos um sítio web para eliminar páginas."
@@ -192,9 +167,9 @@ const WebSiteList = () => {
         setFeedbackMessage("Páginas dos sítios web eliminadas com sucesso!");
         setCheckboxesSelected([]);
         setSearch("");
-        await fetchData("", 1, itemsPerPage);
+        await fetchData(1, itemsPerPage, "");
       }
-    } catch (error) {
+    } catch {
       setFeedbackMessage(
         "Erro ao eliminar páginas dos sítios web. Tente novamente."
       );
@@ -204,27 +179,23 @@ const WebSiteList = () => {
 
   // Handle re-evaluate websites
   const handleReevaluateWebsites = async () => {
-    const websiteIds = checkboxesSelected.map((item) => item.id);
-    const reEvaluate = radioValue === "1" ? "all" : "observatory";
+    if (!canEdit) return;
+    if (checkboxesSelected.length === 0) {
+      setFeedbackMessage(t("EVALUATIONS.none_selected_websites"));
+      setShowFeedbackModal(true);
+      return;
+    }
     try {
-      const response = await api.post("/website/reEvaluate", {
-        websitesId: websiteIds,
-        option: reEvaluate,
-      });
-
-      if (response.status === 201 || response.status === 200) {
-        setFeedbackMessage(
-          "As páginas irão ser avaliadas em segundo plano, e a sua informação estará disponível assim que possível."
-        );
+      const result = await evaluateWebsites(checkboxesSelected.map((item) => item.id));
+      const { key, params } = getEvaluationFeedback(result);
+      setFeedbackMessage(t(key, params));
+      if (result.succeeded.length > 0) {
         setCheckboxesSelected([]);
-        setShowModal(false);
         setSearch("");
-        fetchData("", 1, itemsPerPage);
+        await fetchData(1, itemsPerPage, "");
       }
-    } catch (error) {
-      setFeedbackMessage(
-        "Erro ao iniciar reavaliação dos sítios web. Tente novamente."
-      );
+    } catch {
+      setFeedbackMessage(t("EVALUATIONS.error"));
     }
     setShowFeedbackModal(true);
   };
@@ -238,7 +209,19 @@ const WebSiteList = () => {
         AdminMonitorSuite, num total de {totalItems} sítios web.
       </p>
       <div>
+        {canCreate && (
+        <div className="d-flex gap-2 mb-3">
+          <Button
+            darkTheme={theme}
+            text="Criar sítio web"
+            icon={"AMA-Adicionar-Line"}
+            className="btn-primary"
+            onClick={() => navigate("/dashboard/websites/create")}
+          />
+        </div>
+        )}
         <ContentListWebSites
+          onSortChange={onSortChange}
           title={t("WEBSITES_PAGE.LIST.subtitle_list")}
           checkboxesSelected={checkboxesSelected}
           setCheckboxesSelected={setCheckboxesSelected}
@@ -253,42 +236,22 @@ const WebSiteList = () => {
           handleSearchChange={handleSearchChange}
           onDeleteWebsites={handleDeleteWebsites}
           onDeletePagesWebsites={handleDeletePagesWebsites}
-          onReevaluateWebsites={() => setShowModal(true)}
-          onCrawlWebsites={() => setShowCrawlingModal(true)}
+          onReevaluateWebsites={handleReevaluateWebsites}
+          onCrawlWebsites={handleCrawlingWebsites}
           navigate={navigate}
           setItemsPerPage={setItemsPerPage}
         />
       </div>
       <Modal
-        isOpen={showModal}
-        onRequestClose={() => setShowModal(false)}
-        title={t("WEBSITES_PAGE.LIST.re_evaluate_websites")}
+        isOpen={showConfirmDeleteModal}
+        onRequestClose={() => setShowConfirmDeleteModal(false)}
+        title="Eliminar Sítios Web"
       >
-        <p>Escolha que páginas quer reavaliar</p>
-        <RadioGroup
-          darkTheme={theme}
-          data={[
-            {
-              id: "1",
-              name: "Todas as páginas",
-            },
-            {
-              id: "2",
-              name: "Apenas as páginas do observatório",
-            },
-          ]}
-          inline
-          onChange={(value) => setRadioValue(value)}
-          value={radioValue}
-          name="format"
-        />
-        <Button
-          darkTheme={theme}
-          text={t("WEBSITES_PAGE.LIST.re_evaluate_websites")}
-          icon={"AMA-Adicionar-Line"}
-          className="btn-primary"
-          onClick={handleReevaluateWebsites}
-        />
+        <p>Tem a certeza que pretende eliminar {checkboxesSelected.length} sítio(s) web selecionado(s)?</p>
+        <div className="d-flex gap-2">
+          <Button darkTheme={theme} text="Confirmar" className="btn-primary" onClick={confirmDeleteWebsites} />
+          <Button darkTheme={theme} text="Cancelar" variant="danger" onClick={() => setShowConfirmDeleteModal(false)} />
+        </div>
       </Modal>
       <Modal
         isOpen={showFeedbackModal}
@@ -303,14 +266,7 @@ const WebSiteList = () => {
           onClick={() => setShowFeedbackModal(false)}
         />
       </Modal>
-      <CrawlingModal
-        isOpen={showCrawlingModal}
-        onRequestClose={() => setShowCrawlingModal(false)}
-        onSubmit={handleCrawlingWebsites}
-        theme={theme}
-        selectedItems={checkboxesSelected}
-        itemType="websites"
-      />
+
     </div>
   );
 };

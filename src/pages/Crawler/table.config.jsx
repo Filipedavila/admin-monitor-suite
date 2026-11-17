@@ -13,11 +13,14 @@ export const directoriesHeaders = [
 ];
 
 // Column rendering options
-export const columnsOptions = (navigate) => {
+export const columnsOptions = (navigate, setCheckboxesSelected) => {
   return {
   id: { type: "Checkbox", center: true, bold: false, decimalPlace: false, 
     onClick: (row) => {
-      setCheckboxesSelected([...checkboxesSelected, row.id]);
+      // Antes usava variáveis fora de âmbito (ReferenceError); agora recebe o setter da página.
+      setCheckboxesSelected?.((selected) =>
+        selected.some((item) => item.id === row.id) ? selected : [...selected, row]
+      );
     },
   },
   url: { 
@@ -28,7 +31,7 @@ export const columnsOptions = (navigate) => {
     isCheckboxLabel: true, 
   },
   startDate: { type: "Text", center: true, bold: false, decimalPlace: false },
-  status: { type: "Text", center: true, bold: false, decimalPlace: false },
+  status: { type: "DangerousHTML", center: true, bold: false, decimalPlace: false },
   results: {
     type: "Button", text: "Ver", onClick: (row) => {
       navigate(`/dashboard/crawler/details/${row.id}/${row.websiteId}`)
@@ -70,4 +73,8 @@ export const columnsOptionsCrawlDetails = {
 
 // Icon alt texts and pagination (optional, can be empty or copied from other modules)
 export const nameOfIcons = [];
-export const paginationButtonsTexts = []; 
+export const paginationButtonsTexts = [];
+
+// Table column property -> backend sort field (sorts[field]=ASC|DESC)
+export const sortFields = { status: "status" };
+export const sortFieldsCrawlDetails = { Uri: "url" };

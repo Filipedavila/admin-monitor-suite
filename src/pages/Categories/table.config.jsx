@@ -1,32 +1,35 @@
 import i18n from '../../i18n';
-import { useNavigate } from 'react-router-dom';
-const apiUrl = import.meta.env.VITE_API_URL + import.meta.env.VITE_ROUTE_URL;
+const apiUrl = import.meta.env.VITE_API_URL + import.meta.env.VITE_ROUTE_URL.replace(/\/$/, "") + "/";
 
 export const categoriesHeaders = [
   [
-    {type: "Checkbox", nRow: 1, name: i18n.t('MISC.select'), property: "id", justifyCenter: true},
-    {type: "SortingText", nRow: 1, name: i18n.t('CATEGORIES_PAGE.LIST.table.name_label'), property: "Name"},
-    {type: "SortingText", nRow: 1, name: i18n.t('CATEGORIES_PAGE.LIST.table.websites_label'), property: "Websites", justifyCenter: true},
+    { type: "Checkbox", nRow: 1, name: i18n.t('MISC.select'), property: "id", justifyCenter: false },
+    { type: "SortingText", nRow: 1, name: i18n.t('CATEGORIES_PAGE.LIST.table.name_label'), property: "Name"},
     { type: "SortingText", nRow: 1, name: i18n.t('USERS_PAGE.LIST.table.edit_label'), property: "edit", justifyCenter: true },
-
   ]
 ]
 
-export const columnsOptions = (navigate)=>({
+export const columnsOptions = (navigate) => ({
   id: { type: "Checkbox", center: true, bold: false, decimalPlace: false, label: "Selecionar" },
-  Name: { type: "Link", 
-    center: false, 
-    bold: false, 
+  Name: {
+    type: "Link",
+    center: true,
+    bold: false,
     decimalPlace: false,
     isCheckboxLabel: true,
-    href: (row) => {
-    return `${apiUrl}dashboard/categories/view/${row.Name}`
-  } },
-  Websites: { type: "Text", center: false, bold: false, decimalPlace: false },
-  edit: { type: "Button",text:i18n.t('USERS_PAGE.LIST.table.edit_label'), onClick: (row)=>{ 
-    navigate(`${import.meta.env.VITE_ROUTE_URL}dashboard/categories/edit/${row.id}`)
-  }, center: true, bold: false, decimalPlace: false },
- })
+    href: (row) => `${apiUrl}dashboard/categories/view/${row.Name}`,
+  },
+  edit: {
+    type: "Button",
+    text: i18n.t('USERS_PAGE.LIST.table.edit_label'),
+    onClick: (row) => {
+      navigate(`/dashboard/categories/edit/${row.id}`)
+    },
+    center: true,
+    bold: false,
+    decimalPlace: false,
+  },
+})
 
 
 export const nameOfIcons = [
@@ -143,3 +146,6 @@ export const detailsTableHeaders = [
             "level": "AA",
         }
     ]
+
+// Table column property -> backend sort field (sorts[field]=ASC|DESC)
+export const sortFields = { Name: "name" };

@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
+import qs from "qs";
 import {
   Button,
   InputSearch,
@@ -6,38 +7,40 @@ import {
   Breadcrumb,
 } from "@a12e/accessmonitor-ds";
 import "./style.users.css";
-import {
-  directoriesHeaders,
-  columnsOptions,
-  nameOfIcons,
-  paginationButtonsTexts,
-} from "./table.config";
-import { useForm } from "react-hook-form";
+import { directoriesHeaders, columnsOptions, sortFields, nameOfIcons } from "./table.config";
+import { useServerSort, MAX_ITEMS_PER_PAGE } from "../../hooks/useServerSort";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
 import { useTranslation } from "react-i18next";
 import { api } from "../../config/api";
-import moment from "moment";
 import { Modal } from "../../components/Modal";
 import { useUniqueCheckboxSelection } from "../../hooks/useUniqueCheckboxSelection";
+import { usePermissions } from "../../context/AuthContext";
+import { filterEditColumn } from "../../utils/permissions";
+
+// Matches the `permissionOptions` labels in UserCreateForm.jsx
+const PERMISSION_LABELS = {
+  manager: "Administrador",
+  viewer: "Leitor",
+  editor: "Editor",
+};
 
 const UserList = () => {
   const navigate = useNavigate();
+  const { canCreate, canEdit, canDelete } = usePermissions();
   const location = useLocation();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
   const { theme } = useTheme();
   const { t } = useTranslation();
   const [allUsers, setAllUsers] = useState([]);
+  const [totalItems, setTotalItems] = useState(0);
   const [checkboxesSelected, setCheckboxesSelected] = useUniqueCheckboxSelection([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);
+  const { sorts, onSortChange, sortHeaders } = useServerSort(sortFields, () => setCurrentPage(1));
   const [searchTerm, setSearchTerm] = useState("");
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   useEffect(() => {
     const currentPath = location.pathname;
@@ -53,41 +56,38 @@ const UserList = () => {
     { title: "Utilizadores" },
   ];
 
-  const fetchData = async () => {
-    const response = await api.get("/user/all");
+  const fetchData = useCallback(async (page, limit, search) => {
+    const queryObj = {
+      sorts: sorts ?? { role: "DESC", updatedAt: "DESC" },
+      pagination: { limit, page },
+    };
+    if (search) queryObj.filters = { searchTerm: search };
+    const query = qs.stringify(queryObj);
+    const response = await api.get(`/users?${query}`);
+    const { data, pagination } = response.data;
     setAllUsers(
-      response.data.result.map((item) => ({
-        id: item.UserId,
-        Username: item.Username,
-        Type: item.Type === "nimda" ? "AMS" : "MyMonitor",
-        Websites: item.Websites + "",
-        Last_Login: moment(item.Last_Login).format("DD/MM/YYYY"),
-        Register_Date: moment(item.Register_Date).format("DD/MM/YYYY"),
-        edit: "Editar",
-      }))
+      data.map((item) => {
+        const appLabel = item.role?.displayName ?? "—";
+        return {
+          id: item.id,
+          Username: item.username,
+          Aplicacao: appLabel == 'ADMIN' ? "AMS" : "MyMonitor",
+          Perfil: PERMISSION_LABELS[item.permission] ?? item.permission ?? "—",
+          Equipas:item.teamCount,
+          SitiosWeb: item.websiteCount,
+          edit: "Editar",
+        };
+      })
     );
-  };
+    setTotalItems(pagination.totalItems);
+  }, [sorts]);
 
   useEffect(() => {
-    fetchData();
-  }, []);
-
-  // Filter users based on search term
-  const filteredUsers = useMemo(() => {
-    if (!searchTerm.trim()) {
-      return allUsers;
-    }
-    return allUsers.filter((user) =>
-      user.Username.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [allUsers, searchTerm]);
-
-  const totalItems = filteredUsers.length;
-  const paginatedData = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    return filteredUsers.slice(start, end);
-  }, [filteredUsers, currentPage, itemsPerPage]);
+    const timeout = setTimeout(() => {
+      fetchData(currentPage, itemsPerPage, searchTerm);
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [currentPage, itemsPerPage, searchTerm, fetchData]);
 
   const handlePageChange = (page) => setCurrentPage(page);
   const handleItemsPerPageChange = (n) => {
@@ -95,42 +95,38 @@ const UserList = () => {
     setCurrentPage(1);
   };
 
-  const handleSearchChange = (value) => {
-    setSearchTerm(value.target.value);
-    setCurrentPage(1); // Reset to first page when searching
+  const handleSearchChange = (e) => {
+    const value = typeof e === 'string' ? e : (e?.target?.value ?? "");
+    setSearchTerm(value);
+    setCurrentPage(1);
   };
 
-  // Handle delete users
-  const handleDeleteUsers = async () => {
+  const handleDeleteUsers = () => {
+    if (!canDelete) return;
     if (checkboxesSelected.length === 0) {
-      setFeedbackMessage(
-        "Por favor, selecione pelo menos um utilizador para eliminar."
-      );
+      setFeedbackMessage("Por favor, selecione pelo menos um utilizador para eliminar.");
       setShowFeedbackModal(true);
       return;
     }
-
-    try {
-      const userIds = checkboxesSelected.map(async (item) => {
-        const response = await api.post("/user/delete", {
-          userId: item.id,
-          app: "nimda",
-        });
-        return response.data.result.UserId;
-      });
-      setFeedbackMessage("Utilizadores eliminados com sucesso!");
-      setCheckboxesSelected([]);
-      setSearchTerm("");
-      fetchData();
-    } catch (error) {
-      setFeedbackMessage("Erro ao eliminar utilizadores. Tente novamente.");
-    }
-    setShowFeedbackModal(true);
+    setShowConfirmModal(true);
   };
 
-  const onSubmit = (formData) => {
-    console.log("User data:", formData);
-    // Lógica de criação de utilizador, se for o caso
+  const confirmDeleteUsers = async () => {
+    if (!canDelete) return;
+    try {
+      await Promise.all(
+        checkboxesSelected.map(item =>
+          api.delete(`/users/${item.id}`)
+        )
+      );
+      setFeedbackMessage("Utilizadores eliminados com sucesso!");
+      setCheckboxesSelected([]);
+      await fetchData(1, itemsPerPage, "");
+    } catch {
+      setFeedbackMessage("Erro ao eliminar utilizadores. Tente novamente.");
+    }
+    setShowConfirmModal(false);
+    setShowFeedbackModal(true);
   };
 
   return (
@@ -142,6 +138,17 @@ const UserList = () => {
       </p>
 
       <div className="content bg-white">
+        {canCreate && (
+        <div className="d-flex gap-2 mb-3">
+          <Button
+            darkTheme={theme}
+            text="Criar utilizador"
+            icon={"AMA-Adicionar-Line"}
+            className="btn-primary"
+            onClick={() => navigate("/dashboard/users/create")}
+          />
+        </div>
+        )}
         <h2>{t("USERS_PAGE.LIST.title")}</h2>
         <div className="d-flex gap-2 align-items-center mb-4">
           <span>{t("MISC.filter")}</span>
@@ -153,20 +160,11 @@ const UserList = () => {
             onChange={handleSearchChange}
           />
         </div>
-        <Button
-          darkTheme={theme}
-          text={t("USERS_PAGE.LIST.delete_users")}
-          icon={"AMA-Adicionar-Line"}
-          className="btn-primary mb-3"
-          onClick={handleDeleteUsers}
-          disabled={checkboxesSelected.length === 0}
-        />
-
         <SortingTable
           darkTheme={theme}
-          headers={directoriesHeaders}
+          headers={sortHeaders(filterEditColumn(directoriesHeaders, canEdit))}
           setDataList={setAllUsers}
-          dataList={paginatedData}
+          dataList={allUsers}
           columnsOptions={columnsOptions(navigate)}
           nextPage={() => null}
           caption={t("USERS_PAGE.LIST.table.title")}
@@ -178,6 +176,8 @@ const UserList = () => {
           totalItems={totalItems}
           currentPage={currentPage}
           serverSidePagination={true}
+          onSortChange={onSortChange}
+          maxItemsPerPage={MAX_ITEMS_PER_PAGE}
           itemsPerPage={itemsPerPage}
           onPageChange={handlePageChange}
           onItemsPerPageChange={handleItemsPerPageChange}
@@ -188,18 +188,41 @@ const UserList = () => {
             "Última página",
           ]}
           nItemsPerPageTexts={[
-            "Ver", // see
-            "por página", // per_page
-            "Selector de itens por página", // selectorAria
-            "Navegação do seletor de itens por página", // selectorNav
+            "Ver",
+            "por página",
+            "Selector de itens por página",
+            "Navegação do seletor de itens por página",
           ]}
           itemsPaginationTexts={[
-            " de ", // of
-            " itens ", // items
+            " de ",
+            " itens ",
           ]}
           rowKey="id"
         />
+        {canDelete && (
+        <div className="d-flex gap-2 mt-3">
+          <Button
+            darkTheme={theme}
+            text={t("USERS_PAGE.LIST.delete_users")}
+            icon={"AMA-Adicionar-Line"}
+            className="btn-primary"
+            onClick={handleDeleteUsers}
+            disabled={checkboxesSelected.length === 0}
+          />
+        </div>
+        )}
       </div>
+      <Modal
+        isOpen={showConfirmModal}
+        onRequestClose={() => setShowConfirmModal(false)}
+        title="Eliminar Utilizadores"
+      >
+        <p>Tem a certeza que pretende eliminar {checkboxesSelected.length} utilizador(es) selecionado(s)?</p>
+        <div className="d-flex gap-2">
+          <Button darkTheme={theme} text="Confirmar" className="btn-primary" onClick={confirmDeleteUsers} />
+          <Button darkTheme={theme} text="Cancelar" variant="danger" onClick={() => setShowConfirmModal(false)} />
+        </div>
+      </Modal>
       <Modal
         isOpen={showFeedbackModal}
         onRequestClose={() => setShowFeedbackModal(false)}

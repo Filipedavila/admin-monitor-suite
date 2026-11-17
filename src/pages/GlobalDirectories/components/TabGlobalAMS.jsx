@@ -1,28 +1,22 @@
 // ⚠️ This version replaces your debounced local processing with a Web Worker
 // Make sure to create a file: `src/workers/aggregation.worker.js` (see below)
 
-import { useEffect, useState, useMemo, useRef, useCallback } from "react";
-import { Button, StatisticsHeader, SortingTable, Tabs } from "@a12e/accessmonitor-ds";
-import { Bar, Radar } from "react-chartjs-2";
+import { useEffect, useState, useRef, useCallback } from "react";
+import { Button, SortingTable, Tabs } from "@a12e/accessmonitor-ds";
+import { useNavigate } from "react-router-dom";
+import { ScoreDistributionRadar } from "../../../components/ScoreDistributionRadar";
 import { AccessibleBarChart } from "../../../components/AccessibleBarChart";
-import GoodBadTab  from "../../../components/GoodBadTab/GoodBadTab.jsx";
-import { detailsTableHeaders, columnsOptionsDetails, ariaLabels, detailsTable } from "../../Directories/table.config.jsx";
+import { detailsTableHeaders, columnsOptionsDetails, ariaLabels } from "../../Directories/table.config.jsx";
 import Indicators from "../../../components/Indicators/index.jsx";
 import { headersBarLine } from "../../../components/BarLineGraph/table.config.jsx";
 import { api } from "../../../config/api.js";
 import { useTranslation } from "react-i18next";
-import { downloadCSVByDirectory, groupPracticesBySuccessCriteria } from "../../../utils/utils.js";
-import moment from "moment";
+import { buildGlobalAnalyticsView } from "../../../utils/utils.js";
+import { downloadAnalyticsExport } from "../../../services/analytics.js";
 const TabGlobalAMS = ({
-  theme,
-  columnsOptionsBar,
-  barDataCopy,
-  statsTitle,
-  barOptionsCopy,
-  dataHeadersBar,
-  dataListBarParams,
-  headerBarlineBar
+  theme
 }) => {
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const workerRef = useRef(null);
 
@@ -65,7 +59,6 @@ const TabGlobalAMS = ({
   });
   const [dataListBar, setDataListBar] = useState([]);
   const [directories, setDirectories] = useState([]);
-  const [initialDataRadar, setInitialDataRadar] = useState([]);
   const [initialDataListDetails, setInitialDataListDetails] = useState([]);
   const [initialDataListDetailsBad, setInitialDataListDetailsBad] = useState([]);
   const [initialSuccessCriteriaSuccess, setInitialSuccessCriteriaSuccess] = useState([]);
@@ -74,29 +67,11 @@ const TabGlobalAMS = ({
 
   const fetchDataGlobalAMS = useCallback(async () => {
     try {
-        const response = await api.get('/totals');
-        const indicators = response.data.result;
-        setInitialListItems([
-          { title: 'Pontuação média', value: indicators.averageScore.toFixed(1) },
-          { title: 'Avaliação mais antiga de uma página', value: moment(indicators.oldestEvaluation).format('DD/MM/YYYY') },
-          { title: 'Avaliação mais recente de uma página', value: moment(indicators.mostRecentEvaluation).format('DD/MM/YYYY') },
-          { title: 'Nº de Diretórios', value: indicators.directories },
-          { title: 'Nº de Entidades', value: indicators.entities },
-          { title: 'Nº de Sítios Web', value: indicators.websites },
-          { title: 'Nº de Páginas', value: indicators.pages },
-          { title: 'Nº médio de Páginas por Sítio', value: (indicators.pages / indicators.websites).toFixed(1) },
-        ]);
-        setInitialListItemsGlobal([
-          { title: 'Sítios Web', value: indicators.websites },
-          { title: 'Sítios Web não conformes', value: indicators.nonConformingWebsites},
-          { title: 'Sítios Web conformes', value: indicators.conformingWebsites,
-            itemsList: [
-              { title: 'Conformidade A', value: indicators.levelAConformingWebsites },
-              { title: 'Conformidade AA', value: indicators.levelAAConformingWebsites },
-              { title: 'Conformidade AAA', value: indicators.levelAAAConformingWebsites },
-            ]
-          },
-        ]);
+        const response = await api.get('/analytics/global');
+        const view = buildGlobalAnalyticsView(response.data.data.ams, t);
+
+        setInitialListItems(view.listItems);
+        setInitialListItemsGlobal(view.listItemsGlobal);
 
         setInitialBarDataStructure({
           labels: headersBarLine,
@@ -104,7 +79,7 @@ const TabGlobalAMS = ({
             {
               type: 'bar',
               label: "Frequência (nº de páginas)",
-              data: Object.values(indicators.scoreRanges),
+              data: view.scoreDistribution,
               backgroundColor: '#339',
               categoryPercentage: 1,
               barPercentage: 1,
@@ -112,111 +87,46 @@ const TabGlobalAMS = ({
             }
           ]
         });
-        const dataListBarArray = []
-        const scoreRanges = Object.values(indicators.scoreRanges);
-        scoreRanges.map((item, index) => {
-          const totalPages = Object.values(indicators.scoreRanges).reduce((acc, curr) => acc + curr, 0);
-          dataListBarArray.push({
-            range: `[${index + 1} - ${index + 2}[`,
-            frequency: scoreRanges[index],
-            frequency_percent: `${((scoreRanges[index] / totalPages) * 100).toFixed(2)}%`,
-            cumulative: scoreRanges.slice(0, index + 1).reduce((acc, curr) => acc + curr, 0),
-            cumulative_percent: `${((scoreRanges.slice(0, index + 1).reduce((acc, curr) => acc + curr, 0) / totalPages) * 100).toFixed(2)}%`
-          });
-        });
-        
-        setDataListBar(dataListBarArray);
-        const directoriesKeys = Object.keys(indicators.directoryAverageScores);
-        setDirectories(directoriesKeys);
-        const radarData = Object.values(indicators.directoryAverageScores).map((directory, index) => ({averageScore: directory, domain: directoriesKeys[index]}));
-        setInitialDataRadar(radarData);
+        setDataListBar(view.dataListBar);
+
+        setInitialDataListDetails(view.detailsGood);
+        setInitialDataListDetailsBad(view.detailsBad);
+
+        setInitialSuccessCriteriaSuccess(view.successCriteriaGood);
+        setInitialSuccessCriteriaErrors(view.successCriteriaBad);
       } catch (err) {
         console.log(err);
-        setError('Erro ao carregar diretórios');
-      }
-  }, []);
-
-  const fetchPratices = useCallback(async () => {
-      try {
-        const response = await api.get('/totals/practices');
-        const practices = response.data.result.practiceTable;
-        console.log("pratices", response.data);
-        setInitialDataListDetails(practices.filter(item => item.isGoodPractice).map(
-          item => ({
-            practice:  t(`TESTS_RESULTS.${item.practice}.p`, { value: item.elements }) ,
-            pages: item.pages,
-            occurrences: item.elements,
-            level: item.level.toUpperCase()
-          })
-        ));
-
-        setInitialDataListDetailsBad(practices.filter(item => !item.isGoodPractice).map(
-            item => ({
-              practice:   t(`TESTS_RESULTS.${item.practice}.p`, { value: item.elements }) ,
-              pages: item.pages,
-              occurrences: item.elements,
-              level: item.level.toUpperCase()
-            })
-        ));
-  
-        const formattedSuccessData = groupPracticesBySuccessCriteria(practices.filter(item => item.isGoodPractice));
-        const formattedErrorData = groupPracticesBySuccessCriteria(practices.filter(item => !item.isGoodPractice));
-        setInitialSuccessCriteriaSuccess(formattedSuccessData);
-        setInitialSuccessCriteriaErrors(formattedErrorData);
-        //?  t(`TESTS_RESULTS.${item.practice}`, { value: item.elements }) : (`TESTS_RESULTS.${item.practice}.p`, { value: item.elements })
-      } catch (err) {
-        console.log(err);
+        setError('Erro ao carregar dados globais do AMS');
       }
   }, [t]);
 
+  // Nº de diretórios — mantido no endpoint antigo,
+  // pois /analytics/global não devolve indicadores por diretório.
+  const fetchDirectoriesRadar = useCallback(async () => {
+      try {
+        const response = await api.get('/totals');
+        const indicators = response.data.result;
+        const directoriesKeys = Object.keys(indicators.directoryAverageScores);
+        setDirectories(directoriesKeys);
+      } catch (err) {
+        console.log(err);
+      }
+  }, []);
+
   useEffect(() => {
     fetchDataGlobalAMS();
-    fetchPratices();
+    fetchDirectoriesRadar();
 
     return () => {
       if (workerRef.current) {
         workerRef.current.terminate();
       }
     };
-  }, [fetchDataGlobalAMS, fetchPratices]);
-
-  const radarData = useMemo(() => ({
-    labels: initialDataRadar.map(w => w.domain),
-    datasets: [{
-      label: "Pontuação por diretório",
-      data: initialDataRadar.map(w => Number(w.averageScore)),
-      backgroundColor: 'rgba(255, 136, 136, 0.4)',
-      borderColor: 'rgba(255, 136, 136, 1)',
-      borderWidth: 2,
-      pointBackgroundColor: 'rgba(255, 136, 136, 1)',
-      pointRadius: 4,
-    }]
-  }), [initialDataRadar]);
-
-  const radarOptions = useMemo(() => ({
-    responsive: true,
-    plugins: {
-      legend: { labels: { color: theme === "light" ? "black" : "white" } }
-    },
-    scales: {
-      r: {
-        beginAtZero: true,
-        suggestedMin: 0,
-        suggestedMax: 10,
-        pointLabels: { display: false },
-        ticks: { color: theme === "light" ? "black" : "white", backdropColor: 'transparent' },
-        grid: { color: theme === "light" ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.1)" },
-        angleLines: { color: theme === "light" ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.1)" },
-      }
-    }
-  }), [theme]);
+  }, [fetchDataGlobalAMS, fetchDirectoriesRadar]);
 
   const handleExportCSV = async () => {
     try {
-      downloadCSVByDirectory(
-        directories.map((d) => d),
-        "Global AMS - " + new Date().toLocaleDateString()
-      );
+      await downloadAnalyticsExport({ resource: "global", format: "csv", context: "ams" });
     } catch (error) {
       console.error("Error exporting CSV:", error);
     }
@@ -239,7 +149,6 @@ const TabGlobalAMS = ({
           text="Exportar CSV"
           className="btn-primary"
           onClick={handleExportCSV}
-          disabled={directories.length === 0}
         />
       </div>
 
@@ -303,45 +212,13 @@ const TabGlobalAMS = ({
 
       <div className="mt-5 bg-white p-4">
         <h3 className="mb-4">Mancha Gráfica da Acessibilidade</h3>
-        <Tabs
-          defaultActiveKey="chart"
+        <Button
           darkTheme={theme}
-          tabs={[
-            {
-              eventKey: "chart",
-              title: "Gráfico",
-              component: (
-                <Radar
-                  role="img"
-                  aria-label="Gráfico de Radar mostrando a distribuição de pontuações de acessibilidade"
-                  data={radarData}
-                  options={radarOptions}
-                />
-              ),
-            },
-            {
-              eventKey: "table",
-              title: "Tabela",
-              component: (
-                <SortingTable
-                  darkTheme={theme}
-                  hasSort={false}
-                  pagination={false}
-                  caption="Mancha gráfica da acessibilidade — pontuação média por diretório"
-                  headers={[[
-                    { type: "Text", nRow: 1, name: "Diretório", property: "domain" },
-                    { type: "Text", nRow: 1, name: "Pontuação média", property: "averageScore", justifyCenter: true },
-                  ]]}
-                  dataList={initialDataRadar}
-                  columnsOptions={{
-                    domain: { type: "Text", center: false, bold: false },
-                    averageScore: { type: "Text", center: true, bold: false },
-                  }}
-                />
-              ),
-            },
-          ]}
+          text="Ir para a lista de sítios web"
+          className="btn-primary mb-4"
+          onClick={() => navigate("/dashboard/websites")}
         />
+        <ScoreDistributionRadar dataListBar={dataListBar} theme={theme} caption="Mancha gráfica da acessibilidade — frequência de páginas por nota (AMS)" />
       </div>
 
       <div className="mt-5 bg-white p-4">

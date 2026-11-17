@@ -1,17 +1,17 @@
-import { Button, StatisticsHeader, SortingTable, Tabs } from "@a12e/accessmonitor-ds";
-import { Bar, Radar } from "react-chartjs-2";
+import { Button, SortingTable, Tabs } from "@a12e/accessmonitor-ds";
+import { useNavigate } from "react-router-dom";
+import { ScoreDistributionRadar } from "../../../components/ScoreDistributionRadar";
 import { AccessibleBarChart } from "../../../components/AccessibleBarChart";
-import GoodBadTab from "../../../components/GoodBadTab/GoodBadTab.jsx";
-import { useState, useEffect, useMemo, useRef, memo } from "react";
-import { detailsTableHeaders, columnsOptionsDetails, ariaLabels, detailsTable } from "../../Directories/table.config.jsx";
+import { useState, useEffect, useMemo, memo } from "react";
+import { detailsTableHeaders, columnsOptionsDetails, ariaLabels } from "../../Directories/table.config.jsx";
 import Indicators from "../../../components/Indicators/index.jsx";
 import {api} from "../../../config/api.js";
 import { useTranslation } from "react-i18next";
 import { headersBarLine } from "../../../components/BarLineGraph/table.config.jsx";
-import { ruleset } from "@a12e/accessmonitor-rulesets";
-import moment from "moment";
-import { downloadCSV, downloadCSVByDirectory } from "../../../utils/utils.js";
-const TabGlobalObservatoryComponent = ({ theme, statsTitle, columnsOptionsBar, barDataCopy, barOptionsCopy, dataHeadersBar, dataListBar, headerBarlineBar }) => {
+import { buildGlobalAnalyticsView } from "../../../utils/utils.js";
+import { downloadAnalyticsExport } from "../../../services/analytics.js";
+const TabGlobalObservatoryComponent = ({ theme, barOptionsCopy }) => {
+    const navigate = useNavigate();
       const [listItems, setListItems] = useState([]);
       const [listItemsGlobal, setListItemsGlobal] = useState([]);
     const [dataList, setDataList] = useState([]);
@@ -19,8 +19,6 @@ const TabGlobalObservatoryComponent = ({ theme, statsTitle, columnsOptionsBar, b
     const [detailsTableBad, setDetailsTableBad] = useState([]);
     // Memoize initial empty states
     const initialSuccessCriteria = useMemo(() => ({}), []);
-    const [counter, setCounter] = useState(0);
-    const [directories, setDirectories] = useState([]);
     const [successCriteriaSuccess, setSuccessCriteriaSuccess] = useState(initialSuccessCriteria);
     const [successCriteriaErrors, setSuccessCriteriaErrors] = useState(initialSuccessCriteria);
     const [barData, setBarData] = useState({
@@ -29,7 +27,7 @@ const TabGlobalObservatoryComponent = ({ theme, statsTitle, columnsOptionsBar, b
           {
             type: 'bar',
             label: "Frequência (nº de páginas)",
-            data: [1, 2, 3, 1, 0, 0, 0, 0, 10],
+            data: [],
             backgroundColor: '#339', // All bars same color
             categoryPercentage: 1,
             barPercentage: 1,
@@ -41,197 +39,54 @@ const TabGlobalObservatoryComponent = ({ theme, statsTitle, columnsOptionsBar, b
           maintainAspectRatio: false, // allows custom aspect ratio
         }
     });
-    const [radarWebsites, setRadarWebsites] = useState([]);
     const { t } = useTranslation();
     useEffect(() => {
         const fetchData = async () => {
-           const response = await api.get('/observatory');
-          console.log("Observatory:", response.data)
-            if (response.status === 200) {
-              
-            
-                setData(response.data);
-                const indicators = response.data.result;
-                setListItems([
-                  { title: 'Pontuação média', value:indicators.score.toFixed(1) },
-                  { title: 'Avaliação mais antiga de uma página', value: moment(indicators.oldestPage).format('DD/MM/YYYY') },
-                  { title: 'Avaliação mais recente de uma página', value: moment(indicators.recentPage).format('DD/MM/YYYY') },
-                  { title: 'Nº de Diretórios', value:indicators.nDirectories },
-                  { title: 'Nº de Entidades', value:indicators.nEntities },
-                  { title: 'Nº de Sítios Web', value:indicators.nWebsites },
-                  { title: 'Nº de Páginas', value: indicators.nPages },
-                  { title: 'Nº médio de Páginas por Sítio', value: (indicators.nPages / indicators.nWebsites).toFixed(1) },
+          try {
+            const response = await api.get('/analytics/global');
+            const view = buildGlobalAnalyticsView(response.data.data.observatory, t);
 
-                ]);
-                setDirectories(Object.values(indicators.directories));
-                let websiteNonConforms = 0;
-                let websiteConformsA = 0;
-                let websiteConformsAA = 0;
-                let websiteConformsAAA = 0;
-                const computedWebsites = []
-                  Object.values(indicators.directories).forEach(directory => {
-                    Object.values(directory.websites).forEach(website => {
-                      if(computedWebsites.filter(computedWebsite => computedWebsite.id === website.id).length > 0) {
-                        return;
-                      }
-                      computedWebsites.push(website)
-                      if (website.pagesWithErrors > 0) {
-                        websiteNonConforms++;
-                      } else {                        
-                        if (website.pagesWithoutErrorsA === 0) {
-                          websiteConformsA++;
-                        }
-                        if (website.pagesWithoutErrorsAA === 0 && website.pagesWithoutErrorsA > 0) {
-                          websiteConformsAA++;
-                        }
-                        if (website.pagesWithoutErrorsAAA === 0 && website.pagesWithoutErrorsAA > 0 && website.pagesWithoutErrorsA > 0) {
-                          websiteConformsAAA++;
-                        }
-                       
-                      }                                     
-                    });
-                  });
-                  setListItemsGlobal([
-                    { title: 'Sítios Web', value: indicators.nWebsites },
-                    { title: 'Sítios Web não conformes', value: websiteNonConforms },
-                    { title: 'Sítios Web conformes', value: websiteConformsAAA + websiteConformsAA + websiteConformsA,
-                      itemsList: [
-                        {title: "Conformidade A", value: websiteConformsA },
-                        {title: "Conformidade AA", value: websiteConformsAA},
-                        {title: "Conformidade AAA", value: websiteConformsAAA},
-                      ]
-                    },
-                  ]);
-                  setBarData({
-                    labels: headersBarLine,
-                    datasets: [
-                      {
-                        type: 'bar',
-                        label: "Frequência (nº de páginas)",
-                        data: indicators.scoreDistributionFrequency,
-                        backgroundColor: '#339', // All bars same color
-                        categoryPercentage: 1,
-                        barPercentage: 1,
-                        grouped: true, // For Chart.js 4.x, ensures no grouping/spacing
-                      },
-                    ],
-                  });
-                  setRadarWebsites(Object.values(indicators.directories).map(directory =>( {score: directory.score.toFixed(1), domain: directory.name} )));
-                  const dataListBarArray = []
-                  indicators.scoreDistributionFrequency.map((item, index) => {
-                    dataListBarArray.push({
-                      range: `[${index + 1} - ${index + 2}[`,
-                      frequency: indicators.scoreDistributionFrequency[index],
-                      frequency_percent: `${((indicators.scoreDistributionFrequency[index] / indicators.nPages) * 100).toFixed(2)}%`,
-                      cumulative: indicators.scoreDistributionFrequency.slice(0, index + 1).reduce((acc, curr) => acc + curr, 0),
-                      cumulative_percent: `${((indicators.scoreDistributionFrequency.slice(0, index + 1).reduce((acc, curr) => acc + curr, 0) / indicators.nPages) * 100).toFixed(2)}%`
-                    });
-                  });
-                
-                  setDataList(dataListBarArray);
-                  setDetailsTableGood(indicators.bestPracticesDistribution);
+            setListItems(view.listItems);
+            setListItemsGlobal(view.listItemsGlobal);
 
-                  const keysGood = Object.keys(indicators.bestPracticesDistribution.success);
-                  const keysErrors = Object.keys(indicators.errorDistribution.errors);
-            
-                  setDetailsTableGood(Object.values(indicators.bestPracticesDistribution.success).map((item, index)=>({
-                    practice: t(`TESTS_RESULTS.${keysGood[index]}.p`, { value: item.n_occurrences }),
-                    pages: item.n_pages,
-                    occurrences: item.n_occurrences,
-                    level: ruleset[keysGood[index]]?.level ?? "N/A"
-                  })));
-                 
-                  setDetailsTableBad(Object.values(indicators.errorDistribution.errors).map((error, index)=>({
-                    practice: t(`TESTS_RESULTS.${keysErrors[index]}.p`, { value: error.n_occurrences }),
-                    pages: error.n_pages,
-                    occurrences: error.n_occurrences.toString().includes("lang") ? "N/A" : error.n_occurrences,
-                    level: ruleset[keysErrors[index]]?.level ?? "N/A"
-                  })));
+            setBarData({
+              labels: headersBarLine,
+              datasets: [
+                {
+                  type: 'bar',
+                  label: "Frequência (nº de páginas)",
+                  data: view.scoreDistribution,
+                  backgroundColor: '#339',
+                  categoryPercentage: 1,
+                  barPercentage: 1,
+                  grouped: true,
+                },
+              ],
+            });
+            setDataList(view.dataListBar);
 
-                  // Process practices by WCAG Success Criteria
-                  const practicesBySuccessCriteria = {
-                    success: {},
-                    errors: {}
-                  };
+            setDetailsTableGood(view.detailsGood);
+            setDetailsTableBad(view.detailsBad);
 
-                  // Process successful practices
-                  keysGood.forEach((key, index) => {
-                    const testData = ruleset[key];
-                    const practiceData = indicators.bestPracticesDistribution.success[key];
-                    
-                    if (testData && testData.scs && practiceData) {
-                      const criteriaList = testData.scs;
-     
-                      
-                      criteriaList.forEach(criteria => {
-                        const trimmedCriteria = criteria.trim();
-                        if (!practicesBySuccessCriteria.success[trimmedCriteria]) {
-                          practicesBySuccessCriteria.success[trimmedCriteria] = [];
-                        }
-                        practicesBySuccessCriteria.success[trimmedCriteria].push({
-                          practice: practiceData.n_occurrences.toString().includes("lang") ? "N/A" : t(`TESTS_RESULTS.${key}.p`, { value: practiceData.n_occurrences }),
-                          pages: practiceData.n_pages,
-                          occurrences: practiceData.n_occurrences,
-                          level: testData.level?.toUpperCase() || 'N/A',
-                          websiteCount: practiceData.n_pages
-                        });
-                      });
-                    }
-                  });
-
-                  // Process error practices
-                  keysErrors.forEach((key, index) => {
-                    const testData = ruleset[key];
-                    const errorData = indicators.errorDistribution.errors[key];
-                    
-                    if (testData && testData.scs && errorData) {
-                      const criteriaList = testData.scs;
-                    
-                      
-                      criteriaList.forEach(criteria => {
-                        const trimmedCriteria = criteria.trim();
-                        if (!practicesBySuccessCriteria.errors[trimmedCriteria]) {
-                          practicesBySuccessCriteria.errors[trimmedCriteria] = [];
-                        }
-                        practicesBySuccessCriteria.errors[trimmedCriteria].push({
-                          practice: errorData.n_occurrences.toString().includes("lang") ? "N/A" : t(`TESTS_RESULTS.${key}.p`, { value: errorData.n_occurrences }),
-                          pages: errorData.n_pages,
-                          occurrences: errorData.n_occurrences.toString().includes("lang") ? "N/A" : errorData.n_occurrences,
-                          level: testData.level?.toUpperCase() || 'N/A',
-                          websiteCount: errorData.n_pages
-                        });
-                      });
-                    }
-                  });
-
-                  // Format data for WCAG Success Criteria display
-                  const formatSuccessCriteriaData = (practicesData) => {
-                    const formatted = {};
-                    Object.keys(practicesData).sort().forEach(criteria => {
-                      const practices = practicesData[criteria];
-                      formatted[criteria] = {
-                        criteriaCode: criteria,
-                        practiceCount: practices.length,
-                        practices: practices
-                      };
-                    });
-                    return formatted;
-                  };
-
-                  const formattedSuccessData = formatSuccessCriteriaData(practicesBySuccessCriteria.success);
-                  const formattedErrorData = formatSuccessCriteriaData(practicesBySuccessCriteria.errors);
-
-                  setSuccessCriteriaSuccess(formattedSuccessData);
-                  setSuccessCriteriaErrors(formattedErrorData);
-
-            } else {
-              
-                console.log(response);
-            }
+            const toCriteriaObject = (groups) =>
+              Object.fromEntries(groups.map(g => [g.successCriteria, {
+                criteriaCode: g.successCriteria,
+                practiceCount: g.practices.length,
+                practices: g.practices.map(p => ({
+                  practice: t(`TESTS_RESULTS.${p.title_key}.p`, { value: p.websiteCount }),
+                  websiteCount: p.websiteCount,
+                })),
+              }]));
+            setSuccessCriteriaSuccess(toCriteriaObject(view.successCriteriaGood));
+            setSuccessCriteriaErrors(toCriteriaObject(view.successCriteriaBad));
+          } catch (err) {
+            console.log(err);
+          }
         }
         fetchData();
-    }, []);
-    const [data, setData] = useState( [
+    }, [t]);
+
+    const [data] = useState( [
         {
           id:Date.now()+Math.random().toString(36).substr(2, 9),
           name: "Portal Mais Transparência",
@@ -253,43 +108,9 @@ const TabGlobalObservatoryComponent = ({ theme, statsTitle, columnsOptionsBar, b
           type: "AcessMonitor",
         }
       ]);
-      const radarData = useMemo(() => ({
-        labels: radarWebsites.map(w => w.domain),
-        datasets: [{
-          label: "Pontuação por diretório",
-          data: radarWebsites.map(w => Number(w.score)),
-          backgroundColor: 'rgba(255, 136, 136, 0.4)',
-          borderColor: 'rgba(255, 136, 136, 1)',
-          borderWidth: 2,
-          pointBackgroundColor: 'rgba(255, 136, 136, 1)',
-          pointRadius: 4,
-        }]
-      }), [radarWebsites]);
-
-      const radarOptions = useMemo(() => ({
-        responsive: true,
-        plugins: {
-          legend: { labels: { color: theme === "light" ? "black" : "white" } }
-        },
-        scales: {
-          r: {
-            beginAtZero: true,
-            suggestedMin: 0,
-            suggestedMax: 10,
-            pointLabels: { display: false },
-            ticks: { color: theme === "light" ? "black" : "white", backdropColor: 'transparent' },
-            grid: { color: theme === "light" ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.1)" },
-            angleLines: { color: theme === "light" ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.1)" },
-          }
-        }
-      }), [theme]);
-
       const handleExportCSV = async () => {
         try {
-          downloadCSVByDirectory(
-            directories.map((d) =>  d.name),
-            "Observatório - " + new Date().toLocaleDateString(),
-          );
+          await downloadAnalyticsExport({ resource: "global", format: "csv", context: "obs" });
         } catch (error) {
           console.error("Error exporting CSV:", error);
         }
@@ -303,7 +124,7 @@ const TabGlobalObservatoryComponent = ({ theme, statsTitle, columnsOptionsBar, b
       <div className="content bg-white">
         <div>
           <h3>Exportação de dados</h3>
-          <p>Para exportar todos os dados do Observatório à data de hoje, pressione o botão "Exportar CSV" abaixo.</p>
+          <p>Para exportar todos os dados do Observatório à data de hoje, pressione o botão &quot;Exportar CSV&quot; abaixo.</p>
           
         </div>
         <div className="d-flex justify-content-start align-items-end">
@@ -433,45 +254,13 @@ const TabGlobalObservatoryComponent = ({ theme, statsTitle, columnsOptionsBar, b
       </div>
       <div className="mt-5 bg-white p-4">
         <h3 className="mb-4">Mancha Gráfica da Acessibilidade</h3>
-        <Tabs
-          defaultActiveKey="chart"
+        <Button
           darkTheme={theme}
-          tabs={[
-            {
-              eventKey: "chart",
-              title: "Gráfico",
-              component: (
-                <Radar
-                  role="img"
-                  aria-label="Gráfico de Radar mostrando a distribuição de pontuações de acessibilidade"
-                  data={radarData}
-                  options={radarOptions}
-                />
-              ),
-            },
-            {
-              eventKey: "table",
-              title: "Tabela",
-              component: (
-                <SortingTable
-                  darkTheme={theme}
-                  hasSort={false}
-                  pagination={false}
-                  caption="Mancha gráfica da acessibilidade — pontuação por diretório"
-                  headers={[[
-                    { type: "Text", nRow: 1, name: "Diretório", property: "domain" },
-                    { type: "Text", nRow: 1, name: "Pontuação", property: "score", justifyCenter: true },
-                  ]]}
-                  dataList={radarWebsites}
-                  columnsOptions={{
-                    domain: { type: "Text", center: false, bold: false },
-                    score: { type: "Text", center: true, bold: false },
-                  }}
-                />
-              ),
-            },
-          ]}
+          text="Ir para a lista de sítios web"
+          className="btn-primary mb-4"
+          onClick={() => navigate("/dashboard/websites")}
         />
+        <ScoreDistributionRadar dataListBar={dataList} theme={theme} caption="Mancha gráfica da acessibilidade — frequência de páginas por nota (Observatório)" />
       </div>
       <div className="mt-5 bg-white p-4">
         <h2 className="mb-4">Distribuição detalhada das melhores práticas</h2>

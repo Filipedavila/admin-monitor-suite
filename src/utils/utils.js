@@ -1,9 +1,18 @@
 import React from "react";
 import { clone, orderBy } from "lodash";
 import { saveAs } from "file-saver";
+import moment from "moment";
 
 import { api } from '../config/api'
-import {testColors,successCriteria,ruleset} from "@a12e/accessmonitor-rulesets";
+import {testColors,successCriteria,ruleset,translations} from "@a12e/accessmonitor-rulesets";
+
+// Score distribution: 10 buckets [0 - 1[ ... [9 - 10]; the last one also holds score 10.
+export const SCORE_BUCKETS = 10;
+export const scoreRangeLabel = (index) =>
+  index === SCORE_BUCKETS - 1 ? `[${index} - ${index + 1}]` : `[${index} - ${index + 1}[`;
+export const SCORE_RANGE_LABELS = Array.from({ length: SCORE_BUCKETS }, (_, i) => scoreRangeLabel(i));
+export const scoreBucketIndex = (score) =>
+  Math.min(Math.max(Math.floor(Number(score) || 0), 0), SCORE_BUCKETS - 1);
 
 const pathUrl = "/dashboard/"
 function getTopTenErrors(errors) {
@@ -30,7 +39,7 @@ export function removeCertainPages(parsedData, name, newPages) {
   if (obj) {
     obj.pages = newPages.map(page => {
       let newPage
-      if (page.hasOwnProperty('PageId')) {
+      if (Object.prototype.hasOwnProperty.call(page, 'PageId')) {
         newPage = { id: page.PageId, ...page }
         delete newPage.PageId;
       }
@@ -164,7 +173,6 @@ function calculateQuartiles(data) {
   let q1;
   let q2;
   let q3;
-  let q4;
 
   q1 = values[Math.round(0.25 * (values.length + 1)) - 1];
 
@@ -175,7 +183,6 @@ function calculateQuartiles(data) {
   }
 
   q3 = values[Math.round(0.75 * (values.length + 1)) - 1];
-  q4 = values[values.length - 1];
 
   const tmp = {
     q1: [],
@@ -320,14 +327,14 @@ export function getSimplifiedPracticesData(pages) {
   }
 }
 
-export function getData(website, pages, websiteList, websiteListForWebsitePage, moment) {
+export function getData(website, pages, websiteList, websiteListForWebsitePage) {
   let websiteScore = 0;
   let conformidadeA = 0;    //Não pode ter erros do tipo A
   let conformidadeAA = 0;   //Não pode ter erros do tipo A, AA
   let conformidadeAAA = 0;  //Não pode ter erros do tipo A, AA, AAA
   let pageWithErrors = 0;
   let accessibilityPlot = [];
-  let scoreDistributionFrequency = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+  let scoreDistributionFrequency = new Array(SCORE_BUCKETS).fill(0)
   let errors = {}
   let success = {}
   let recentPage
@@ -358,8 +365,7 @@ export function getData(website, pages, websiteList, websiteListForWebsitePage, 
       accessibilityPlot.push(pageScore)
 
       // BarLine Data - Frequência de score por páginas
-      const floor = Math.floor(pageScore);
-      scoreDistributionFrequency[floor >= 2 ? (floor === 10 ? floor - 2 : floor - 1) : 0]++;
+      scoreDistributionFrequency[scoreBucketIndex(pageScore)]++;
 
       // Errors
       const pageErrors = errorAfterTransformation
@@ -500,10 +506,10 @@ export function createStatisticsObject(data, moment) {
 }
 
 
-export async function logoutUser(setLoading, setError, navigate, t) {
+export async function logoutUser(setLoading, setError, navigate) {
   setLoading(true)
   if (api.isUserLoggedIn()) {
-    const { response, err } = await api.logout()
+    await api.logout()
     removeLocalStorages(navigate)
 
   } else {
@@ -539,7 +545,7 @@ export function checkUserHasPage(website, websitesList, pageName) {
 
 
 export function getBarLineGraph(t, dataForLine, dataForBar, websiteStats, theme) {
-  const headersBarLine = ['[1 - 2[', '[2 - 3[', '[3 - 4[', '[4 - 5[', '[5 - 6[', '[6 - 7[', '[7 - 8[', '[8 - 9[', '[9 - 10[']
+  const headersBarLine = SCORE_RANGE_LABELS
 
   const dataBarLine = {
     labels: headersBarLine,
@@ -1570,10 +1576,9 @@ export function exportDirectoryEvaluationCSV(rows, directory, opts = {}) {
 }
 
 
-export async function downloadCSVBackup(websites, allPages, directory, t, deps = {}, setCounter = () => { }) {
+export async function downloadCSVBackup(websites, allPages, directory, t, deps = {}) {
   const { saveAsImpl } = deps;
   const $saveAs = saveAsImpl || saveAs;
-  let counter = 0;
   let data = "";
   let i = 0;
 
@@ -1704,6 +1709,226 @@ export function groupPracticesBySuccessCriteria(practiceTable = []) {
  );
 
  return result;
+}
+
+/**
+* Groups a flat distribution of practices/errors — [{ key, pagesCount, occurrenceCount }] —
+* by WCAG Success Criteria, resolving each key's success criteria from the ruleset.
+* Used for endpoints (e.g. /analytics/global) that return distributions without
+* pre-computed Success Criteria groupings.
+* @returns {Array<{ successCriteria: string, practices: Array<{ title_key: string, websiteCount: number }> }>}
+*/
+export function groupDistributionBySuccessCriteria(distribution = []) {
+  const bySC = new Map();
+
+  for (const item of distribution) {
+    const key = item?.key;
+    const testData = key ? ruleset[key] : null;
+    const scList = Array.isArray(testData?.scs) ? testData.scs : [];
+
+    if (!key || scList.length === 0) continue;
+
+    for (const sc of scList) {
+      const trimmed = sc.trim();
+      if (!bySC.has(trimmed)) bySC.set(trimmed, []);
+      // topErrors / topBestPractices carry websitesCount; older shapes only had pagesCount.
+      bySC.get(trimmed).push({ title_key: key, websiteCount: Number(item?.websitesCount ?? item?.pagesCount) || 0 });
+    }
+  }
+
+  const result = Array.from(bySC.entries()).map(([successCriteria, practices]) => ({
+    successCriteria,
+    practices: practices.sort((a, b) => b.websiteCount - a.websiteCount || a.title_key.localeCompare(b.title_key)),
+  }));
+
+  result.sort((a, b) =>
+    a.successCriteria.localeCompare(b.successCriteria, undefined, { numeric: true, sensitivity: "base" })
+  );
+
+  return result;
+}
+
+/**
+* Maps one block (`ams` or `observatory`) of GET /analytics/global into the view data
+* used by the global tabs (indicators, conformance, score histogram, practice tables
+* and practices grouped by WCAG Success Criteria).
+*/
+export function buildGlobalAnalyticsView(block, t) {
+  const stats = block || {};
+  const totalPages = Number(stats.total_pages_evaluated) || 0;
+  // The API returns 1970-01-01 when there are no evaluated pages.
+  const formatDate = (date) =>
+    date && !String(date).startsWith("1970") ? moment(date).format("DD/MM/YYYY") : "N/A";
+  const percentOf = (value) => (totalPages ? ((value / totalPages) * 100).toFixed(1) : "0.0");
+  const conformA = Number(stats.pagesWithoutErrorsA) || 0;
+  const conformAA = Number(stats.pagesWithoutErrorsAA) || 0;
+  const conformAAA = Number(stats.pagesWithoutErrorsAAA) || 0;
+  const pagesWithoutErrors = conformA + conformAA + conformAAA;
+
+  const scoreDistribution = stats.scoreDistributionFrequency ?? [];
+  const distributionTotal = scoreDistribution.reduce((acc, curr) => acc + curr, 0);
+  const percentOfDistribution = (value) =>
+    `${(distributionTotal ? (value / distributionTotal) * 100 : 0).toFixed(2)}%`;
+
+  const toDetailsRow = (item) => ({
+    practice: t(`TESTS_RESULTS.${item.key}.p`, { value: item.occurrenceCount }),
+    pages: Number(item.pagesCount) || 0,
+    occurrences: Number(item.occurrenceCount) || 0,
+    level: ruleset[item.key]?.level?.toUpperCase() ?? "N/A",
+  });
+
+  return {
+    listItems: [
+      { title: 'Pontuação média', value: stats.score != null ? Number(stats.score).toFixed(1) : 'N/A' },
+      { title: 'Avaliação mais antiga de uma página', value: formatDate(stats.oldestPageDate) },
+      { title: 'Avaliação mais recente de uma página', value: formatDate(stats.recentPageDate) },
+      { title: 'Nº de Diretórios', value: stats.directoriesCount ?? 0 },
+      { title: 'Nº de Entidades', value: stats.entitiesCount ?? 0 },
+      { title: 'Nº de Sítios Web', value: stats.websitesCount ?? 0 },
+      { title: 'Nº de Páginas', value: stats.pagesCount ?? 0 },
+      { title: 'Nº médio de Páginas por Sítio', value: Number(stats.avgPagesPerWebsite || 0).toFixed(1) },
+    ],
+    // The endpoint reports conformance per page, not per website.
+    listItemsGlobal: [
+      { title: 'Páginas Avaliadas', value: totalPages },
+      { title: 'Páginas não conformes', value: totalPages - pagesWithoutErrors },
+      { title: 'Páginas conformes', value: pagesWithoutErrors,
+        itemsList: [
+          { title: 'Conformidade A', value: `${conformA} (${percentOf(conformA)}%)` },
+          { title: 'Conformidade AA', value: `${conformAA} (${percentOf(conformAA)}%)` },
+          { title: 'Conformidade AAA', value: `${conformAAA} (${percentOf(conformAAA)}%)` },
+        ]
+      },
+    ],
+    scoreDistribution,
+    dataListBar: scoreDistribution.map((frequency, index) => {
+      const cumulative = scoreDistribution.slice(0, index + 1).reduce((acc, curr) => acc + curr, 0);
+      return {
+        range: scoreRangeLabel(index),
+        frequency,
+        frequency_percent: percentOfDistribution(frequency),
+        cumulative,
+        cumulative_percent: percentOfDistribution(cumulative),
+      };
+    }),
+    detailsGood: (stats.topBestPractices ?? []).map(toDetailsRow),
+    detailsBad: (stats.topErrors ?? []).map(toDetailsRow),
+    successCriteriaGood: groupDistributionBySuccessCriteria(stats.topBestPractices ?? []),
+    successCriteriaBad: groupDistributionBySuccessCriteria(stats.topErrors ?? []),
+  };
+}
+
+/**
+* Maps the `ams` (or `observatory`) block of GET /analytics/tag|institution|directory/{id}
+* into the view data used by ViewCategories, ViewEntities and ViewDirectories.
+* Practice counts come as strings in the details tables, and the number of websites per
+* practice only exists in topBestPractices / topErrors.
+*/
+export function buildScopedAnalyticsView(block, t, { dateFormat = 'DD/MM/YYYY' } = {}) {
+  const stats = block || {};
+  const totalPages = Number(stats.total_pages_evaluated) || 0;
+  // The API returns 1970-01-01 when there are no evaluated pages.
+  const formatDate = (date) =>
+    date && !String(date).startsWith("1970") ? moment(date).format(dateFormat) : "-";
+  const percentOf = (value) => (totalPages ? ((value / totalPages) * 100).toFixed(1) : "0.0");
+  const conformA = Number(stats.pagesWithoutErrorsA) || 0;
+  const conformAA = Number(stats.pagesWithoutErrorsAA) || 0;
+  const conformAAA = Number(stats.pagesWithoutErrorsAAA) || 0;
+  const pagesWithoutErrors = conformA + conformAA + conformAAA;
+
+  const scoreDistribution = stats.scoreDistributionFrequency ?? [];
+  const distributionTotal = scoreDistribution.reduce((acc, curr) => acc + curr, 0);
+  const percentOfDistribution = (value) =>
+    `${(distributionTotal ? (value / distributionTotal) * 100 : 0).toFixed(2)}%`;
+
+  // Safe translation helper — avoids i18next v25 throwing on unresolved keys
+  const language = localStorage.getItem('i18nextLng')?.split('-')[0] ?? 'pt';
+  const getElemTrans = (key) =>
+    translations?.[language]?.translation?.ELEMS?.[key] ?? t(`ELEMS.${key}`);
+
+  const normalizePractices = (table, top) => (table?.data ?? []).map(item => {
+    const test = ruleset[item.key]?.test;
+    return {
+      key: item.key,
+      practice: test ? getElemTrans(test) : item.key,
+      pages: Number(item.pageCount) || 0,
+      occurrences: Number(item.occurrenceCount) || 0,
+      level: (item.level || ruleset[item.key]?.level || "").toUpperCase(),
+      websiteCount: (top ?? []).find(topItem => topItem.key === item.key)?.websitesCount ?? 0,
+    };
+  });
+  const successPractices = normalizePractices(stats.successDetailsTable, stats.topBestPractices);
+  const errorPractices = normalizePractices(stats.errorsDetailsTable, stats.topErrors);
+
+  const toCriteriaList = (scs) => {
+    if (!scs) return [];
+    const list = Array.isArray(scs)
+      ? scs
+      : (typeof scs === 'string' ? scs.split(',') : []);
+    return list.map(c => String(c).trim()).filter(Boolean);
+  };
+
+  const groupBySuccessCriteria = (practices) => {
+    const grouped = {};
+    practices.forEach(item => {
+      toCriteriaList(ruleset[item.key]?.scs).forEach(criteria => {
+        if (!grouped[criteria]) grouped[criteria] = [];
+        grouped[criteria].push({
+          practice: item.practice,
+          pages: item.pages,
+          occurrences: item.occurrences,
+          level: item.level,
+          websiteCount: item.websiteCount
+        });
+      });
+    });
+    const formatted = {};
+    Object.keys(grouped).sort().forEach(criteria => {
+      formatted[criteria] = { criteriaCode: criteria, practiceCount: grouped[criteria].length, practices: grouped[criteria] };
+    });
+    return formatted;
+  };
+
+  const toDetailsRow = ({ practice, pages, occurrences, level }) => ({ practice, pages, occurrences, level });
+
+  return {
+    listItems: [
+      { title: 'Pontuação média', value: stats.score != null ? Number(stats.score).toFixed(1) : '-' },
+      { title: 'Avaliação mais antiga de uma página', value: formatDate(stats.oldestPageDate) },
+      { title: 'Avaliação mais recente de uma página', value: formatDate(stats.recentPageDate) },
+      { title: 'Nº de Sítios Web', value: stats.websitesCount ?? 0 },
+      { title: 'Nº de Páginas(Avaliadas)', value: `${stats.pagesCount ?? 0} (${totalPages})` },
+      { title: 'Nº médio de Páginas por Sítio', value: Number(stats.avgPagesPerWebsite || 0).toFixed(1) },
+    ],
+    // The endpoint reports conformance per page, not per website.
+    listItemsGlobal: [
+      { title: 'Páginas Avaliadas', value: totalPages },
+      { title: 'Páginas não conformes', value: totalPages - pagesWithoutErrors },
+      {
+        title: 'Páginas conformes', value: pagesWithoutErrors,
+        itemsList: [
+          { title: 'Conformidade A', value: `${conformA} (${percentOf(conformA)}%)` },
+          { title: 'Conformidade AA', value: `${conformAA} (${percentOf(conformAA)}%)` },
+          { title: 'Conformidade AAA', value: `${conformAAA} (${percentOf(conformAAA)}%)` },
+        ]
+      },
+    ],
+    scoreDistribution,
+    dataListBar: scoreDistribution.map((frequency, index) => {
+      const cumulative = scoreDistribution.slice(0, index + 1).reduce((acc, curr) => acc + curr, 0);
+      return {
+        range: scoreRangeLabel(index),
+        frequency,
+        frequency_percent: percentOfDistribution(frequency),
+        cumulative,
+        cumulative_percent: percentOfDistribution(cumulative),
+      };
+    }),
+    details: successPractices.map(toDetailsRow),
+    detailsBad: errorPractices.map(toDetailsRow),
+    successCriteriaSuccess: groupBySuccessCriteria(successPractices),
+    successCriteriaErrors: groupBySuccessCriteria(errorPractices),
+  };
 }
 
 export function getTestDisplayValue(testName, testKey, tot) {

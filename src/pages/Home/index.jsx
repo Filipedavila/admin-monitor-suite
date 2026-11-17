@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Card, Button, Breadcrumb, Input } from "@a12e/accessmonitor-ds";
 import { Link } from "react-router-dom";
 import CardAvaliation from "../../components/CardAvaliation";
@@ -7,85 +7,73 @@ import { useTheme } from "../../context/ThemeContext";
 import { useTranslation } from 'react-i18next';
 import { api } from "../../config/api";
 import { Modal } from "../../components/Modal";
+import { usePermissions } from "../../context/AuthContext";
 
 const Home = () => {
+    const { canCreate, canEdit, canDelete } = usePermissions();
     const breadcrumbs = [
         { children: <Link to="/dashboard/home">Início</Link> },
     ];
 
     useEffect(() => {
         const fetchData = async () => {
-            const responseObservatoryData = await api.get('/admin/stats/observatory');
-            const responseAMSData = await api.get('/admin/stats/totals');
-            const responseMyMonitorData = await api.get('/admin/stats/mymonitor');
+            const response = await api.get('/analytics/overview');
+            const { ams, observatory, mymonitor, accessmonitor } = response.data.data;
+
             setCardsAMS({
                 itemsList: [
-                    { title: t('DIRECTORIES_PAGE.LIST.title_list'), subtitle: responseAMSData.data.result.directories, icon: "AMA-Pasta-Line" },
-                    { title: t('CATEGORIES_PAGE.LIST.title'), subtitle: responseAMSData.data.result.tags, icon: "AMA-Pasta-Line" },
-                    { title: t('WEBSITES_PAGE.LIST.title_list'), subtitle: responseAMSData.data.result.websites, icon: "AMA-Pasta-Line" },
-                    { title: t('PAGES_PAGE.LIST.title'), subtitle: responseAMSData.data.result.pages, icon: "AMA-Pasta-Line" },
-                    { title: t('ENTITIES_PAGE.LIST.title'), subtitle: responseAMSData.data.result.entities, icon: "AMA-Pasta-Line" },
-                    { title: t('USERS_PAGE.LIST.title'), subtitle: responseAMSData.data.result.users, icon: "AMA-Pasta-Line" },
+                    { title: t('DIRECTORIES_PAGE.LIST.title_list'), subtitle: ams.directories, icon: "AMA-Pasta-Line" },
+                    { title: t('CATEGORIES_PAGE.LIST.title'), subtitle: ams.tags, icon: "AMA-Pasta-Line" },
+                    { title: t('WEBSITES_PAGE.LIST.title_list'), subtitle: ams.websites, icon: "AMA-Pasta-Line" },
+                    { title: t('PAGES_PAGE.LIST.title'), subtitle: ams.pages, icon: "AMA-Pasta-Line" },
+                    { title: t('ENTITIES_PAGE.LIST.title'), subtitle: ams.entities, icon: "AMA-Pasta-Line" },
+                    { title: t('USERS_PAGE.LIST.title'), subtitle: ams.users, icon: "AMA-Pasta-Line" },
                  ]
               });
             setCardsObservatory({
                 itemsList: [
-                    { title: t('DIRECTORIES_PAGE.LIST.title_list'), subtitle: responseObservatoryData.data.result.directories, icon: "AMA-Pasta-Line" },
-                    { title: t('CATEGORIES_PAGE.LIST.title'), subtitle: responseObservatoryData.data.result.tags, icon: "AMA-Pasta-Line" },
-                    { title: t('WEBSITES_PAGE.LIST.title_list'), subtitle: responseObservatoryData.data.result.websites, icon: "AMA-Pasta-Line" },
-                    { title: t('PAGES_PAGE.LIST.title'), subtitle: responseObservatoryData.data.result.pages, icon: "AMA-Pasta-Line" },
-                    { title: t('ENTITIES_PAGE.LIST.title'), subtitle: responseObservatoryData.data.result.entities, icon: "AMA-Pasta-Line" },
+                    { title: t('DIRECTORIES_PAGE.LIST.title_list'), subtitle: observatory.directories, icon: "AMA-Pasta-Line" },
+                    { title: t('CATEGORIES_PAGE.LIST.title'), subtitle: observatory.tags, icon: "AMA-Pasta-Line" },
+                    { title: t('WEBSITES_PAGE.LIST.title_list'), subtitle: observatory.websites, icon: "AMA-Pasta-Line" },
+                    { title: t('PAGES_PAGE.LIST.title'), subtitle: observatory.pages, icon: "AMA-Pasta-Line" },
+                    { title: t('ENTITIES_PAGE.LIST.title'), subtitle: observatory.entities, icon: "AMA-Pasta-Line" },
                 ]
               });
               setCardsMyMonitor({
                 itemsList: [
-                    { title: t('USERS_PAGE.LIST.title'), subtitle: responseMyMonitorData.data.result.users, icon: "AMA-Pasta-Line" },
-                    { title: t('WEBSITES_PAGE.LIST.title_list'), subtitle: responseMyMonitorData.data.result.websites, icon: "AMA-Pasta-Line" },
-                    { title: t('PAGES_PAGE.LIST.title'), subtitle: responseMyMonitorData.data.result.pages, icon: "AMA-Pasta-Line" },
+                    { title: t('USERS_PAGE.LIST.title'), subtitle: mymonitor.users, icon: "AMA-Pasta-Line" },
+                    { title: t('WEBSITES_PAGE.LIST.title_list'), subtitle: mymonitor.websites, icon: "AMA-Pasta-Line" },
+                    { title: t('PAGES_PAGE.LIST.title'), subtitle: mymonitor.pages, icon: "AMA-Pasta-Line" },
                 ]
               });
 
-              const [responseAMS, responseMyMonitor, responseAccessMonitor, responseAMSWaiting, responseAMSError, responseAMSEvaluating, responseAcessEvaluating, responseAcessWaiting, responseAcessError] = await Promise.all([
-                api.get('/evaluation/ams/counter'),
-                api.get('/evaluation/mm/counter'),
-                api.get('/evaluation/am/counter'),
-                api.get('/page/evaluationList/admin/waiting'),
-                api.get('/page/evaluationList/admin/error'),
-                api.get('/page/evaluationList/admin/evaluating'),
-                api.get('/page/evaluationList/user/evaluating'),
-                api.get('/page/evaluationList/user/waiting'),
-                api.get('/page/evaluationList/user/error')
-              ]);
-
               setDataAMS({
-                counter: responseAMS.data.result.counter,
-                date: responseAMS.data.result.date,
-                waiting: responseAMSWaiting.data.result,
-                error: responseAMSError.data.result,
-                evaluating: responseAMSEvaluating.data.result
+                counter: ams.evaluations.evalCount,
+                date: ams.evaluations.dateCountStart,
+                waiting: ams.evaluations.waiting,
+                error: ams.evaluations.failed,
+                evaluating: ams.evaluations.processing
               });
               setDataMyMonitor({
-                counter: responseMyMonitor.data.result.counter,
-                date: responseMyMonitor.data.result.date,
-                waiting: responseAcessWaiting.data.result,
-                error: responseAcessError.data.result,
-                evaluating: responseAcessEvaluating.data.result
+                counter: mymonitor.evaluations.evalCount,
+                date: mymonitor.evaluations.dateCountStart,
+                waiting: mymonitor.evaluations.waiting,
+                error: mymonitor.evaluations.failed,
+                evaluating: mymonitor.evaluations.processing
               });
               setDataAccessMonitor({
-                counter: responseAccessMonitor.data.result.counter,
-                date: responseAccessMonitor.data.result.date,
-                waiting: responseAcessWaiting.data.result,
-                error: responseAcessError.data.result,
-                evaluating: responseAcessEvaluating.data.result
+                counter: accessmonitor.evalCount,
+                date: accessmonitor.dateCountStart,
+                waiting: 0,
+                error: 0,
+                evaluating: 0
               });
-
-   
-       
         };
         fetchData();
     }, []);
 
     const handleResetAMS = async () => {
+        if (!canEdit) return;
         const response = await api.get('/evaluation/admin/reset');
         if (response.status === 200) {
             setMessageModal("Lista de avaliações reiniciada com sucesso. Por favor, aguarde um momento.");
@@ -97,6 +85,7 @@ const Home = () => {
     }
 
     const handleResetMyMonitor = async () => {
+        if (!canEdit) return;
         const response = await api.get('/evaluation/myMonitor/reset');
         if (response.status === 200) {
             setMessageModal("Lista de avaliações reiniciada com sucesso. Por favor, aguarde um momento.");
@@ -105,6 +94,7 @@ const Home = () => {
     }
 
     const handleDeleteAMS = async () => {
+        if (!canDelete) return;
         const response = await api.get('/evaluation/admin/delete');
         if (response.status === 200) {
             setMessageModal("A Eliminar as listas de avaliações. Por favor, aguarde um momento.");
@@ -113,6 +103,7 @@ const Home = () => {
     }
 
     const handleDeleteMyMonitor = async () => {
+        if (!canDelete) return;
         const response = await api.get('/evaluation/myMonitor/delete');
         if (response.status === 200) {
             setMessageModal("Lista de avaliações eliminada com sucesso. Por favor, aguarde um momento.");
@@ -219,7 +210,9 @@ const Home = () => {
 
     });
 
+    // eslint-disable-next-line no-unused-vars -- usado no bloco de sincronização comentado no JSX abaixo
     const handleSyncWithObservatory = async () => {
+        if (!canEdit) return;
         const response = await api.post('/observatory/generate');
         if (response.status === 201) {
             setMessageModal("A sincronização de dados com o Observatório está a ser processada. Por favor, aguarde um momento.");
@@ -231,6 +224,7 @@ const Home = () => {
     }
 
     const handleUploadCSV = async (e) => {
+        if (!canCreate) return;
         const file = e.target.files[0];
         
         // File validation
@@ -368,7 +362,9 @@ const Home = () => {
                 />
             </div>
 
+            {/*(canEdit || canCreate) && (
             <div className="mt-4 d-flex flex-column gap-4 justify-content-between">
+                {canEdit && (
                 <div className="cards-sync gap-4 p-4">
                     <div>
                         <h2 className="mb-4">Sincronização de dados estatísticos globais com o Observatório</h2>
@@ -376,7 +372,9 @@ const Home = () => {
                     </div>
                     <Button onClick={handleSyncWithObservatory} darkTheme={theme} text={"Sincronizar dados com o observatório"} ></Button>
                 </div>
+                )}
 
+                {canCreate && (
                 <div className="cards-sync gap-4 p-4">
                     <div>
                         <h2 className="mb-4">Carregamento de dados de forma massiva</h2>
@@ -390,7 +388,9 @@ const Home = () => {
                         setIsUploadingCSV(false);
                     }} text={"Carregar CSV "} ></Button>
                 </div>
+                )}
             </div>
+            )*/}
 
             <Modal
                 title="Informação"

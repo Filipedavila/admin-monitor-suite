@@ -1,43 +1,31 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Button,
   InputSearch,
   SortingTable,
   Breadcrumb,
 } from "@a12e/accessmonitor-ds";
-import i18n from '../../i18n';
 
 import "./style.users.css";
-import {
-  directoriesHeaders,
-  columnsOptions,
-  nameOfIcons,
-  paginationButtonsTexts,
-  websiteUsersHeaders,
-  websiteUsersColumnsOptions,
-} from "./table.config";
-import { useForm } from "react-hook-form";
+import { nameOfIcons, websiteUsersHeaders, websiteUsersColumnsOptions } from "./table.config";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
 import { useTranslation } from 'react-i18next';
 import { api } from "../../config/api";
 import moment from "moment";
 import { Modal } from "../../components/Modal";
+import { usePermissions } from "../../context/AuthContext";
 
 const WebsitesForUsers = () => {
   const navigate = useNavigate();
+  const { canEdit } = usePermissions();
   const location = useLocation();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
   const { theme } = useTheme();
   const { t } = useTranslation();
   const [websitesData, setWebsitesData] = useState([]);
   const [checkboxesSelected, setCheckboxesSelected] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
   const [searchTerm, setSearchTerm] = useState("");
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
@@ -98,38 +86,6 @@ const WebsitesForUsers = () => {
     setCurrentPage(1); // Reset to first page when searching
   };
 
-  // Handle delete users
-  const handleDeleteUsers = async () => {
-    if (checkboxesSelected.length === 0) {
-      setFeedbackMessage("Por favor, selecione pelo menos um utilizador para eliminar.");
-      setShowFeedbackModal(true);
-      return;
-    }
-
-    try {
-      const userIds = checkboxesSelected.map(async item => {
-        const response = await api.post('/user/delete', {
-          userId: item.id,
-          app: "nimda"
-        });
-        return response.data.result.UserId;
-      });
-      setFeedbackMessage("Utilizadores eliminados com sucesso!");
-      setCheckboxesSelected([]);
-      setSearchTerm("");
-      fetchData();
-
-    } catch (error) {
-      setFeedbackMessage("Erro ao eliminar utilizadores. Tente novamente.");
-    }
-    setShowFeedbackModal(true);
-  };
-
-  const onSubmit = (formData) => {
-    console.log("User data:", formData);
-    // Lógica de criação de utilizador, se for o caso
-  };
-
   // Handle import website
   const handleImportWebsite = (website) => {
     setSelectedWebsite(website);
@@ -137,8 +93,9 @@ const WebsitesForUsers = () => {
   };
 
   const handleConfirmImport = async () => {
+    if (!canEdit) return;
     try {
-      const response = await api.post('/website/import', {
+      await api.post('/website/import', {
         websiteId: selectedWebsite.id,
         websiteName: selectedWebsite.Name,
         websiteUrl: selectedWebsite.StartingUrl
@@ -180,7 +137,7 @@ const WebsitesForUsers = () => {
 
         <SortingTable
           darkTheme={theme}
-          headers={websiteUsersHeaders}
+          headers={canEdit ? websiteUsersHeaders : websiteUsersHeaders.map((row) => row.filter((header) => header.property !== "import"))}
           setDataList={setWebsitesData}
           dataList={filteredWebsites}
           columnsOptions={websiteUsersColumnsOptions(navigate, handleImportWebsite)}
@@ -240,7 +197,7 @@ const WebsitesForUsers = () => {
           <p><strong>URL:</strong> {selectedWebsite?.StartingUrl}</p>
           
           <p style={{ marginTop: '16px' }}>
-            O sítio Web "{selectedWebsite?.Name}" ({selectedWebsite?.StartingUrl}) já existe. 
+            O sítio Web &quot;{selectedWebsite?.Name}&quot; ({selectedWebsite?.StartingUrl}) já existe. 
             <br/> Vamos proceder à importação da amostra do MyMonitor no AMS.<br/> O processo inclui a 
             importação de todas as páginas e respetivas avaliações, sempre que estas sejam mais 
             recentes às existentes no AMS. As páginas que existam no AMS e que não constem da 

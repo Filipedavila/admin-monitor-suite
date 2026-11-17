@@ -1,45 +1,25 @@
-import React, { useState, useEffect } from "react";
-import { Button, StatisticsHeader, Breadcrumb, Icon } from "@a12e/accessmonitor-ds";
+import { useState, useEffect } from "react";
+import qs from "qs";
+import { Breadcrumb, Icon } from "@a12e/accessmonitor-ds";
 import "./style.users.css";
 import { useParams } from "react-router-dom";
-import { dataRowsPage  } from "./table.config.jsx";
 
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
-import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from "react-i18next";
 import { getEffectiveNavigationContext } from "../../utils/navigation";
-import {  getTestResults } from "../../utils/utils";
-import { ruleset, translations as translationsRuleset } from  "@a12e/accessmonitor-rulesets";
+import { getTagName, fixCode } from "../../utils/utils";
+import { ruleset } from "@a12e/accessmonitor-rulesets";
+import { api } from "../../config/api.js";
 import TableDetails from "../../components/TableDetails/TableDetails.jsx";
 
 const DetailedPageLine = () => {
-  const { theme } = useTheme();
   const location = useLocation();
   const { t } = useTranslation();
 
-  const [statsTitle, setWebsiteStatsTitle] = useState([
-    { subtitle: 'Sítios Web', subtitle2: "" },
-    { subtitle: 'Sítios Web não conformes', subtitle2: "" },
-    { subtitle: 'Sítios Web conformes', subtitle2: "" },
-    {
-      subtitle: "Conformidade A",
-      subtitle2: "Sem erros de nível A"
-    },
-    {
-      subtitle: "Conformidade AA",
-      subtitle2: "Sem Erros de Nível A + AA"
-    }, {
-      subtitle: "Conformidade AAA",
-      subtitle2: "Sem erros de nível A + AA + AAA"
-    }
-  ])
   const [breadcrumbs, setBreadcrumbs] = useState([]);
-  const [data, setData] = useState(dataRowsPage)
-  const [checkboxesSelected, setCheckboxesSelected] = useState([])
-  const [detailsData, setDetailsData] = useState({});
+  const [data, setData] = useState({ result: "G", elements: [], size: 0 });
   const { pageUrl, details, idPage } = useParams();
-  const navigate = useNavigate();
   useEffect(() => {
     const currentPath = location.pathname;
     const lastPath = localStorage.getItem('currentPath');
@@ -50,7 +30,6 @@ const DetailedPageLine = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    console.log('ruleset', );
     const currentPath = location.pathname;
     const navContext = getEffectiveNavigationContext(currentPath);
     const pageLink = `/dashboard/pages/view/${encodeURIComponent(pageUrl || "")}`;
@@ -109,11 +88,45 @@ const DetailedPageLine = () => {
     }
 
     const fetchData = async () => {
-      const response = JSON.parse(localStorage.getItem('@AMS:evalData'));
-      const responseDetails = getTestResults(ruleset[details]?.test, response);
-      setData(responseDetails);
-      console.log('responseDetails', responseDetails)
-      setDetailsData(responseDetails.tot.results[details]);
+      // `details` is the ruleset's own rule key (e.g. "title_06"); the evaluation
+      // endpoints key their results by the test name held in `.test` (e.g. "titleOk").
+      const testName = ruleset[details]?.test;
+      if (!testName) {
+        return;
+      }
+
+      try {
+        const pagesQuery = qs.stringify({ filters: { searchTerm: pageUrl } });
+        const pagesResponse = await api.get(`/pages?${pagesQuery}`);
+        const page = pagesResponse.data.data.find(item => item.url === pageUrl) ?? pagesResponse.data.data[0];
+        const websiteId = page?.websiteId ?? page?.website?.id;
+        const pageId = page?.id;
+
+        if (!websiteId || !pageId) {
+          return;
+        }
+
+        const nodesResponse = await api.get(`/evaluations/website/${websiteId}/page/${pageId}/evaluation/${idPage}/nodes`);
+        const nodesPayload = nodesResponse.data?.data ?? nodesResponse.data;
+        const entries = nodesPayload?.[testName] || [];
+
+        const elements = entries.flatMap(entry => (entry.elements || []).map(el => ({
+          ele: getTagName(el),
+          code: fixCode(el.htmlCode),
+          showCode: fixCode(el.htmlCode, undefined, true),
+          pointer: el.pointer,
+        })));
+
+        const result = entries.some(entry => entry.verdict === 'failed')
+          ? 'R'
+          : entries.some(entry => entry.verdict === 'warning')
+            ? 'Y'
+            : 'G';
+
+        setData({ result, elements, size: elements.length });
+      } catch (error) {
+        console.error("Erro ao carregar os detalhes do teste", error);
+      }
     };
     fetchData();
   }, [pageUrl, details, idPage]);
@@ -125,8 +138,8 @@ const DetailedPageLine = () => {
       <div className="bg-white show_details">
               <div className="d-flex flex-row justify-content-between align-items-center show_details-container">
                 <div className="d-flex flex-row align-items-center">
-                  <div className={`d-flex align-items-center justify-content-center m-2 p-3 ${data.result === "R" ? "error-cell" : detailsData?.result === "Y" ? "warning-cell" : "success-cell"}`}>
-                    <Icon name={data?.result === "R" ? "AMA-Wrong-Line" : data?.result === "Y" ? "AMA-Middle-Line" : "AMA-Check-Line"} />
+                  <div className={`d-flex align-items-center justify-content-center m-2 p-3 ${data.result === "R" ? "error-cell" : data.result === "Y" ? "warning-cell" : "success-cell"}`}>
+                    <Icon name={data.result === "R" ? "AMA-Wrong-Line" : data.result === "Y" ? "AMA-Middle-Line" : "AMA-Check-Line"} />
                   </div>
 
                   <span

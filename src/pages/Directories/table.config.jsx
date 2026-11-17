@@ -1,5 +1,5 @@
 import i18n from "../../i18n";
-const apiUrl = import.meta.env.VITE_API_URL + import.meta.env.VITE_ROUTE_URL;
+const apiUrl = import.meta.env.VITE_API_URL + import.meta.env.VITE_ROUTE_URL.replace(/\/$/, "") + "/";
 
 export const directoriesHeaders = [
   [
@@ -38,10 +38,10 @@ export const directoriesHeaders = [
 ];
 
 export const columnsOptions = (navigate) => ({
-  id: { type: "Checkbox", center: false, bold: false, decimalPlace: false },
+  id: { type: "Checkbox", center: true, bold: false, decimalPlace: false },
   Name: {
     type: "Link",
-    center: false,
+    center: true,
     bold: false,
     decimalPlace: false,
     isCheckboxLabel: true,
@@ -59,9 +59,7 @@ export const columnsOptions = (navigate) => ({
     type: "Button",
     text: i18n.t("USERS_PAGE.LIST.table.edit_label"),
     onClick: (row) => {
-      navigate(
-        `${import.meta.env.VITE_ROUTE_URL}dashboard/directories/edit/${row.id}`
-      );
+      navigate(`/dashboard/directories/edit/${row.id}`);
     },
     center: true,
     bold: false,
@@ -215,3 +213,6 @@ export const detailsTable = [
     level: "AA",
   },
 ];
+
+// Table column property -> backend sort field (sorts[field]=ASC|DESC)
+export const sortFields = { Name: "name" };

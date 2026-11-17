@@ -1,30 +1,27 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import "./style.users.css";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { Breadcrumb, Button, InputSearch } from "@a12e/accessmonitor-ds";
-import { useTranslation } from "react-i18next";
 import { api } from "../../config/api";
-import { isRequestSuccessful } from "../../utils/apiHelpers.js";
 import moment from "moment";
 import { Modal } from "../../components/Modal";
+import { usePermissions } from "../../context/AuthContext";
 
 import { useTheme } from '../../context/ThemeContext';
-import { directoriesHeaders, columnsOptions, nameOfIcons, paginationButtonsTexts, nItemsPerPageText, itemsPaginationText, dataRows } from './table.config';
+import { directoriesHeaders, columnsOptions, nameOfIcons } from './table.config';
 import { SortingTable } from "@a12e/accessmonitor-ds";
 
 const EvaluationWithErrors = () => {
-  const { t } = useTranslation();
+  const { canEdit, canDelete } = usePermissions();
   const [data, setData] = useState([]);
   const [checkboxesSelected, setCheckboxesSelected] = useState([]);
-  const [totalItems, setTotalItems] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
   const [search, setSearch] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const theme = useTheme();
-  const navigate = useNavigate();
   const breadcrumbs = [
     { children: <Link to="/dashboard/home">Início</Link> },
     {
@@ -68,9 +65,11 @@ const EvaluationWithErrors = () => {
     };
 
   const handleReEvaluate = async () => {
-    const pagesUrls = checkboxesSelected.map(item => item.Url);
-    const response = await api.post("/page/reEvaluateMulti", {
-      pages: pagesUrls,
+    if (!canEdit) return;
+    const pagesId = checkboxesSelected.map(item => item.PageId).filter(pageId => pageId != null);
+    const response = await api.post("/evaluations", {
+      triggerType: "PAGE",
+      targetIds: pagesId,
     })
     if (response.status === 200 || response.status === 201) {
       setFeedbackMessage("As páginas que selecionou estão a ser reavaliadas pelo sistema. Pode fechar a janela e prosseguir o seu trabalho.!");
@@ -86,11 +85,12 @@ const EvaluationWithErrors = () => {
   }
 
   const handleRemoveFromList = async () => {
-    const pagesIds = checkboxesSelected
+    if (!canDelete) return;
+    const pagesId = checkboxesSelected
       .map(item => item.evaluationListId)
       .filter(id => id != null);
     const response = await api.post("/page/evaluationList/error/delete", {
-      pages: pagesIds,
+      pages: pagesId,
     })
     if (response.status === 200 || response.status === 201) {
       setFeedbackMessage("Páginas removidas da lista com sucesso!");
@@ -105,24 +105,7 @@ const EvaluationWithErrors = () => {
     }
   }
 
-  const handleDelete = async () => {
 
-    const pagesIds = checkboxesSelected.map(item => item.PageId);
-    const response = await api.post("/page/delete", {   
-      pages: pagesIds,
-    })
-    if (response.status === 200 || response.status === 201) {
-      setFeedbackMessage("Páginas apagadas com sucesso!");
-      await fetchData();
-      setCheckboxesSelected([]);
-      setShowFeedbackModal(true);
-    }
-    else{
-      setFeedbackMessage("Erro ao apagar páginas!");
-      setCheckboxesSelected([]);
-      setShowFeedbackModal(true);
-    }
-  }
 
   // Filter data based on search term
   const filteredData = data.filter(item => 
@@ -139,7 +122,9 @@ const EvaluationWithErrors = () => {
       </p>
       <div className="content bg-white">
         <h2>Lista de todas as páginas que falharam a avaliação {type === "AMS" ? "no AMS" : "no MyMonitor"}</h2>
+      {(canEdit || canDelete) && (
       <div className="d-flex justify-content-start gap-3 mt-4 mb-4">
+        {canEdit && (
         <Button
           darkTheme={theme}
           text="Re-avaliar"
@@ -147,21 +132,18 @@ const EvaluationWithErrors = () => {
           disabled={checkboxesSelected.length === 0}
           onClick={handleReEvaluate}
         />
-        <Button
-          darkTheme={theme}
-          text="Remover da lista"
-          className="btn-primary"
-          disabled={checkboxesSelected.length === 0}
-          onClick={handleRemoveFromList}
-        />
+        )}
+        {canDelete && (
         <Button
           darkTheme={theme}
           text="Apagar"
           className="btn-primary"
           disabled={checkboxesSelected.length === 0}
-          onClick={handleDelete}
+          onClick={handleRemoveFromList}
         />
+        )}
       </div>
+      )}
       
       <div className="d-flex gap-2 align-items-center mb-3">
         <span>Filtrar páginas:</span>

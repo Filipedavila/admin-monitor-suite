@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Input, Button, Select, Tabs, Breadcrumb } from "@a12e/accessmonitor-ds";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useState, useEffect, useRef, useCallback } from "react";
+import qs from "qs";
+import { Input, Button, Tabs, Breadcrumb } from "@a12e/accessmonitor-ds";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import AcessibilityDeclaration from "./Tabs/acessiblityDeclaration";
 import UsuabilitySeal from "./Tabs/usuabilitySeal";
@@ -9,8 +10,18 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "../../context/ThemeContext";
 import { api } from '../../config/api';
 import { Modal } from '../../components/Modal';
-import debounce from 'lodash/debounce';
-import { extractNavigationContext } from '../../utils/navigation';
+import {
+  getUpdateWebsiteUrlErrorKey,
+  getWebsiteUrlErrorKey,
+  isSameWebsiteUrl,
+  normalizeWebsiteUrl,
+  updateWebsiteUrl,
+} from '../../services/websites';
+import {
+  buildWebsiteOriginState,
+  getWebsiteOriginFromState,
+  getWebsiteOriginTrail,
+} from '../../utils/navigation';
 
 const WebSiteCreateForm = () => {
   const {
@@ -24,6 +35,7 @@ const WebSiteCreateForm = () => {
   const { t } = useTranslation();
   const { theme } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
@@ -31,26 +43,34 @@ const WebSiteCreateForm = () => {
   const { id } = useParams();
   useEffect(() => {
   }, [errors]);
-  // State for options and search
-  const [entityOptions, setEntityOptions] = useState([]);
-  const [userOptions, setUserOptions] = useState([]);
-  const [categoryOptions, setCategoryOptions] = useState([]);
-  const [entitySearch, setEntitySearch] = useState("");
-  const [userSearch, setUserSearch] = useState("");
-  const [categorySearch, setCategorySearch] = useState("");
 
-  // State for selected values of MultiSelects
-  const [entityValue, setEntityValue] = useState([]);
-  const [userValue, setUserValue] = useState([]);
+  // Regista esta página no histórico usado pelos outros ecrãs (currentPath/previousPath).
+  // Sem isto, a página seguinte herdava como "anterior" a página vista antes da edição.
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const lastPath = localStorage.getItem('currentPath');
+    if (lastPath && lastPath !== currentPath) {
+      localStorage.setItem('previousPath', lastPath);
+    }
+    localStorage.setItem('currentPath', currentPath);
+  }, [location.pathname]);
+  // State for options and loading
+  const [institutionOptions, setInstitutionOptions] = useState([]);
+  const [categoryOptions, setCategoryOptions] = useState([]);
+  const [isCategoryLoading, setIsCategoryLoading] = useState(false);
+
+  // State for selected values
+  const [institutionValue, setInstitutionValue] = useState("");
+  // Categories currently associated with the website, as {value, label}
   const [categoryValue, setCategoryValue] = useState([]);
 
-  const [defaultEntities, setDefaultEntities] = useState([]);
-  const [defaultUsers, setDefaultUsers] = useState([]);
-  const [defaultCategories, setDefaultCategories] = useState([]);
-  
-  const entityValueRef = useRef([]);
-  const userValueRef = useRef([]);
-  const categoryValueRef = useRef([]);
+  // Tags currently saved on the website (used to diff add/remove on submit)
+  const originalCategoryIdsRef = useRef([]);
+
+  // URL carregado do servidor: o PATCH /websites/:id/url só é feito se o URL mudar.
+  const originalUrlRef = useRef("");
+
+  const categorySearchTimeoutRef = useRef(null);
   // State for Select values to track conditional validation
   const [complianceValue, setComplianceValue] = useState("");
   const [typeSealValue, setTypeSealValue] = useState("");
@@ -61,43 +81,12 @@ const WebSiteCreateForm = () => {
   const [declarationDateValidation, setDeclarationDateValidation] = useState({ isValid: null, message: "" });
   const [sealDateValidation, setSealDateValidation] = useState({ isValid: null, message: "" });
 
-  // Validation state for MultiSelects
-  const [entityValidation, setEntityValidation] = useState({ isValid: null, message: "" });
-  const [userValidation, setUserValidation] = useState({ isValid: null, message: "" });
+  // Validation state for the categories MultiSelect
   const [categoryValidation, setCategoryValidation] = useState({ isValid: null, message: "" });
 
   // Validation state for Selects
   const [complianceValidation, setComplianceValidation] = useState({ isValid: null, message: "" });
   const [typeSealValidation, setTypeSealValidation] = useState({ isValid: null, message: "" });
-
-  // Validation functions for MultiSelects
-  const validateEntities = (selected) => {
-    // Entities are optional, but if selected, validate count
-    if (selected && selected.length > 5) {
-      setEntityValidation({ isValid: false, message: "Máximo de 5 entidades permitidas." });
-      return false;
-    }
-    if (selected && selected.length > 0) {
-      setEntityValidation({ isValid: true, message: "Entidades válidas selecionadas." });
-    } else {
-      setEntityValidation({ isValid: null, message: "" });
-    }
-    return true;
-  };
-
-  const validateUsers = (selected) => {
-    // Users are optional, but if selected, validate count
-    if (selected && selected.length > 3) {
-      setUserValidation({ isValid: false, message: "Máximo de 3 utilizadores permitidos." });
-      return false;
-    }
-    if (selected && selected.length > 0) {
-      setUserValidation({ isValid: true, message: "Utilizadores válidos selecionados." });
-    } else {
-      setUserValidation({ isValid: null, message: "" });
-    }
-    return true;
-  };
 
   const validateCategories = (selected) => {
     // Categories are optional, but if selected, validate count
@@ -116,7 +105,7 @@ const WebSiteCreateForm = () => {
   // Validation functions for Selects
   const validateCompliance = (value) => {
     // Compliance is optional - no validation needed if empty
-    if (!value || value === "0") {
+    if (!value) {
       setComplianceValidation({ isValid: null, message: "" });
       return true;
     }
@@ -126,7 +115,7 @@ const WebSiteCreateForm = () => {
 
   const validateTypeSeal = (value) => {
     // Type seal is optional - no validation needed if empty
-    if (!value || value === "0") {
+    if (!value) {
       setTypeSealValidation({ isValid: null, message: "" });
       return true;
     }
@@ -145,8 +134,9 @@ const WebSiteCreateForm = () => {
   };
 
   const validateUrlField = (value) => {
-    if (!value || value.trim() === "") {
-      setUrlValidation({ isValid: false, message: "URL Inicial é obrigatória." });
+    const urlErrorKey = getWebsiteUrlErrorKey(value);
+    if (urlErrorKey) {
+      setUrlValidation({ isValid: false, message: t(urlErrorKey) });
       return false;
     }
     setUrlValidation({ isValid: true, message: "" });
@@ -156,7 +146,7 @@ const WebSiteCreateForm = () => {
   // Conditional validation for dates with real-time updates
   const validateDeclarationDateField = (dateValue, complianceValue) => {
     // If compliance is selected, date is required
-    if (complianceValue && complianceValue !== "0") {
+    if (complianceValue) {
       if (!dateValue || dateValue.trim() === "") {
         setDeclarationDateValidation({ isValid: false, message: "Data de declaração é obrigatória quando conformidade é selecionada." });
         return { isValid: false, message: "Data de declaração é obrigatória quando conformidade é selecionada." };
@@ -171,7 +161,7 @@ const WebSiteCreateForm = () => {
 
   const validateSealDateField = (dateValue, typeSealValue) => {
     // If type seal is selected, date is required
-    if (typeSealValue && typeSealValue !== "0") {
+    if (typeSealValue) {
       if (!dateValue || dateValue.trim() === "") {
         setSealDateValidation({ isValid: false, message: "Data de selo é obrigatória quando tipo de selo é selecionado." });
         return { isValid: false, message: "Data de selo é obrigatória quando tipo de selo é selecionado." };
@@ -193,141 +183,105 @@ const WebSiteCreateForm = () => {
     return validateSealDateField(dateValue, typeSealValue);
   };
 
-  // Debounced fetchers
-  const fetchEntities = async (searchTerm) => {
-    const res = await api.get(`/entity/all/40/0/sort=/direction=/search=${searchTerm || ''}`);
-    const fetchedOptions = (res.data.result || []).map(e => ({ value: e.EntityId || e.id, label: e.Long_Name + " - " + e.Short_Name }));
-    
-    setEntityOptions(prevOptions => {
-      const currentValues = entityValueRef.current;
-      const preservedOptions = prevOptions.filter(opt => currentValues.includes(opt.value));
-      const allOptions = [...preservedOptions];
-      const existingIds = new Set(allOptions.map(opt => opt.value));
-      fetchedOptions.forEach(opt => {
-        if (!existingIds.has(opt.value)) {
-          allOptions.push(opt);
-        }
-      });
-      return allOptions;
-    });
-  }
+  const fetchInstitutions = useCallback(async () => {
+    try {
+      const queryObj = { pagination: { limit: 100, page: 1 } };
+      const response = await api.get(`/institutions/?${qs.stringify(queryObj)}`);
+      const fetched = (response.data.data || []).map(inst => ({
+        value: inst.id,
+        label: `${inst.longName} - ${inst.shortName}`,
+      }));
+      setInstitutionOptions(fetched);
+    } catch (error) {
+      console.error('Error fetching institutions:', error);
+    }
+  }, []);
 
-  const fetchUsers = async (searchTerm) => {
-    const res = await api.get(`/user/all`);
-    const fetchedOptions = (res.data.result || []).map(u => ({ value: u.UserId || u.id, label: u.Username }));
-    
-    setUserOptions(prevOptions => {
-      const currentValues = userValueRef.current;
-      const preservedOptions = prevOptions.filter(opt => currentValues.includes(opt.value));
-      const allOptions = [...preservedOptions];
-      const existingIds = new Set(allOptions.map(opt => opt.value));
-      fetchedOptions.forEach(opt => {
-        if (!existingIds.has(opt.value)) {
-          allOptions.push(opt);
-        }
-      });
-      return allOptions;
-    });
-  }
-
-  const fetchCategories = async (searchTerm) => {
-    const res = await api.get(`/tag/all`);
-    const fetchedOptions = (res.data.result || []).map(c => ({ value: c.TagId, label: c.Name  }));
-    
-    setCategoryOptions(prevOptions => {
-      const currentValues = categoryValueRef.current;
-      const preservedOptions = prevOptions.filter(opt => currentValues.includes(opt.value));
-      const allOptions = [...preservedOptions];
-      const existingIds = new Set(allOptions.map(opt => opt.value));
-      fetchedOptions.forEach(opt => {
-        if (!existingIds.has(opt.value)) {
-          allOptions.push(opt);
-        }
-      });
-      return allOptions;
-    });
-  }
+  const fetchCategories = useCallback(async (search) => {
+    setIsCategoryLoading(true);
+    try {
+      const queryObj = { pagination: { limit: 20, page: 1 } };
+      if (search) queryObj.filters = { searchTerm: search };
+      const response = await api.get(`/tags?${qs.stringify(queryObj)}`);
+      const fetched = (response.data.data || []).map(c => ({
+        value: c.id,
+        label: c.name,
+      }));
+      setCategoryOptions(fetched);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    } finally {
+      setIsCategoryLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
+    fetchInstitutions();
     if (!id) {
-      fetchEntities("");
-      fetchUsers("");
       fetchCategories("");
     }
-  }, [id]);
+  }, [id, fetchInstitutions, fetchCategories]);
 
   // Load website data for editing
   useEffect(() => {
     const fetchWebsiteData = async () => {
       try {
-        const response = await api.get(`/website/info/${id}`);
-        const websiteData = response.data.result;
-        
-        // Set basic form fields
-        setValue("name", websiteData.Name || "");
-        setValue("initial_url", websiteData.StartingUrl || "");
-        setValue("compliance", websiteData.Declaration || "");
-        setValue("accessibility_declaration_date", websiteData.Declaration_Update_Date || "");
-        setValue("type_seal", websiteData.Stamp || "");
-        setValue("usability_seal_date", websiteData.Stamp_Update_Date || "");
-        
-        const entityIds = websiteData.entities.map(e => e.EntityId);
-        const userIds = [websiteData.UserId];
-        const categoryIds = websiteData.tags.map(c => c.TagId);
+        const response = await api.get(`/websites/${id}`);
+        const w = response.data.data;
 
-        entityValueRef.current = entityIds;
-        userValueRef.current = userIds;
-        categoryValueRef.current = categoryIds;
+        setValue("name", w.title || "");
+        originalUrlRef.current = w.baseUrl || "";
+        setValue("initial_url", w.baseUrl || "");
+        setInstitutionValue(w.institutionId != null ? String(w.institutionId) : "");
 
-        if (websiteData.entities && websiteData.entities.length > 0) {
-          const selectedEntityOptions = websiteData.entities.map(e => ({ 
-            value: e.EntityId, 
-            label: e.Long_Name + " - " + e.Short_Name 
-          }));
-          setEntityOptions(selectedEntityOptions);
-        }
-        
-        if (websiteData.UserId) {
-          try {
-            const userResponse = await api.get(`/user/${websiteData.UserId}`);
-            const userData = userResponse.data.result;
-            const selectedUserOption = { 
-              value: websiteData.UserId, 
-              label: userData.Username 
-            };
-            setUserOptions([selectedUserOption]);
-          } catch (error) {
-            console.error("Error fetching user data:", error);
+        let declarationLevel = "";
+        let declarationDate = "";
+        try {
+          const declarationResponse = await api.get(`/websites/${id}/declaration`);
+          const declaration = declarationResponse.data?.data ?? declarationResponse.data;
+          if (declaration?.declaration) declarationLevel = declaration.declaration;
+          if (declaration?.updatedAt || declaration?.createdAt) {
+            declarationDate = declaration.updatedAt || declaration.createdAt;
           }
+        } catch (declarationError) {
+          console.error('Error fetching website declaration:', declarationError);
         }
-        
-        if (websiteData.tags && websiteData.tags.length > 0) {
-          const selectedCategoryOptions = websiteData.tags.map(c => ({ 
-            value: c.TagId, 
-            label: c.Name 
-          }));
-          setCategoryOptions(selectedCategoryOptions);
+        setValue("compliance", declarationLevel);
+        setComplianceValue(declarationLevel);
+        setValue("accessibility_declaration_date", declarationDate);
+
+        let stampLevel = "";
+        let stampDate = "";
+        try {
+          const stampResponse = await api.get(`/websites/${id}/stamp`);
+          const stamp = stampResponse.data?.data ?? stampResponse.data;
+          if (stamp?.stamp) stampLevel = stamp.stamp;
+          if (stamp?.updatedAt || stamp?.createdAt) {
+            stampDate = stamp.updatedAt || stamp.createdAt;
+          }
+        } catch (stampError) {
+          console.error('Error fetching website stamp:', stampError);
         }
-        
-        setEntityValue(entityIds);
-        setUserValue(userIds);
-        setCategoryValue(categoryIds);
-        setDefaultEntities(entityIds);
-        setDefaultUsers(userIds);
-        setDefaultCategories(categoryIds);
-        
-        fetchEntities("");
-        fetchUsers("");
-        fetchCategories("");
-        
-        // Set compliance and seal values for validation
-        setComplianceValue(websiteData.Declaration || "");
-        setTypeSealValue(websiteData.Stamp || "");
-        
-        // Clear validation states for edit mode
+        setValue("type_seal", stampLevel);
+        setTypeSealValue(stampLevel);
+        setValue("usability_seal_date", stampDate);
+
+        let categorySelected = [];
+        try {
+          const tagsResponse = await api.get(`/websites/${id}/tags`);
+          const tags = tagsResponse.data.data || tagsResponse.data.result || [];
+          categorySelected = tags.map(tag => ({ value: tag.id, label: tag.name }));
+        } catch (tagsError) {
+          console.error('Error fetching website tags:', tagsError);
+        }
+
+        originalCategoryIdsRef.current = categorySelected.map(c => c.value);
+        setCategoryValue(categorySelected);
+
+        await fetchCategories("");
+
         setNameValidation({ isValid: true, message: "" });
         setUrlValidation({ isValid: true, message: "" });
-        
       } catch (error) {
         console.error("Error fetching website data:", error);
         setFeedbackMessage("Erro ao carregar dados do sítio web.");
@@ -346,45 +300,21 @@ const WebSiteCreateForm = () => {
     validateUrlField("");
   }, []);
 
-  // Handlers for MultiSelect search
-  const handleEntitySearch = (value) => {
-    setEntitySearch(value || "");
-    fetchEntities(value || "");
-  };
-  const handleUserSearch = (value) => {
-    setUserSearch(value || "");
-    fetchUsers(value || "");
-  };
+  // Handlers for the categories MultiSelect search with debounce
   const handleCategorySearch = (value) => {
-    setCategorySearch(value || "");
-    fetchCategories(value || "");
+    if (categorySearchTimeoutRef.current) clearTimeout(categorySearchTimeoutRef.current);
+    categorySearchTimeoutRef.current = setTimeout(() => fetchCategories(value || ""), 300);
   };
 
-  // Handlers for MultiSelect change with validation
-  const handleEntityChange = (selected) => {
-    const validatedSelection = selected || [];
-    setValue("entities", validatedSelection);
-    setEntityValue(validatedSelection);
-    entityValueRef.current = validatedSelection;
-    validateEntities(validatedSelection);
+  const handleInstitutionChange = (value) => {
+    setValue("institution", value);
+    setInstitutionValue(value);
   };
-  
-  const handleUserChange = (selected) => {
-    const validatedSelection = selected || [];
-    setValue("users", validatedSelection);
-    setUserValue(validatedSelection);
-    userValueRef.current = validatedSelection;
-    const isValid = validateUsers(validatedSelection);
-    if (!isValid) {
-      setActiveTab("tab3");
-    }
-  };
-  
+
   const handleCategoryChange = (selected) => {
     const validatedSelection = selected || [];
-    setValue("categories", validatedSelection);
+    setValue("categories", validatedSelection.map((item) => item.value));
     setCategoryValue(validatedSelection);
-    categoryValueRef.current = validatedSelection;
     const isValid = validateCategories(validatedSelection);
     if (!isValid) {
       setActiveTab("tab3");
@@ -396,7 +326,7 @@ const WebSiteCreateForm = () => {
     setValue("compliance", value);
     setComplianceValue(value);
     validateCompliance(value);
-    
+
     // Re-validate declaration date when compliance changes
     const currentDeclarationDate = document.getElementById("accessibility_declaration_date")?.value || "";
     validateDeclarationDateField(currentDeclarationDate, value);
@@ -406,7 +336,7 @@ const WebSiteCreateForm = () => {
     setValue("type_seal", value);
     setTypeSealValue(value);
     validateTypeSeal(value);
-    
+
     // Re-validate seal date when type seal changes
     const currentSealDate = document.getElementById("usability_seal_date")?.value || "";
     validateSealDateField(currentSealDate, value);
@@ -415,14 +345,14 @@ const WebSiteCreateForm = () => {
   // Handler for basic input field changes with real-time validation
   const handleBasicFieldChange = (fieldName, value) => {
     setValue(fieldName, value);
-    
+
     // Real-time validation for required fields
     if (fieldName === "name") {
       validateNameField(value);
     } else if (fieldName === "initial_url") {
       validateUrlField(value);
     }
-    
+
     // If field becomes empty, switch to tab1 where basic fields are
     if (!value || value.trim() === "") {
       setActiveTab("tab1");
@@ -432,14 +362,14 @@ const WebSiteCreateForm = () => {
   // Handler for date field changes with conditional validation
   const handleDateFieldChange = (fieldName, value, tabKey) => {
     setValue(fieldName, value);
-    
+
     // Real-time conditional validation for date fields
     if (fieldName === "accessibility_declaration_date") {
       validateDeclarationDateField(value, complianceValue);
     } else if (fieldName === "usability_seal_date") {
       validateSealDateField(value, typeSealValue);
     }
-    
+
     // If field becomes empty, switch to the appropriate tab
     if (!value || value.trim() === "") {
       setActiveTab(tabKey);
@@ -447,70 +377,47 @@ const WebSiteCreateForm = () => {
   };
 
   // Function to determine which tab contains validation errors
-  const getTabWithErrors = (isEntityValid, isUserValid, isCategoryValid, isComplianceValid, isTypeSealValid, formErrors) => {
+  const getTabWithErrors = (isCategoryValid, isComplianceValid, isTypeSealValid, formErrors) => {
     // Check basic form fields (tab1 - name, initial_url)
     if (formErrors.name || formErrors.initial_url) {
       return "tab1"; // Basic information tab
     }
-    
+
     // Check declaration fields (tab1 - accessibility_declaration_date)
     if (formErrors.accessibility_declaration_date) {
       return "tab1"; // Declaration tab
     }
-    
+
     // Check seal fields (tab2 - usability_seal_date)
     if (formErrors.usability_seal_date) {
       return "tab2"; // Usability seal tab
     }
-    
-    // Check associations (tab3 - users, categories)
-    if (!isUserValid || !isCategoryValid) {
+
+    // Check associations (tab3 - categories)
+    if (!isCategoryValid) {
       return "tab3"; // Associations tab
     }
-    
+
     // Default to first tab if no specific errors found
     return "tab1";
   };
 
-  // Helper function to format date to ISO format
-  const formatDateToISO = (dateString) => {
-    if (!dateString) return null;
-    
-    // Check if the date is in dd/mm/yyyy format
-    if (dateString.includes('/')) {
-      const [day, month, year] = dateString.split('/');
-      const date = new Date(year, month - 1, day); // month is 0-indexed
-      return date.toISOString();
-    }
-    
-    if (dateString.includes('-') && dateString.length === 10) {
-      const date = new Date(dateString + 'T00:00:00.000Z');
-      return date.toISOString();
-    }
-    
-    // Otherwise, assume it's in standard format
-    const date = new Date(dateString);
-    return date.toISOString();
-  };
-
   const onSubmit = async (data) => {
     setIsSubmitting(true);
-  
+
     // Validate all form fields before submitting
-    const isEntityValid = validateEntities(entityValue);
-    const isUserValid = validateUsers(userValue);
     const isCategoryValid = validateCategories(categoryValue);
     const isComplianceValid = validateCompliance(data.compliance);
     const isTypeSealValid = validateTypeSeal(data.type_seal);
-    
+
     // Conditional date validations
     const declarationDateValidation = validateDeclarationDate(data.accessibility_declaration_date, complianceValue || data.compliance);
     const sealDateValidation = validateSealDate(data.usability_seal_date, typeSealValue || data.type_seal);
-    
-    const hasValidationErrors = !isUserValid || !isCategoryValid || 
-                               declarationDateValidation.isValid === false || 
+
+    const hasValidationErrors = !isCategoryValid ||
+                               declarationDateValidation.isValid === false ||
                                sealDateValidation.isValid === false;
-    
+
     if (hasValidationErrors) {
       // Create temporary errors object for date validations
       const tempErrors = { ...errors };
@@ -520,64 +427,79 @@ const WebSiteCreateForm = () => {
       if (sealDateValidation.isValid === false) {
         tempErrors.usability_seal_date = { message: sealDateValidation.message };
       }
-      
+
       // Switch to the tab containing the validation error
-      const errorTab = getTabWithErrors(isEntityValid, isUserValid, isCategoryValid, isComplianceValid, isTypeSealValid, tempErrors);
+      const errorTab = getTabWithErrors(isCategoryValid, isComplianceValid, isTypeSealValid, tempErrors);
       setActiveTab(errorTab);
-      
+
       setFeedbackMessage("Por favor, corrija os erros de validação antes de submeter o formulário.");
       setShowFeedbackModal(true);
       setIsSubmitting(false);
       return;
     }
 
+    // O URL vai sempre com trim. Na edição não segue no PATCH geral: tem pedido próprio
+    // (PATCH /websites/:id/url), feito no fim e só se o URL mudou.
+    const baseUrl = normalizeWebsiteUrl(data.initial_url);
+    const urlChanged = Boolean(id) && !isSameWebsiteUrl(baseUrl, originalUrlRef.current);
+
     try {
-      // Prepare payload as needed by your API
-      const payload = !(id) ? {
-        name: data.name,
-        startingUrl: data.initial_url,
-        declaration: data.compliance,
-        declaration_Update_Date: formatDateToISO(data.accessibility_declaration_date),
-        stamp: data.type_seal,
-        stamp_Update_Date: formatDateToISO(data.usability_seal_date),
-        entities: (entityValue || []).map(e => e.value || e),
-        users: null,
-        categories: (categoryValue || []).map(c => c.value || c),
-      } : {
-        name: data.name,
-        startingUrl: data.initial_url,
-        declaration: data.compliance === "" ? null : data.compliance ,
-        declarationUpdateDate: formatDateToISO(data.accessibility_declaration_date),
-        stamp: data.type_seal === "" ? null : data.type_seal,
-        stampUpdateDate: formatDateToISO(data.usability_seal_date),
-        userId: null,
-        olderUserId: null,
-        entities: (entityValue || []).map(e => e.value || e),
-        tags: (categoryValue || []).map(c => c.value || c),
-        defaultTags: defaultCategories,
-        defaultEntities: defaultEntities,
-        websiteId: id,
+      const payload = {
+        title: data.name,
+        institutionId: institutionValue ? Number(institutionValue) : null,
+        ...(!id && { baseUrl }),
       };
 
-      // Choose endpoint based on whether we're editing or creating
-      const response = id 
-        ? await api.post(`/website/update`, payload)
-        : await api.post('/website/create', payload);
+      const response = id
+        ? await api.patch(`/websites/${id}`, payload)
+        : await api.post('/websites', payload);
 
       if (response.status === 201 || response.status === 200) {
+        const websiteId = id ?? response.data?.data?.id ?? response.data?.id;
+
+        const originalIds = new Set(originalCategoryIdsRef.current);
+        const currentIds = new Set(categoryValue.map(item => Number(item.value)));
+        const add = [...currentIds].filter(catId => !originalIds.has(catId));
+        const remove = [...originalIds].filter(catId => !currentIds.has(catId));
+        if (websiteId && (add.length > 0 || remove.length > 0)) {
+          await api.patch(`/websites/${websiteId}/tags`, { add, remove });
+        }
+
+        if (websiteId && data.compliance && data.accessibility_declaration_date) {
+          await api.put(`/websites/${websiteId}/declaration`, {
+            status: data.compliance,
+            dateDeclaration: new Date(data.accessibility_declaration_date).toISOString(),
+          });
+        }
+
+        if (websiteId && data.type_seal && data.usability_seal_date) {
+          await api.put(`/websites/${websiteId}/stamp`, {
+            stampLevel: data.type_seal,
+            dateStamp: new Date(data.usability_seal_date).toISOString(),
+          });
+        }
+
+        if (urlChanged) {
+          try {
+            await updateWebsiteUrl(websiteId, baseUrl);
+            originalUrlRef.current = baseUrl;
+          } catch (urlError) {
+            console.error("Error updating website URL:", urlError);
+            setFeedbackMessage(t(getUpdateWebsiteUrlErrorKey(urlError)));
+            return;
+          }
+        }
+
         setFeedbackMessage(id ? "Sítio Web atualizado com sucesso!" : "Sítio Web criado com sucesso!");
-        
+
         if (!id) {
           // Only reset form for create mode
           reset();
-          setEntityValue([]);
-          setUserValue([]);
+          setInstitutionValue("");
           setCategoryValue([]);
           setComplianceValue("");
           setTypeSealValue("");
           // Clear validation states
-          setEntityValidation({ isValid: null, message: "" });
-          setUserValidation({ isValid: null, message: "" });
           setCategoryValidation({ isValid: null, message: "" });
           setComplianceValidation({ isValid: null, message: "" });
           setTypeSealValidation({ isValid: null, message: "" });
@@ -591,8 +513,10 @@ const WebSiteCreateForm = () => {
         setFeedbackMessage(id ? "Erro ao atualizar Sítio Web. Tente novamente." : "Erro ao criar Sítio Web. Tente novamente.");
       }
     } catch (error) {
-      console.log(error)
-      if (error.response?.status === 409) {
+      console.error(error);
+      if (urlChanged) {
+        setFeedbackMessage(t('WEBSITES_PAGE.URL.general_update_error'));
+      } else if (error.response?.status === 409) {
         setFeedbackMessage("Já existe um Sítio Web com este nome ou URL.");
       } else if (error.response?.status === 400) {
         setFeedbackMessage("Dados inválidos. Verifique as informações inseridas.");
@@ -605,37 +529,32 @@ const WebSiteCreateForm = () => {
     }
   };
 
-  // Dynamic breadcrumbs based on navigation context
-  const previousPath = localStorage.getItem('previousPath') || '';
-  const navContext = extractNavigationContext(previousPath);
-  
-  let breadcrumbs = [
-    { children: <Link to="/dashboard/home">Início</Link> },
-    { children: <Link to="/dashboard/websites">Sítios Web</Link> },
-    { title: id ? "Editar Sítio Web" : "Criar Sítio Web" },
+  // Breadcrumb built only from the origin carried in this navigation's state
+  // (Diretório/Entidade/Categoria ou lista de Sítios web). Não lê o
+  // localStorage `previousPath`, que vazava percursos anteriores (issue #131).
+  const websiteOrigin = getWebsiteOriginFromState(location.state);
+  const websiteNameValue = watch("name");
+  const breadcrumbs = [
+    ...getWebsiteOriginTrail(websiteOrigin, t).map(({ to, label }) => ({
+      children: <Link to={to}>{label}</Link>,
+    })),
+    ...(id && websiteNameValue
+      ? [{
+          children: (
+            <Link
+              to={`/dashboard/websites/view/${id}/${encodeURIComponent(websiteNameValue)}`}
+              state={buildWebsiteOriginState(websiteOrigin)}
+            >
+              {websiteNameValue}
+            </Link>
+          ),
+        }]
+      : []),
+    { title: id ? t('BREADCRUMB.edit_website') : t('BREADCRUMB.create_website') },
   ];
 
-  // If editing from a specific context (directory, entity, category)
-  if (id && navContext) {
-    if (navContext.type === 'directory') {
-      const { directoryName } = navContext.data;
-      breadcrumbs = [
-        { children: <Link to="/dashboard/home">Início</Link> },
-        { children: <Link to="/dashboard/directories">Diretórios</Link> },
-        { children: <Link to={`/dashboard/directories/view/${encodeURIComponent(directoryName)}`}>{directoryName}</Link> },
-        { title: id ? "Editar Sítio Web" : "Criar Sítio Web" },
-      ];
-    } else if (navContext.type === 'website') {
-      const { websiteSlug, websiteName } = navContext.data;
-      const slugOrName = websiteSlug || encodeURIComponent(websiteName || "");
-      breadcrumbs = [
-        { children: <Link to="/dashboard/home">Início</Link> },
-        { children: <Link to="/dashboard/websites">Sítios Web</Link> },
-        { children: <Link to={`/dashboard/websites/view/${id}/${slugOrName}`}>{watch("name")}</Link> },
-        { title: "Editar Sítio Web" },
-      ];
-    }
-  }
+  const urlErrorMessage = urlValidation?.isValid === false ? urlValidation.message : errors.initial_url?.message;
+  const feedbackIsSuccess = feedbackMessage === "Sítio Web criado com sucesso!" || feedbackMessage === "Sítio Web atualizado com sucesso!";
 
   const TabsWithComponenets = (
     <Tabs
@@ -643,7 +562,7 @@ const WebSiteCreateForm = () => {
       onSelect={(key) => setActiveTab(key)}
       tabs={[
         {
-          component: <AcessibilityDeclaration 
+          component: <AcessibilityDeclaration
             watch={watch}
             register={register}
             errors={errors}
@@ -658,7 +577,7 @@ const WebSiteCreateForm = () => {
           title: t('WEBSITES_PAGE.ADD.declaration_label')
         },
         {
-          component: <UsuabilitySeal 
+          component: <UsuabilitySeal
             watch={watch}
             register={register}
             errors={errors}
@@ -674,31 +593,17 @@ const WebSiteCreateForm = () => {
         },
         {
           component: <Associations
-            watch={watch}
-            register={register}
-            errors={errors}
             darkTheme={theme}
-            entityOptions={entityOptions}
-            userOptions={userOptions}
+            institutionOptions={institutionOptions}
             categoryOptions={categoryOptions}
-            entityValue={entityValue}
-            userValue={userValue}
+            institutionValue={institutionValue}
             categoryValue={categoryValue}
-            onEntityChange={handleEntityChange}
-            onUserChange={handleUserChange}
+            onInstitutionChange={handleInstitutionChange}
             onCategoryChange={handleCategoryChange}
-            onEntitySearch={handleEntitySearch}
-            entitySearch={entitySearch || ""}
-            onUserSearch={handleUserSearch}
-            userSearch={userSearch || ""}
             onCategorySearch={handleCategorySearch}
-            categorySearch={categorySearch || ""}
-            setValue={setValue}
-            // Validation props
-            entityValidation={entityValidation}
-            userValidation={userValidation}
+            isCategoryLoading={isCategoryLoading}
             categoryValidation={categoryValidation}
-            />, 
+            />,
           eventKey: 'tab3',
           title: t('WEBSITES_PAGE.ADD.associations_label')
         }
@@ -725,10 +630,18 @@ const WebSiteCreateForm = () => {
               onChange={e => handleBasicFieldChange("name", e.target.value)}
             />
             <Input
+              id="initial_url"
               value={watch("initial_url")}
-              label="URL Inicial"
-              {...register("initial_url", { required: "Campo obrigatório" })}
-              error={urlValidation?.isValid === false ? urlValidation.message : errors.initial_url?.message}
+              label={t('WEBSITES_PAGE.URL.label')}
+              {...register("initial_url", {
+                validate: (value) => {
+                  const urlErrorKey = getWebsiteUrlErrorKey(value);
+                  return urlErrorKey ? t(urlErrorKey) : true;
+                },
+              })}
+              aria-invalid={Boolean(urlErrorMessage)}
+              aria-describedby={urlErrorMessage ? "initial_url-error" : undefined}
+              error={urlErrorMessage ? <span id="initial_url-error">{urlErrorMessage}</span> : undefined}
               darkTheme={theme}
               onChange={e => handleBasicFieldChange("initial_url", e.target.value)}
             />
@@ -763,7 +676,7 @@ const WebSiteCreateForm = () => {
         onRequestClose={() => setShowFeedbackModal(false)}
         title={id ? "Editar Sítio Web" : "Criar Sítio Web"}
       >
-        <p>{feedbackMessage}</p>
+        <p role={feedbackIsSuccess ? undefined : "alert"}>{feedbackMessage}</p>
         <Button
           darkTheme={theme}
           text="OK"
@@ -771,7 +684,7 @@ const WebSiteCreateForm = () => {
           className="btn-primary"
           onClick={() => {
             setShowFeedbackModal(false);
-            if (feedbackMessage === "Sítio Web criado com sucesso!" || feedbackMessage === "Sítio Web atualizado com sucesso!") {
+            if (feedbackIsSuccess) {
               navigate('/dashboard/websites');
             }
           }}

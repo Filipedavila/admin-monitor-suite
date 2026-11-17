@@ -1,40 +1,37 @@
 import { useState, useEffect, useMemo, useCallback, memo, useRef } from "react";
+import { sortFields } from "../Pages/table.config.jsx";
+import { useServerSort } from "../../hooks/useServerSort";
+import qs from "qs";
 import { Button, Breadcrumb, SortingTable, Tabs } from "@a12e/accessmonitor-ds";
 import "./style.users.css";
 import "../../components/AccessibleBarChart/AccessibleBarChart.css";
 import { Link, useLocation, useParams } from "react-router-dom";
-import { Bar, Radar } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
+import { ScoreDistributionRadar } from "../../components/ScoreDistributionRadar";
 import { AccessibleBarChart } from "../../components/AccessibleBarChart";
 import ContentListPages from "../Pages/components/ContentListPage.jsx";
-import {
-  dataHeaders as dataHeadersBad,
-  columnsOptions as columnsOptionsBad,
-} from "../../components/GoodBadTab/table.config.jsx";
 import { barOptionsDark, barOptions } from "./table.config.jsx";
 import { barData } from "../../components/BarLineGraph/table.config.jsx";
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from "react-i18next";
 import Indicators from "../../components/Indicators";
 import { api } from "../../config/api";
+import { deletePages, getDeletePagesErrorKey, getObservatoryFeedback, isPageInObservatory, togglePagesObservatory } from "../../services/pages";
 import moment from "moment";
 import {ruleset, translations} from "@a12e/accessmonitor-rulesets";
-import { downloadCSV, downloadWebsiteCSV, getData, getSimplifiedPracticesData, getEvaluationStatus } from "../../utils/utils.js";
-import { isRequestSuccessful } from "../../utils/apiHelpers.js";
+import { downloadAnalyticsExport } from "../../services/analytics.js";
+import { calculateTotalElements as calculateEvaluationElementCount, scoreRangeLabel } from "../../utils/utils.js";
+import { useEvaluationState } from "../../utils/evaluationEvents.js";
+import { evaluationStatusHtml } from "../../components/EvaluationStatus";
 import { Modal } from "../../components/Modal";
-import { getEffectiveNavigationContext, setWebsiteNavigationContext } from "../../utils/navigation";
+import {
+  getEffectiveNavigationContext,
+  getWebsiteOriginFromState,
+  getWebsiteOriginTrail,
+  setWebsiteNavigationContext,
+} from "../../utils/navigation";
 import { useUniqueCheckboxSelection } from "../../hooks/useUniqueCheckboxSelection";
-
-// Function to calculate total elements from JSON string
-const calculateTotalElements = (elementCountJson) => {
-  try {
-    if (!elementCountJson) return 0;
-    const parsed = JSON.parse(elementCountJson);
-    return Object.values(parsed).reduce((total, count) => total + count, 0);
-  } catch (error) {
-    console.error('Error parsing Element_Count JSON:', error);
-    return 0;
-  }
-};
+import { usePermissions } from "../../context/AuthContext";
 
 const LABEL_WIDTH = 320;
 
@@ -157,110 +154,33 @@ function HtmlLabelBarChart({ data }) {
   );
 }
 
-// Function to decode and format errors from base64
-const decodeAndFormatErrors = (errorsBase64) => {
-  try {
-    if (!errorsBase64) return [];
-    
-    // Decode base64 to string
-    const decodedString = atob(errorsBase64);
-
-    // Parse JSON
-    const errorsData = JSON.parse(decodedString);
-
-
-
-
-    const errors = [];
-    for (const key in errorsData || {}) {
-      if (errorsData[key] && errorsData[key] > 0) {
-        errors.push({
-          key,
-          n_elems: errorsData[key], // This is the count of errors for this test
-          n_pages: 1, // This page has this error
-          lvl: ruleset[key]?.level?.toUpperCase() || 'UNKNOWN',
-          description: ruleset[key]?.test || `Test ${key}`, // Use the test name as description
-          elem: ruleset[key]?.elem || 'unknown' // Element type
-        });
-      }
-    }
-
-    return errors;
-  } catch (error) {
-    console.error('Error decoding/parsing Errors field:', error);
-    return [];
-  }
-};
-
-// Function to get top 5 most common errors by level
-const getTop5ErrorsByLevel = (allPagesData) => {
-  const errorsByLevel = { A: [], AA: [], AAA: [] };
-
-  // Collect all errors from all pages
-  const allErrors = {};
-
-  allPagesData.forEach(page => {
-    const pageErrors = decodeAndFormatErrors(page.Errors);
-    pageErrors.forEach(error => {
-      if (!allErrors[error.key]) {
-        allErrors[error.key] = {
-          key: error.key,
-          lvl: error.lvl,
-          total_elems: 0,
-          total_pages: 0,
-          description: error.description || `Test ${error.key}`,
-          elem: error.elem || 'unknown'
-        };
-      }
-      allErrors[error.key].total_elems += error.n_elems;
-      allErrors[error.key].total_pages += error.n_pages;
-    });
-  });
-
-  // Group by level and sort by frequency
-  Object.values(allErrors).forEach(error => {
-    if (error.lvl === 'A' || error.lvl === 'AA' || error.lvl === 'AAA') {
-      errorsByLevel[error.lvl].push(error);
-    }
-  });
-
-  // Sort each level by total elements (most common first) and take top 5
-  Object.keys(errorsByLevel).forEach(level => {
-    errorsByLevel[level] = errorsByLevel[level]
-      .sort((a, b) => b.total_elems - a.total_elems)
-      .slice(0, 5)
-      .map(error => ({
-        level: error.lvl,
-        practice: error.key,
-        description: error.description
-      }));
-  });
-
-  return errorsByLevel;
-};
-
 const ViewWebSitesComponent = () => {
   const { t } = useTranslation();
+  const { canEdit, canDelete } = usePermissions();
   const { websiteName, id } = useParams();
   const { theme } = useTheme();
   const location = useLocation();
   const [breadcrumbs, setBreadcrumbs] = useState([
     { children: <Link to="/dashboard/home">Início</Link> },
   ]);
-  const [data, setData] = useState([]);
   const [dataBad, setDataBad] = useState([]);
   const [checkboxesSelected, setCheckboxesSelected] = useUniqueCheckboxSelection([]);
   const [listItems, setListItems] = useState([]);
   const [listItemsGlobal, setListItemsGlobal] = useState([]);
   const [barDataDynamic, setBarDataDynamic] = useState(barData);
   const [dataListBar, setDataListBar] = useState([]);
-  const [radarWebsites, setRadarWebsites] = useState([]);
   const [search, setSearch] = useState("");
   const [totalItems, setTotalItems] = useState(100);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
+  const { sorts, onSortChange } = useServerSort(sortFields, () => setCurrentPage(1));
   // Issue #60: Using only allPagesData for client-side sorting/pagination
   const [allPagesData, setAllPagesData] = useState([]);
+  const { pages: livePages, completedTick } = useEvaluationState();
+  const pageRows = useMemo(
+    () => allPagesData.map((row) => ({ ...row, EvaluationStatus: evaluationStatusHtml(livePages.get(row.id), row.Evaluated) })),
+    [allPagesData, livePages]
+  );
   const [horizontalDataGood, setHorizontalDataGood] = useState(
     {
       labels: [],
@@ -299,7 +219,7 @@ const ViewWebSitesComponent = () => {
   const [dataGood, setDataGood] = useState([]);
   const [feedbackMessage, setFeedbackMessage] = useState("")
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-  const [language, setLanguage] = useState(localStorage.getItem('i18nextLng').split("-")[0]);
+  const [language] = useState(localStorage.getItem('i18nextLng').split("-")[0]);
   // Memoize initial empty states
   const initialSuccessCriteria = useMemo(() => ({}), []);
   const [successCriteriaSuccess, setSuccessCriteriaSuccess] = useState(initialSuccessCriteria);
@@ -322,10 +242,25 @@ const ViewWebSitesComponent = () => {
     }
   }, [location.pathname, id, websiteName]);
 
+  const stateOrigin = getWebsiteOriginFromState(location.state);
+  const stateOriginKey = stateOrigin ? `${stateOrigin.type}:${stateOrigin.name || ""}` : "";
+
   useEffect(() => {
+    // Origem explícita na navegação (ex.: link do breadcrumb da edição) tem prioridade
+    // sobre a heurística do localStorage (issue #131).
+    if (stateOrigin) {
+      setBreadcrumbs([
+        ...getWebsiteOriginTrail(stateOrigin, t).map(({ to, label }) => ({
+          children: <Link to={to}>{label}</Link>,
+        })),
+        { title: websiteName },
+      ]);
+      return;
+    }
+
     const previousPath = localStorage.getItem('previousPath') || '';
     const navContext = getEffectiveNavigationContext(previousPath);
-    
+
     if (navContext) {
       if (navContext.type === 'directory') {
         const { directoryName } = navContext.data;
@@ -365,7 +300,8 @@ const ViewWebSitesComponent = () => {
         { title: websiteName }
       ]);
     }
-  }, [websiteName]);
+    // stateOrigin é derivado de stateOriginKey; t muda só com o idioma.
+  },[websiteName, stateOriginKey, t]);
   /*const fetchWebsitesPages = async () => {
     const responsePages = await api.get(`/website/${websiteName}/user/admin/pages`);
     const pagesData = responsePages.data.result
@@ -385,81 +321,62 @@ const ViewWebSitesComponent = () => {
   }*/
   
   useEffect(() => {
+    if (!id) return;
     const fetchData = async () => {
-      // Issue #60: Fetch ALL pages for proper client-side sorting
-      // Only one API call needed - fetch all pages at once
-      const responsePages = await api.get(`/website/${encodeURIComponent(websiteName)}/user/admin/pages`);
-      const pagesData = responsePages.data.result || [];
-      setTotalItems(pagesData.length);
-      
-      // Transform all pages data once
-      // Ensure we always have a valid, unique id for each row (some pages may have null/undefined PageId)
-      const allTransformedPages = pagesData.map((page, index) => ({
-        id: page.PageId ?? index,
-        Uri: page.Uri,
-        Score: page.Score ?? 0,
-        Evaluation_Date: page.Evaluation_Date ? moment(page.Evaluation_Date).format('DD/MM/YYYY') : 'Pendente',
-        Evaluation_Date_Raw: page.Evaluation_Date, // Keep raw date for sorting
-        Element_Count: calculateTotalElements(page.Tag_Count),
-        A: page.A ?? 0,
-        AA: page.AA ?? 0,
-        AAA: page.AAA ?? 0,
-        e: getEvaluationStatus(page),
-        OPAW: page.Show_In ? (page.Show_In.split("")[2] === "1" ? "Sim" : "Nao") : "Nao",
-      }));
-      
-      // Use only allPagesData - single source of truth
-      setAllPagesData(allTransformedPages);
-      const response = await api.get(`/website/info/${id}`);
-      const website = response.data.result || [];
+      let ams;
+      try {
+        const response = await api.get(`/analytics/website/${id}`);
+        ams = response.data.data.ams;
+      } catch (error) {
+        console.error("Error fetching website analytics:", error);
+        setFeedbackMessage("Erro ao carregar os indicadores do sítio web.");
+        setShowFeedbackModal(true);
+        return;
+      }
 
+      const totalPages = Number(ams.total_pages_evaluated) || 0;
+      // The API returns 1970-01-01 when the website has no evaluated pages.
+      const formatDate = (date) =>
+        date && !String(date).startsWith("1970") ? moment(date).format("DD/MM/YYYY") : "N/A";
+      const percentOf = (value) => (totalPages ? ((value / totalPages) * 100).toFixed(1) : "0.0");
+      const pagesWithoutErrors = ams.pagesWithoutErrorsA + ams.pagesWithoutErrorsAA + ams.pagesWithoutErrorsAAA;
 
-      const evaluatedPages = pagesData.filter(page => page.Evaluation_Date !== null);
-      const totalPages = pagesData.length;
-
-
-      let websiteList = []
-      let websiteListForWebsitePage = []
-      getData(website, pagesData, websiteList, websiteListForWebsitePage, moment);
-      websiteListForWebsitePage = websiteListForWebsitePage[0];
       setListItems([
-        { title: 'Pontuação média', value: websiteListForWebsitePage.score.toFixed(1) },
-        { title: 'Avaliação mais antiga de uma página', value: websiteListForWebsitePage.oldestPage ? moment(websiteListForWebsitePage.oldestPage).format('DD/MM/YYYY') : 'N/A' },
-        { title: 'Avaliação mais recente de uma página', value: websiteListForWebsitePage.recentPage ? moment(websiteListForWebsitePage.recentPage).format('DD/MM/YYYY') : 'N/A' },
-        { title: 'Nº de páginas recolhidas(avaliadas)', value: `${websiteListForWebsitePage.nPages}(${evaluatedPages.length})` },
+        { title: 'Pontuação média', value: ams.score != null ? Number(ams.score).toFixed(1) : 'N/A' },
+        { title: 'Avaliação mais antiga de uma página', value: formatDate(ams.oldestPageDate) },
+        { title: 'Avaliação mais recente de uma página', value: formatDate(ams.recentPageDate) },
+        { title: 'Nº de páginas recolhidas(avaliadas)', value: `${ams.pagesCount}(${totalPages})` },
       ]);
       setListItemsGlobal([
         { title: 'Páginas Avaliadas', value: totalPages },
-        { title: 'Páginas Não Conformes', value: websiteListForWebsitePage.pagesWithErrors },
+        { title: 'Páginas Não Conformes', value: totalPages - pagesWithoutErrors },
         {
-          title: 'Páginas Conformes', value: websiteListForWebsitePage.pagesWithoutErrors,
+          title: 'Páginas Conformes', value: pagesWithoutErrors,
           itemsList: [
-            { title: 'Conformidade A', value: `${websiteListForWebsitePage.pagesWithoutErrorsA} (${((websiteListForWebsitePage.pagesWithoutErrorsA / totalPages) * 100).toFixed(1)}%)` },
-            { title: 'Conformidade AA', value: `${websiteListForWebsitePage.pagesWithoutErrorsAA} (${((websiteListForWebsitePage.pagesWithoutErrorsAA / totalPages) * 100).toFixed(1)}%)` },
-            { title: 'Conformidade AAA', value: `${websiteListForWebsitePage.pagesWithoutErrorsAAA} (${((websiteListForWebsitePage.pagesWithoutErrorsAAA / totalPages) * 100).toFixed(1)}%)` },
+            { title: 'Conformidade A', value: `${ams.pagesWithoutErrorsA} (${percentOf(ams.pagesWithoutErrorsA)}%)` },
+            { title: 'Conformidade AA', value: `${ams.pagesWithoutErrorsAA} (${percentOf(ams.pagesWithoutErrorsAA)}%)` },
+            { title: 'Conformidade AAA', value: `${ams.pagesWithoutErrorsAAA} (${percentOf(ams.pagesWithoutErrorsAAA)}%)` },
           ]
         },
       ]);
 
       // Bar chart: frequency by page score (not website average since it's a single website)
-      const barDataDynamicArr = websiteListForWebsitePage.scoreDistributionFrequency;
-     
-      // Build radar websites data with page URLs and scores for this single website view
-      const pagesWithScores = pagesData.map(page => {
-        return {
-          domain: page.Uri,
-          averageScore: Number(page.Score).toFixed(1)
-        };
-      });
-      setRadarWebsites(pagesWithScores);
+      const barDataDynamicArr = ams.scoreDistributionFrequency ?? [];
+      const distributionTotal = barDataDynamicArr.reduce((acc, curr) => acc + curr, 0);
+      const percentOfDistribution = (value) =>
+        `${(distributionTotal ? (value / distributionTotal) * 100 : 0).toFixed(2)}%`;
+
       setDataListBar(
-        barDataDynamicArr.map((item, index) => ({
-          range: `[${index + 1} - ${index + 2}[`,
-          frequency: item,
-          frequency_percent: `${((barDataDynamicArr[index] / totalPages) * 100).toFixed(2)}%`,
-          cumulative: barDataDynamicArr.slice(0, index + 1).reduce((acc, curr) => acc + curr, 0),
-          cumulative_percent: `${((barDataDynamicArr.slice(0, index + 1).reduce((acc, curr) => acc + curr, 0) / totalPages) * 100).toFixed(2)}%`
-        }))
+        barDataDynamicArr.map((item, index) => {
+          const cumulative = barDataDynamicArr.slice(0, index + 1).reduce((acc, curr) => acc + curr, 0);
+          return {
+            range: scoreRangeLabel(index),
+            frequency: item,
+            frequency_percent: percentOfDistribution(item),
+            cumulative,
+            cumulative_percent: percentOfDistribution(cumulative),
+          };
+        })
       );
 
       setBarDataDynamic({
@@ -482,67 +399,64 @@ const ViewWebSitesComponent = () => {
         return translations?.[language]?.translation?.["TESTS_RESULTS"]?.[key]?.[plural]?.replace("{{value}}", n) ?? "";
       };
 
+      // Counts come as strings in successDetailsTable / errorsDetailsTable.
+      const normalizePractices = (table) => (table?.data ?? []).map(practice => ({
+        key: practice.key,
+        nOccurrences: Number(practice.occurrenceCount) || 0,
+        nPages: Number(practice.pageCount) || 0,
+        lvl: (practice.level || ruleset[practice.key]?.level || "").toUpperCase(),
+      }));
+      const successPractices = normalizePractices(ams.successDetailsTable);
+      const errorPractices = normalizePractices(ams.errorsDetailsTable);
+
       setHorizontalDataGood({
-        labels: websiteListForWebsitePage.successDetailsTable.practicesData.map(practice => getLangTrans(practice.key, practice.nOccurrences)) ?? [],
+        labels: successPractices.map(practice => getLangTrans(practice.key, practice.nOccurrences)),
         datasets: [
           {
             label: "Nº de Páginas",
             type: 'bar',
-            data: websiteListForWebsitePage.successDetailsTable.practicesData.map(practice => Number(practice.nOccurrences)) ?? [],
+            data: successPractices.map(practice => practice.nOccurrences),
             backgroundColor: "green",
             borderWidth: 0,
           }
         ]
       });
       setHorizontalDataBad({
-        labels: websiteListForWebsitePage.errorsDetailsTable.practicesData?.map(practice => getLangTrans(practice.key, practice.nOccurrences)) ?? [],
+        labels: errorPractices.map(practice => getLangTrans(practice.key, practice.nOccurrences)),
         datasets: [
           {
             label: "Nº de Páginas",
             type: 'bar',
-            data: websiteListForWebsitePage.errorsDetailsTable.practicesData?.map(practice => Number(practice.nOccurrences)) ?? [],
+            data: errorPractices.map(practice => practice.nOccurrences),
             backgroundColor: "red",
             borderWidth: 0,
           }
         ]
       });
 
-      setDataBad((websiteListForWebsitePage.errorsDetailsTable.practicesData ?? []).map(practice => ({
-        name: translations?.[language]?.translation?.["TESTS_RESULTS"]?.[practice.key]?.[practice.nOccurrences > 1 ? "p" : "s"]?.replace("{{value}}", practice.nOccurrences) ?? "",
+      const toTableRow = (practice) => ({
+        name: getLangTrans(practice.key, practice.nOccurrences),
         praticesPerPage: 1,
-        pages: practice.n_pages,
+        pages: practice.nPages,
         occurences: practice.nOccurrences,
-        level: ruleset[practice.key]?.level ?? ""
-      })));
+        level: practice.lvl,
+      });
+      setDataBad(errorPractices.map(toTableRow));
+      setDataGood(successPractices.map(toTableRow));
 
-      setDataGood((websiteListForWebsitePage.successDetailsTable.practicesData ?? []).map(practice => ({
-        name: translations?.[language]?.translation?.["TESTS_RESULTS"]?.[practice.key]?.[practice.nOccurrences > 1 ? "p" : "s"]?.replace("{{value}}", practice.nOccurrences) ?? "",
-        praticesPerPage: 1,
-        pages: practice.n_pages,
-        occurences: practice.nOccurrences,
-        level: practice.lvl
-      })));
-
-      const mapTop = (list) => (list ?? []).sort((a, b) => b.nOccurrences - a.nOccurrences).slice(0, 5).map(practice => ({
+      const mapTop = (list) => [...list].sort((a, b) => b.nOccurrences - a.nOccurrences).slice(0, 5).map(practice => ({
         level: practice.lvl,
         practice: getLangTrans(practice.key, practice.nOccurrences),
       }));
 
-      setTopGoodPracticesA(mapTop((websiteListForWebsitePage.successDetailsTable.practicesData ?? []).filter(p => p.lvl === "A")));
-      setTopGoodPracticesAA(mapTop((websiteListForWebsitePage.successDetailsTable.practicesData ?? []).filter(p => p.lvl === "AA")));
-      setTopGoodPracticesAAA(mapTop((websiteListForWebsitePage.successDetailsTable.practicesData ?? []).filter(p => p.lvl === "AAA")));
-      setTopBadPracticesA(mapTop((websiteListForWebsitePage.errorsDetailsTable.practicesData ?? []).filter(p => p.lvl === "A")));
-      setTopBadPracticesAA(mapTop((websiteListForWebsitePage.errorsDetailsTable.practicesData ?? []).filter(p => p.lvl === "AA")));
-      setTopBadPracticesAAA(mapTop((websiteListForWebsitePage.errorsDetailsTable.practicesData ?? []).filter(p => p.lvl === "AAA")));
+      setTopGoodPracticesA(mapTop(successPractices.filter(p => p.lvl === "A")));
+      setTopGoodPracticesAA(mapTop(successPractices.filter(p => p.lvl === "AA")));
+      setTopGoodPracticesAAA(mapTop(successPractices.filter(p => p.lvl === "AAA")));
+      setTopBadPracticesA(mapTop(errorPractices.filter(p => p.lvl === "A")));
+      setTopBadPracticesAA(mapTop(errorPractices.filter(p => p.lvl === "AA")));
+      setTopBadPracticesAAA(mapTop(errorPractices.filter(p => p.lvl === "AAA")));
 
-      // Process practices by WCAG Success Criteria using simplified practices data
-      const simplifiedPracticesData = getSimplifiedPracticesData(pagesData);
-
-      const practicesBySuccessCriteria = {
-        success: {},
-        errors: {}
-      };
-
+      // Group practices by WCAG Success Criteria, resolving each key's criteria from the ruleset
       const toCriteriaList = (scs) => {
         if (!scs) return [];
         const list = Array.isArray(scs)
@@ -551,64 +465,94 @@ const ViewWebSitesComponent = () => {
         return list.map(c => String(c).trim()).filter(Boolean);
       };
 
-      // Process successful practices
-      simplifiedPracticesData.success.forEach(item => {
-        toCriteriaList(item.scs).forEach(trimmedCriteria => {
-          if (!practicesBySuccessCriteria.success[trimmedCriteria]) {
-            practicesBySuccessCriteria.success[trimmedCriteria] = [];
-          }
-          practicesBySuccessCriteria.success[trimmedCriteria].push({
-            practice: t(`ELEMS.${item.practice}`),
-            pages: item.pages,
-            occurrences: item.occurrences,
-            level: item.level.toUpperCase(),
-            websiteCount: 1 // For single website view
+      const groupBySuccessCriteria = (practices) => {
+        const grouped = {};
+        practices.forEach(practice => {
+          const test = ruleset[practice.key]?.test;
+          toCriteriaList(ruleset[practice.key]?.scs).forEach(criteria => {
+            if (!grouped[criteria]) grouped[criteria] = [];
+            grouped[criteria].push({
+              practice: test ? t(`ELEMS.${test}`) : practice.key,
+              pages: practice.nPages,
+              occurrences: practice.nOccurrences,
+              level: practice.lvl,
+              websiteCount: 1 // For single website view
+            });
           });
         });
-      });
-
-      // Process error practices
-      simplifiedPracticesData.errors.forEach(item => {
-        toCriteriaList(item.scs).forEach(trimmedCriteria => {
-          if (!practicesBySuccessCriteria.errors[trimmedCriteria]) {
-            practicesBySuccessCriteria.errors[trimmedCriteria] = [];
-          }
-          practicesBySuccessCriteria.errors[trimmedCriteria].push({
-            practice: t(`ELEMS.${item.practice}`),
-            pages: item.pages,
-            occurrences: item.occurrences.toString().includes("lang") ? "N/A" : item.occurrences,
-            level: item.level.toUpperCase(),
-            websiteCount: 1 // For single website view
-          });
-        });
-      });
-
-      // Format data for WCAG Success Criteria display
-      const formatSuccessCriteriaData = (practicesData) => {
         const formatted = {};
-        Object.keys(practicesData).sort().forEach(criteria => {
-          const practices = practicesData[criteria];
+        Object.keys(grouped).sort().forEach(criteria => {
           formatted[criteria] = {
             criteriaCode: criteria,
-            practiceCount: practices.length,
-            practices: practices
+            practiceCount: grouped[criteria].length,
+            practices: grouped[criteria]
           };
         });
         return formatted;
       };
 
-      const formattedSuccessData = formatSuccessCriteriaData(practicesBySuccessCriteria.success);
-      const formattedErrorData = formatSuccessCriteriaData(practicesBySuccessCriteria.errors);
+      setSuccessCriteriaSuccess(groupBySuccessCriteria(successPractices));
+      setSuccessCriteriaErrors(groupBySuccessCriteria(errorPractices));
 
-      setSuccessCriteriaSuccess(formattedSuccessData);
-      setSuccessCriteriaErrors(formattedErrorData);
     };
     fetchData();
-  }, []);
+  }, [id, language, t]);
 
+  const fetchWebsitesPages = useCallback(async (page, limit, searchTerm) => {
+    const queryObj = {
+      filters: { websiteId: Number(id) },
+      pagination: { limit, page },
+    };
+    if (searchTerm) queryObj.filters.searchTerm = searchTerm;
+    if (sorts) queryObj.sorts = sorts;
+    const query = qs.stringify(queryObj);
+    const response = await api.get(`/pages?${query}`);
+    const { data, pagination } = response.data;
+    setAllPagesData(
+      data.map((item) => {
+        const evaluation = item.evaluation;
+        const elementCount = typeof evaluation?.tagCount === "object"
+          ? calculateEvaluationElementCount(evaluation.tagCount)
+          : Number(evaluation?.tagCount) || 0;
+
+        return {
+          id: item.id,
+          Uri: item.url,
+          Score: evaluation?.score != null ? Number(evaluation.score) : 0,
+          LastEvaluation: evaluation?.createdAt
+            ? moment(evaluation.createdAt).format("DD/MM/YYYY")
+            : "Pendente",
+          ElementCount: elementCount,
+          A: evaluation?.A ?? 0,
+          AA: evaluation?.AA ?? 0,
+          AAA: evaluation?.AAA ?? 0,
+          Evaluated: Boolean(evaluation),
+          EvaluationStatus: "",
+          OPAW: isPageInObservatory(item) ? "Sim" : "Não",
+        };
+      })
+    );
+    setTotalItems(pagination.totalItems);
+  }, [id, sorts]);
+
+  useEffect(() => {
+    if (!id) return;
+    const timeout = setTimeout(() => {
+      fetchWebsitesPages(currentPage, itemsPerPage, search);
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [currentPage, itemsPerPage, search, id, fetchWebsitesPages]);
+
+  useEffect(() => {
+    if (!completedTick || !id) return undefined;
+    const timeout = setTimeout(() => fetchWebsitesPages(currentPage, itemsPerPage, search), 1500);
+    return () => clearTimeout(timeout);
+  }, [completedTick]);
 
   const handleSearchChange = (e) => {
-    setSearch(e.target.value);
+    const value = typeof e === "string" ? e : (e?.target?.value ?? "");
+    setSearch(value);
+    setCurrentPage(1);
   };
 
   const handlePageChange = (page) => setCurrentPage(page);
@@ -617,71 +561,23 @@ const ViewWebSitesComponent = () => {
     setCurrentPage(1);
   };
 
-  const radarData = useMemo(() => ({
-    labels: radarWebsites.map(w => w.domain.split('/').slice(3).join('/') || w.domain),
-    datasets: [{
-      label: "Pontuação por página",
-      data: radarWebsites.map(w => Number(w.averageScore)),
-      backgroundColor: 'rgba(255, 136, 136, 0.4)',
-      borderColor: 'rgba(255, 136, 136, 1)',
-      borderWidth: 2,
-      pointBackgroundColor: 'rgba(255, 136, 136, 1)',
-      pointRadius: 4,
-    }]
-  }), [radarWebsites]);
-
-  const radarOptions = useMemo(() => ({
-    responsive: true,
-    plugins: {
-      legend: { labels: { color: theme === "light" ? "black" : "white" } }
-    },
-    scales: {
-      r: {
-        beginAtZero: true,
-        suggestedMin: 0,
-        suggestedMax: 10,
-        pointLabels: { display: false },
-        ticks: { color: theme === "light" ? "black" : "white", backdropColor: 'transparent' },
-        grid: { color: theme === "light" ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.1)" },
-        angleLines: { color: theme === "light" ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.1)" },
-      }
-    }
-  }), [theme]);
-
   const handleDeletePages = async () => {
+    if (!canDelete) return;
     if (checkboxesSelected.length === 0) {
-      setFeedbackMessage("Por favor, selecione pelo menos uma página para eliminar.");
+      setFeedbackMessage(t("PAGES_PAGE.DELETE.none_selected"));
       setShowFeedbackModal(true);
       return;
     }
 
-    const pagesIds = checkboxesSelected.map(item => item.id);
+    const pagesId = checkboxesSelected.map(item => item.id);
     
     try {
-      const response = await api.post("/page/delete", {
-        pages: pagesIds,
-      });
-
-      const deletedSuccessfully =
-        isRequestSuccessful(response) ||
-        response?.status === 200 ||
-        response?.status === 201;
-
-      if (deletedSuccessfully) {
-        setFeedbackMessage("Páginas excluídas com sucesso!");
-        setCheckboxesSelected([]);
-        
-        // Remove deleted pages from allPagesData
-        const deletedIds = checkboxesSelected.map(item => item.id);
-        const updatedData = allPagesData.filter(item => !deletedIds.includes(item.id));
-        setAllPagesData(updatedData);
-        setTotalItems(updatedData.length);
-      } else {
-        setFeedbackMessage("Erro ao excluir páginas!");
-      }
+      await deletePages(pagesId);
+      setFeedbackMessage(t("PAGES_PAGE.DELETE.success", { count: pagesId.length }));
+      setCheckboxesSelected([]);
+      await fetchWebsitesPages(currentPage, itemsPerPage, search);
     } catch (error) {
-      console.error("Error deleting pages:", error);
-      setFeedbackMessage("Erro ao excluir páginas!");
+      setFeedbackMessage(t(getDeletePagesErrorKey(error)));
     }
     
     setShowFeedbackModal(true);
@@ -689,19 +585,17 @@ const ViewWebSitesComponent = () => {
 
   const handleExportCSV = async () => {
     try {
-      downloadWebsiteCSV(
-       websiteName,
-       "evaluation",
-       t
-      );
+      await downloadAnalyticsExport({ resource: "website", format: "csv", context: "ams", entityId: id });
     } catch (error) {
       console.error("Error exporting CSV:", error);
     }
   }
   const handleReevaluatePages = async () => {
-    const pagesIds = checkboxesSelected.map(item => item.Uri);
-    const response = await api.post("/page/reEvaluateMulti", {
-      pages: pagesIds,
+    if (!canEdit) return;
+    const pagesId = checkboxesSelected.map(item => item.id);
+    const response = await api.post("/evaluations", {
+      triggerType: "PAGE",
+      targetIds: pagesId,
     });
     if (response.status === 201) {
       setFeedbackMessage("A reavaliação foi iniciada com sucesso!");
@@ -711,48 +605,31 @@ const ViewWebSitesComponent = () => {
       setShowFeedbackModal(true);
     }
   }
-  const handleImport = async () => {
-    const websitesSelectedUris = checkboxesSelected.map(item => item.Uri);
+  const handleShowHideObservatory = async () => {
+    if (!canEdit) return;
+    const summary = await togglePagesObservatory(checkboxesSelected.map(item => ({
+      id: item.id,
+      websiteId: id,
+      inObservatory: item.OPAW === "Sim",
+    })));
 
-    const response = await api.post(`page/add`, {
-      uris:"[]",
-      observatory: JSON.stringify(websitesSelectedUris),
-      websiteId: Number(id),
-    });
-    
-    if(response.status === 200 || response.status === 201){
-
-        setOpenModal(true);
-      setFeedbackMessage('As páginas irão ser avaliadas em segundo plano, e a sua informação estará disponível assim que possível.');
-    } else {
-      setFeedbackMessage('Erro inesperado ao importar');
-    }
-   }
-
-   const handleShowHideObservatory = async () => {
-    await Promise.all(checkboxesSelected.map(async item => {
-      const response = await api.post(`/page/update`, {
-        pageId: item.id,
-        checked: item.OPAW === "Sim" ? false : true  // false = hide from Observatory, true = show in Observatory
-      });
-    }));
-
-    setFeedbackMessage('As páginas foram adicionadas ao observatório com sucesso!');
-    setShowFeedbackModal(true);
+    setFeedbackMessage(getObservatoryFeedback(summary));
     setCheckboxesSelected([]);
-    await fetchWebsitesPages();
-   }
+    await fetchWebsitesPages(currentPage, itemsPerPage, search);
+    setShowFeedbackModal(true);
+  };
 
   return (
     <div>
       <Breadcrumb data={breadcrumbs} />
-      <h1>{t('WEBSITES_PAGE.LIST.title', { websiteName })}</h1>
+      <h1 id="lista-paginas" tabIndex={-1}>{t('WEBSITES_PAGE.LIST.title', { websiteName })}</h1>
       <div className="content bg-white">
         <h2>{t('WEBSITES_PAGE.LIST.subtitle', { websiteName })}</h2>
         <ContentListPages
+        onSortChange={onSortChange}
           checkboxesSelected={checkboxesSelected}
           setCheckboxesSelected={setCheckboxesSelected}
-          data={allPagesData}
+          data={pageRows}
           setData={setAllPagesData}
           totalItems={totalItems}
           currentPage={currentPage}
@@ -765,7 +642,6 @@ const ViewWebSitesComponent = () => {
           handleDeletePages={handleDeletePages}
           handleReevaluatePages={handleReevaluatePages}
           handleShowHideObservatory={handleShowHideObservatory}
-          useClientSideSorting={true}
         />
       </div>
 
@@ -919,47 +795,17 @@ const ViewWebSitesComponent = () => {
       </div>
       <div className="mt-5 bg-white p-4">
         <h2 className="mb-4">Mancha Gráfica da Acessibilidade</h2>
-        <Tabs
-          defaultActiveKey="chart"
+        <Button
           darkTheme={theme}
-          tabs={[
-            {
-              eventKey: "chart",
-              title: "Gráfico",
-              component: (
-                <div style={{ display: 'flex', justifyContent: 'center', width: '100%', maxWidth: '600px', margin: '0 auto' }}>
-                  <Radar
-                    role="img"
-                    aria-label="Gráfico de Radar mostrando a distribuição de pontuações de acessibilidade"
-                    data={radarData}
-                    options={radarOptions}
-                  />
-                </div>
-              ),
-            },
-            {
-              eventKey: "table",
-              title: "Tabela",
-              component: (
-                <SortingTable
-                  darkTheme={theme}
-                  hasSort={false}
-                  pagination={false}
-                  caption="Mancha gráfica da acessibilidade — pontuação por página"
-                  headers={[[
-                    { type: "Text", nRow: 1, name: "Página", property: "domain" },
-                    { type: "Text", nRow: 1, name: "Pontuação média", property: "averageScore", justifyCenter: true },
-                  ]]}
-                  dataList={radarWebsites}
-                  columnsOptions={{
-                    domain: { type: "Text", center: false, bold: false },
-                    averageScore: { type: "Text", center: true, bold: false },
-                  }}
-                />
-              ),
-            },
-          ]}
+          text="Ir para a lista de páginas do sítio web"
+          className="btn-primary mb-4"
+          onClick={() => {
+            const el = document.getElementById("lista-paginas");
+            el?.scrollIntoView({ behavior: "smooth", block: "start" });
+            el?.focus({ preventScroll: true });
+          }}
         />
+        <ScoreDistributionRadar dataListBar={dataListBar} theme={theme} caption="Mancha gráfica da acessibilidade — número de páginas por nota das páginas do sítio web" />
       </div>
       <div className="mt-5 bg-white p-4 d-flex flex-column gap-4">
         <h2 className="mb-4">Top 5 dos erros mais frequentes por nível de conformidade
@@ -1122,7 +968,7 @@ const ViewWebSitesComponent = () => {
         onRequestClose={() => setShowFeedbackModal(false)}
         title="Sítios Web"
       >
-        <p>{feedbackMessage}</p>
+        <p role="alert">{feedbackMessage}</p>
         <Button
           darkTheme={theme}
           text="OK"

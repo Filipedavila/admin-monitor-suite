@@ -1,5 +1,3 @@
-const apiUrl = import.meta.env.VITE_API_URL + import.meta.env.VITE_ROUTE_URL;
-
 export const dataHeaders = [
   [
     { type: "Text", nRow: 1, bigWidth: "40%", name: "Práticas ", property: "name", },

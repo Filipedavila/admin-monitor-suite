@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { Input, Button, RadioGroup, Breadcrumb, MultiSelect } from "@a12e/accessmonitor-ds";
+import { useState, useEffect, useRef } from 'react';
+import qs from "qs";
+import { Input, Button, RadioGroup, Select, Breadcrumb } from "@a12e/accessmonitor-ds";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
 import { api } from '../../config/api';
 import { Modal } from '../../components/Modal';
+import MultiSelectTable from '../../components/MultiSelectTable';
+import { buildPasswordValidation, getPasswordRequirements } from '../../utils/passwordRules';
 
 const UsersCreateForm = () => {
-    const { register, handleSubmit, formState: { errors }, setValue, watch, trigger, reset } = useForm({ mode: 'onChange' });
+    const { register, handleSubmit, formState: { errors }, setValue, watch, reset } = useForm({ mode: 'onChange' });
     const { t } = useTranslation();
     const { theme } = useTheme();
     const navigate = useNavigate();
@@ -16,60 +19,47 @@ const UsersCreateForm = () => {
     const [showFeedbackModal, setShowFeedbackModal] = useState(false);
     const [feedbackMessage, setFeedbackMessage] = useState("");
     const [role, setRole] = useState('1');
-    
+    const [permission, setPermission] = useState('viewer');
+
+    const permissionOptions = [
+        { value: 'manager', label: 'Administrador' },
+        { value: 'viewer', label: 'Leitor' },
+        { value: 'editor', label: 'Editor' },
+    ];
+
     // States for websites association
     const [websiteOptions, setWebsiteOptions] = useState([]);
     const [websites, setWebsites] = useState([]);
-    const [defaultWebsites, setDefaultWebsites] = useState([]); // Original websites the user had
-    const [websiteSearch, setWebsiteSearch] = useState("");
+    const originalWebsiteIdsRef = useRef([]);
 
     const watchedPassword = watch("password");
     const watchedConfirmPassword = watch("confirmPassword");
     const watchedUsername = watch("username");
+    const watchedCcNumber = watch("ccNumber");
     const { id } = useParams();
-    
-    // Password strength validation helpers
-    const passwordRequirements = {
-        minLength: watchedPassword?.length >= 8,
-        hasUpperCase: /[A-Z]/.test(watchedPassword || ""),
-        hasLowerCase: /[a-z]/.test(watchedPassword || ""),
-        hasNumber: /\d/.test(watchedPassword || ""),
-        hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(watchedPassword || "")
-    };
+
+    // Password strength validation helpers (regras partilhadas em utils/passwordRules)
+    const passwordRequirements = getPasswordRequirements(watchedPassword);
     // Helper: validation rules for username
     const usernameValidation = {
         required: <div dangerouslySetInnerHTML={{__html: t('MISC.required_field')}} />,
         maxLength: { value: 50, message: "O nome não pode exceder 50 caracteres" },
 
     };
-    // Dynamic password validation based on role
-    const getPasswordValidation = () => {
-        if (role === '2') {
-            return {}; // No validation for MyMonitor
-        }
-        return {
-            required: <div dangerouslySetInnerHTML={{__html: t('MISC.required_field')}} />,
-            minLength: { value: 8, message: "A palavra-passe deve ter pelo menos 8 caracteres" },
-            maxLength: { value: 100, message: "A palavra-passe não pode exceder 100 caracteres" },
-            validate: {
-                hasUpperCase: (value) => !value || /[A-Z]/.test(value) || "A palavra-passe deve conter pelo menos uma letra maiúscula",
-                hasLowerCase: (value) => !value || /[a-z]/.test(value) || "A palavra-passe deve conter pelo menos uma letra minúscula",
-                hasNumber: (value) => !value || /\d/.test(value) || "A palavra-passe deve conter pelo menos um número",
-                hasSpecialChar: (value) => !value || /[!@#$%^&*(),.?":{}|<>]/.test(value) || "A palavra-passe deve conter pelo menos um caractere especial (!@#$%^&*...)"
-            }
-        };
+    // Password is required and must be strong for every new user, regardless of role
+    const passwordValidation = buildPasswordValidation({
+        required: <div dangerouslySetInnerHTML={{__html: t('MISC.required_field')}} />,
+        minLength: "A palavra-passe deve ter pelo menos 8 caracteres",
+        maxLength: "A palavra-passe não pode exceder 100 caracteres",
+        hasUpperCase: "A palavra-passe deve conter pelo menos uma letra maiúscula",
+        hasLowerCase: "A palavra-passe deve conter pelo menos uma letra minúscula",
+        hasNumber: "A palavra-passe deve conter pelo menos um número",
+        hasSpecialChar: "A palavra-passe deve conter pelo menos um caractere especial (!@#$%^&*...)",
+    });
+    const confirmPasswordValidation = {
+        required: <div dangerouslySetInnerHTML={{__html: t('MISC.required_field')}} />,
     };
 
-    const getConfirmPasswordValidation = () => {
-        if (role === '2') {
-            return {}; // No validation for MyMonitor
-        }
-        return {
-            required: <div dangerouslySetInnerHTML={{__html: t('MISC.required_field')}} />,
-        };
-    };
-
-    // Dynamic breadcrumbs - Users flow is linear, no dynamic context needed
     const breadcrumbs = [
         { children: <Link to="/dashboard/home">Início</Link> },
         { children: <Link to="/dashboard/users">Utilizadores</Link> },
@@ -79,31 +69,16 @@ const UsersCreateForm = () => {
     // Function to fetch websites
     const fetchWebsites = async (searchTerm = "") => {
         try {
-            const response = await api.get(`/website/all/100000/0/sort=/direction=/search=${encodeURIComponent(searchTerm)}`);
-            const websitesData = response.data.result || [];
+            const queryObj = { pagination: { limit: 20, page: 1 } };
+            if (searchTerm) queryObj.filters = { searchTerm };
+            const query = qs.stringify(queryObj);
+            const response = await api.get(`/websites?${query}`);
+            const websitesData = response.data.data || [];
             const formattedWebsites = websitesData.map(website => ({
-                value: website.WebsiteId,
-                label: website.StartingUrl
+                value: website.id,
+                label: website.title
             }));
-            
-            // Merge search results with selected websites to ensure selected ones are always visible
-            const selectedWebsiteIds = websites || [];
-            const searchResultIds = formattedWebsites.map(w => w.value);
-            
-            // Find selected websites that are not in the search results
-            const missingSelectedWebsites = websiteOptions.filter(opt => 
-                selectedWebsiteIds.includes(opt.value) && !searchResultIds.includes(opt.value)
-            );
-            
-            // Combine: selected websites that are missing + search results
-            const mergedOptions = [...missingSelectedWebsites, ...formattedWebsites];
-            
-            // Remove duplicates based on value
-            const uniqueOptions = mergedOptions.filter((option, index, self) =>
-                index === self.findIndex((t) => t.value === option.value)
-            );
-            
-            setWebsiteOptions(uniqueOptions);
+            setWebsiteOptions(formattedWebsites);
         } catch (error) {
             console.error("Error fetching websites:", error);
             setWebsiteOptions([]);
@@ -113,38 +88,28 @@ const UsersCreateForm = () => {
     // Load initial websites and user data
     useEffect(() => {
         fetchWebsites("");
-        
+
         const fetchUser = async () => {
             try {
-                const response = await api.get(`/user/info/${id}`);
-                const userData = response.data.result;
-                
-                setValue("username", userData.Username);
-                setRole(userData.Type === "nimda" ? "1" : "2");
-                
-                // Load user's associated websites if available
-                if (userData.websites && Array.isArray(userData.websites)) {
-                    const websiteIds = userData.websites.map(w => {
-                        // Handle different possible structures
-                        if (typeof w === 'object' && w.WebsiteId) {
-                            return w.WebsiteId;
-                        } else if (typeof w === 'number' || typeof w === 'string') {
-                            return w;
-                        }
-                        return null;
-                    }).filter(id => id !== null);
-                    
-                    setWebsites(websiteIds);
-                    setDefaultWebsites(websiteIds); // Store original websites
-                    setValue("websites", websiteIds);
-                } else {
-                    setWebsites([]);
-                    setDefaultWebsites([]);
-                }
+                const response = await api.get(`/users/${id}`);
+                const userData = response.data.data;
+
+                setValue("username", userData.username);
+                setValue("ccNumber", userData.ccNumber || "");
+                const roleSlug = typeof userData.role === "string" ? userData.role : userData.role?.slug;
+                setRole(roleSlug === "nimda" ? "1" : "2");
+                setPermission(userData.permission || 'viewer');
+
+                const websitesResponse = await api.get(`/users/${id}/websites`);
+                const userWebsites = websitesResponse.data?.data ?? websitesResponse.data ?? [];
+                const websiteSelected = userWebsites.map(w => ({ value: w.id, label: w.baseUrl }));
+
+                originalWebsiteIdsRef.current = websiteSelected.map(w => w.value);
+                setWebsites(websiteSelected);
+                setValue("websites", websiteSelected.map(w => w.value));
             } catch (error) {
                 console.error("Error fetching user data:", error);
                 setWebsites([]);
-                setDefaultWebsites([]);
             }
         };
         if (id) {
@@ -153,110 +118,77 @@ const UsersCreateForm = () => {
     }, [id, setValue]);
 
     useEffect(() => {
-        // Clear websites when role is AMS (role === '1')
         if (role === '1') {
             setWebsites([]);
             setValue("websites", []);
+            setValue("ccNumber", "");
         }
-        
-        // Clear password values and errors when switching roles
-        setValue("password", "");
-        setValue("confirmPassword", "");
-        trigger(['password', 'confirmPassword']);
-    }, [role, setValue, trigger]);
+    }, [role, setValue]);
 
     // Handlers for website association
     const handleWebsiteSearch = (value) => {
-        setWebsiteSearch(value || "");
-        // Don't update websites state here, just search
-        // The fetchWebsites function will be called with the updated websites state
-        (async () => {
-            try {
-                const response = await api.get(`/website/all/100000/0/sort=/direction=/search=${encodeURIComponent(value || "")}`);
-                const websitesData = response.data.result || [];
-                const formattedWebsites = websitesData.map(website => ({
-                    value: website.WebsiteId,
-                    label: website.StartingUrl
-                }));
-                
-                // Merge search results with selected websites to ensure selected ones are always visible
-                const selectedWebsiteIds = websites || [];
-                const searchResultIds = formattedWebsites.map(w => w.value);
-                
-                // Find selected websites that are not in the search results
-                const missingSelectedWebsites = websiteOptions.filter(opt => 
-                    selectedWebsiteIds.includes(opt.value) && !searchResultIds.includes(opt.value)
-                );
-                
-                // Combine: selected websites that are missing + search results
-                const mergedOptions = [...missingSelectedWebsites, ...formattedWebsites];
-                
-                // Remove duplicates based on value
-                const uniqueOptions = mergedOptions.filter((option, index, self) =>
-                    index === self.findIndex((t) => t.value === option.value)
-                );
-                
-                setWebsiteOptions(uniqueOptions);
-            } catch (error) {
-                console.error("Error fetching websites:", error);
-                setWebsiteOptions([]);
-            }
-        })();
+        fetchWebsites(value || "");
     };
 
     const handleWebsiteChange = (newWebsites) => {
         setWebsites(newWebsites || []);
-        setValue("websites", newWebsites || []);
+        setValue("websites", (newWebsites || []).map(item => item.value));
+    };
+
+    const handlePermissionChange = (value) => {
+        setPermission(value);
+        setValue("permission", value);
     };
 
     const onSubmit = async (data) => {
- 
-        if (role !== '2' && data.password !== data.confirmPassword) {
+
+        if (!id && data.password !== data.confirmPassword) {
             setFeedbackMessage("As palavras-passe não coincidem.");
             setShowFeedbackModal(true);
             return;
         }
-        
+
         setIsSubmitting(true);
 
         try {
-            let payload;
-            payload = {
-                username: data.username,
-                password: data.password === "" ? "defaultAdmin123@" : data.password,
-                confirmPassword: data.confirmPassword === "" ? "defaultAdmin123@" : data.confirmPassword,
-                type: role === '1' ? "nimda" : "monitor",
-                emails: "",
-                names: "",
-                websites: role === '1' ? [] : (websites || []),
-                tags: []
-            };
+            let userId = id;
 
-            let response;
-            if(id){
-                if(payload.password === ""){
-                    delete payload.password;
-                    delete payload.confirmPassword;
+            if (id) {
+                const payload = {
+                    id: Number(id),
+                    role: role === '1' ? "nimda" : "monitor",
+                    permission: permission,
+                };
+                if (role === '2' && data.ccNumber) {
+                    payload.ccNumber = data.ccNumber;
                 }
-           
-                delete payload.tags;
-                payload.websites = JSON.stringify(role === '1' ? [] : (websites || [])); // Current selection (original + new)
-                payload.app = role === '1' ? "nimda" : "monitor";
-                payload.defaultWebsites = JSON.stringify(role === '1' ? [] : (defaultWebsites || [])); // Only original websites
-                payload.userId = Number(id);
-                response = await api.post('/user/update', payload);
-            }else{
-                response = await api.post('/user/create', payload);
+                await api.patch('/users', payload);
+            } else {
+                const payload = {
+                    username: data.username,
+                    role: role === '1' ? "nimda" : "monitor",
+                    password: data.password,
+                    permission: permission,
+                };
+                if (role === '2' && data.ccNumber) {
+                    payload.ccNumber = data.ccNumber;
+                }
+                const response = await api.post('/users', payload);
+                userId = response.data?.data?.id ?? response.data?.id;
             }
 
-         
-            
-            if (response.status === 201 || response.status === 200) {
-                setFeedbackMessage(id ? "Utilizador atualizado com sucesso!" : "Utilizador criado com sucesso!");
-                reset();
-            } else {
-                setFeedbackMessage(id ? "Erro ao atualizar utilizador. Tente novamente." : "Erro ao criar utilizador. Tente novamente.");
+            if (userId && role === '2') {
+                const currentIds = new Set(websites.map(item => Number(item.value)));
+                const originalIds = new Set(originalWebsiteIdsRef.current);
+                const add = [...currentIds].filter(wId => !originalIds.has(wId));
+                const remove = [...originalIds].filter(wId => !currentIds.has(wId));
+                if (add.length > 0 || remove.length > 0) {
+                    await api.patch(`/users/${userId}/websites`, { add, remove });
+                }
             }
+
+            setFeedbackMessage(id ? "Utilizador atualizado com sucesso!" : "Utilizador criado com sucesso!");
+            reset();
         } catch (error) {
             if (error.response?.status === 409) {
                 setFeedbackMessage("Já existe um utilizador com este nome.");
@@ -286,6 +218,7 @@ const UsersCreateForm = () => {
                         darkTheme={theme}
                         value={watchedUsername}
                         placeholder="Nome de utilizador"
+                        disabled={!!id}
                         {...register("username", usernameValidation)}
                         onChange={e => setValue("username", e.target.value)}
                         error={errors.username?.message}
@@ -298,7 +231,6 @@ const UsersCreateForm = () => {
                             data={[
                                 { id: '1', name: t('MENU.admin_console') },
                                 { id: '2', name: t('MENU.my_monitor') },
-                                { id: '3', name: t('MENU.study_monitor') },
                             ]}
                             inline
                             onChange={(val) => { setRole(val); }}
@@ -306,116 +238,149 @@ const UsersCreateForm = () => {
                         />
                     </div>
 
-                    {role !== '1' && (
-                        <MultiSelect
+                    <Select
+                        id="permission"
+                        darkTheme={theme}
+                        label="Permissões"
+                        name="permission"
+                        options={permissionOptions}
+                        value={permission}
+                        onChange={handlePermissionChange}
+                    />
+                    <p className="text-muted" style={{ marginTop: "-8px" }}>
+                        Nota: Administrador - Gestão completa do AMS/MyMonitor; Leitor - Apenas lê informação
+                    </p>
+
+                    {role === '2' && (
+                        <MultiSelectTable
                             id="websites"
                             darkTheme={theme}
                             label={t('USERS_PAGE.ADD.websites_label') + ` (${t('HEADER.optional')})`}
-                            name="websites"
-                            value={websites || []}
-                            onChange={handleWebsiteChange}
+                            selected={websites || []}
+                            onSelectedChange={handleWebsiteChange}
                             onInputChange={handleWebsiteSearch}
                             options={websiteOptions || []}
                             placeholder="Selecione websites (opcional)"
                             isValid={true}
+                            columnLabel="Sítio Web"
+                            tableCaption="Sítios web selecionados"
+                            emptyMessage="Nenhum sítio web selecionado."
                         />
                     )}
-                
+
+                    {role === '2' && (
+                        <Input
+                            label="Número de CC"
+                            name="ccNumber"
+                            type="text"
+                            darkTheme={theme}
+                            value={watchedCcNumber}
+                            placeholder="Número de CC"
+                            {...register("ccNumber")}
+                            onChange={e => setValue("ccNumber", e.target.value)}
+                            error={errors.ccNumber?.message}
+                            autoComplete="off"
+                        />
+                    )}
+
+                    {!id && (
                         <>
                             <Input
-                                key={`password-${role}`}
-                                label={t('USERS_PAGE.ADD.password_label') + (role === '2' ? " (opcional)" : "")}
+                                label={t('USERS_PAGE.ADD.password_label')}
                                 name="password"
                                 type="password"
                                 showPassTextAria={t('LOGIN.show_password')}
                                 hidePassTextAria={t('LOGIN.hide_password')}
                                 darkTheme={theme}
+                                value={watchedPassword || ""}
                                 placeholder="Palavra-passe"
-                                {...register("password", getPasswordValidation())}
-                                onChange={e => setValue("password", e.target.value)}
+                                {...register("password", passwordValidation)}
+                                onChange={e => setValue("password", e?.target?.value ?? e)}
                                 error={errors.password?.message}
                                 autoComplete="off"
-                                aria-describedby={role !== '2' ? "password-requirements" : undefined}
+                                aria-describedby="password-requirements"
                             />
-                            
-                            {role !== '2' && (
-                                <div 
-                                    id="password-requirements"
-                                    role="region"
-                                    aria-label="Requisitos da palavra-passe"
-                                    style={{ 
-                                        marginTop: '-8px', 
-                                        marginBottom: '16px', 
-                                        padding: '12px', 
-                                        backgroundColor: '#f8f9fa', 
-                                        borderRadius: '4px',
-                                        fontSize: '14px'
-                                    }}
+
+                            <div
+                                id="password-requirements"
+                                role="region"
+                                aria-label="Requisitos da palavra-passe"
+                                style={{
+                                    marginTop: '-8px',
+                                    marginBottom: '16px',
+                                    padding: '12px',
+                                    backgroundColor: '#f8f9fa',
+                                    borderRadius: '4px',
+                                    fontSize: '14px'
+                                }}
+                            >
+                                <p style={{ margin: '0 0 8px 0', fontWeight: 'bold', color: '#495057' }} id="password-requirements-title">
+                                    A palavra-passe deve ter:
+                                </p>
+                                <ul
+                                    style={{ margin: 0, paddingLeft: '20px', listStyle: 'none' }}
+                                    aria-labelledby="password-requirements-title"
+                                    aria-live="polite"
+                                    aria-relevant="all"
                                 >
-                                    <p style={{ margin: '0 0 8px 0', fontWeight: 'bold', color: '#495057' }} id="password-requirements-title">
-                                        A palavra-passe deve ter:
-                                    </p>
-                                    <ul 
-                                        style={{ margin: 0, paddingLeft: '20px', listStyle: 'none' }}
-                                        aria-labelledby="password-requirements-title"
-                                        aria-live="polite"
-                                        aria-relevant="all"
+                                    <li style={{
+                                            color: watchedPassword ? (passwordRequirements.minLength ? '#198754' : '#dc3545') : '#495057',
+                                            marginBottom: '4px'
+                                        }}
                                     >
-                                        <li style={{ 
-                                                color: watchedPassword ? (passwordRequirements.minLength ? '#198754' : '#dc3545') : '#495057',
-                                                marginBottom: '4px'
-                                            }}
-                                        >
-                                            <span aria-hidden="true">{watchedPassword ? (passwordRequirements.minLength ? '✓' : '✗') : '•'}</span> Pelo menos 8 caracteres
-                                        </li>
-                                        <li style={{ 
-                                                color: watchedPassword ? (passwordRequirements.hasUpperCase ? '#198754' : '#dc3545') : '#495057',
-                                                marginBottom: '4px'
-                                            }}
-                                        >
-                                            <span aria-hidden="true">{watchedPassword ? (passwordRequirements.hasUpperCase ? '✓' : '✗') : '•'}</span> Pelo menos uma letra maiúscula (A-Z)
-                                        </li>
-                                        <li style={{ 
-                                                color: watchedPassword ? (passwordRequirements.hasLowerCase ? '#198754' : '#dc3545') : '#495057',
-                                                marginBottom: '4px'
-                                            }}
-                                        >
-                                            <span aria-hidden="true">{watchedPassword ? (passwordRequirements.hasLowerCase ? '✓' : '✗') : '•'}</span> Pelo menos uma letra minúscula (a-z)
-                                        </li>
-                                        <li style={{ 
-                                                color: watchedPassword ? (passwordRequirements.hasNumber ? '#198754' : '#dc3545') : '#495057',
-                                                marginBottom: '4px'
-                                            }}
-                                        >
-                                            <span aria-hidden="true">{watchedPassword ? (passwordRequirements.hasNumber ? '✓' : '✗') : '•'}</span> Pelo menos um número (0-9)
-                                        </li>
-                                        <li style={{ 
-                                                color: watchedPassword ? (passwordRequirements.hasSpecialChar ? '#198754' : '#dc3545') : '#495057'
-                                            }}
-                                        >
-                                            <span aria-hidden="true">{watchedPassword ? (passwordRequirements.hasSpecialChar ? '✓' : '✗') : '•'}</span> Pelo menos um caractere especial (!@#$%^&*...)
-                                        </li>
-                                    </ul>
-                                </div>
-                            )}
-                            
+                                        <span aria-hidden="true">{watchedPassword ? (passwordRequirements.minLength ? '✓' : '✗') : '•'}</span> Pelo menos 8 caracteres
+                                    </li>
+                                    <li style={{
+                                            color: watchedPassword ? (passwordRequirements.hasUpperCase ? '#198754' : '#dc3545') : '#495057',
+                                            marginBottom: '4px'
+                                        }}
+                                    >
+                                        <span aria-hidden="true">{watchedPassword ? (passwordRequirements.hasUpperCase ? '✓' : '✗') : '•'}</span> Pelo menos uma letra maiúscula (A-Z)
+                                    </li>
+                                    <li style={{
+                                            color: watchedPassword ? (passwordRequirements.hasLowerCase ? '#198754' : '#dc3545') : '#495057',
+                                            marginBottom: '4px'
+                                        }}
+                                    >
+                                        <span aria-hidden="true">{watchedPassword ? (passwordRequirements.hasLowerCase ? '✓' : '✗') : '•'}</span> Pelo menos uma letra minúscula (a-z)
+                                    </li>
+                                    <li style={{
+                                            color: watchedPassword ? (passwordRequirements.hasNumber ? '#198754' : '#dc3545') : '#495057',
+                                            marginBottom: '4px'
+                                        }}
+                                    >
+                                        <span aria-hidden="true">{watchedPassword ? (passwordRequirements.hasNumber ? '✓' : '✗') : '•'}</span> Pelo menos um número (0-9)
+                                    </li>
+                                    <li style={{
+                                            color: watchedPassword ? (passwordRequirements.hasSpecialChar ? '#198754' : '#dc3545') : '#495057'
+                                        }}
+                                    >
+                                        <span aria-hidden="true">{watchedPassword ? (passwordRequirements.hasSpecialChar ? '✓' : '✗') : '•'}</span> Pelo menos um caractere especial (!@#$%^&*...)
+                                    </li>
+                                </ul>
+                            </div>
+
                             <Input
-                                key={`confirmPassword-${role}`}
-                                label={t('USERS_PAGE.ADD.confirm_password_label') + (role === '2' ? " (opcional)" : "")}
+                                label={t('USERS_PAGE.ADD.confirm_password_label')}
                                 name="confirmPassword"
                                 type="password"
                                 showPassTextAria={t('LOGIN.show_password')}
                                 hidePassTextAria={t('LOGIN.hide_password')}
                                 darkTheme={theme}
                                 placeholder="Confirmar palavra-passe"
-                                {...register("confirmPassword", getConfirmPasswordValidation())}
-                                onChange={e => setValue("confirmPassword", e.target.value)}
+                                value={watchedConfirmPassword || ""}
+                                {...register("confirmPassword", confirmPasswordValidation)}
+                                onChange={e => setValue("confirmPassword", e?.target?.value ?? e)}
                                 error={errors.confirmPassword?.message}
                                 autoComplete="off"
                             />
                         </>
-                    
-                   
+                    )}
+                    {id && (
+                        <p className="text-muted">
+                            A palavra-passe só pode ser alterada pelo próprio utilizador, na sua área pessoal.
+                        </p>
+                    )}
 
                     <div className="d-flex justify-content-start">
                         <Button
@@ -424,11 +389,7 @@ const UsersCreateForm = () => {
                             text={isSubmitting ? "A guardar..." : id ? t('ADMIN_CONSOLE.update_and_exit') : t('ADMIN_CONSOLE.save_and_exit')}
                             disabled={
                                 !id
-                                  ? (
-                                      isSubmitting ||
-                                      !watchedUsername ||
-                                      (role !== '2' && (!watchedPassword || !watchedConfirmPassword))
-                                    )
+                                  ? (isSubmitting || !watchedUsername || !watchedPassword || !watchedConfirmPassword)
                                   : false
                             }
                         />

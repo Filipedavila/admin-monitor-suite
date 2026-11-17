@@ -1,7 +1,7 @@
 const decodeSegment = (value = "") => {
   try {
     return decodeURIComponent(value);
-  } catch (error) {
+  } catch {
     return value;
   }
 };
@@ -208,7 +208,7 @@ export const getRootNavigationContext = () => {
   try {
     const stored = localStorage.getItem('rootNavigationContext');
     return stored ? JSON.parse(stored) : null;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -237,7 +237,7 @@ export const getWebsiteNavigationContext = () => {
   try {
     const stored = localStorage.getItem('websiteNavigationContext');
     return stored ? JSON.parse(stored) : null;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -271,4 +271,80 @@ export const getEffectiveNavigationContext = (currentPath = "") => {
   
   // Otherwise, extract from current path
   return extractNavigationContext(currentPath);
+};
+
+/**
+ * Origin of a website screen (edit/view), carried explicitly in the router
+ * `location.state.websiteOrigin` by whoever links to it. Unlike the
+ * localStorage `previousPath`/`rootNavigationContext` heuristics, this travels
+ * with the navigation itself, so it cannot leak into later, unrelated visits
+ * (issue #131).
+ */
+const SCOPED_WEBSITE_ORIGINS = ["directory", "entity", "category"];
+
+/**
+ * Normalises a website origin. Scoped origins need a name; anything else
+ * falls back to the plain "websites" list origin.
+ *
+ * @param {{type?: string, name?: string}|null|undefined} origin
+ * @returns {{type: 'directory'|'entity'|'category', name: string}|{type: 'websites'}}
+ */
+export const normalizeWebsiteOrigin = (origin) => {
+  if (
+    origin &&
+    SCOPED_WEBSITE_ORIGINS.includes(origin.type) &&
+    typeof origin.name === "string" &&
+    origin.name.trim() !== ""
+  ) {
+    return { type: origin.type, name: origin.name };
+  }
+  return { type: "websites" };
+};
+
+/**
+ * Router state to pass when navigating to a website screen.
+ *
+ * @param {{type?: string, name?: string}|null|undefined} origin
+ * @returns {{websiteOrigin: object}}
+ */
+export const buildWebsiteOriginState = (origin) => ({
+  websiteOrigin: normalizeWebsiteOrigin(origin),
+});
+
+/**
+ * Reads the website origin from `location.state`, or null when the screen was
+ * reached without one (direct URL, external link, full page reload from an href).
+ *
+ * @param {object|null|undefined} state
+ * @returns {object|null}
+ */
+export const getWebsiteOriginFromState = (state) =>
+  state && state.websiteOrigin ? normalizeWebsiteOrigin(state.websiteOrigin) : null;
+
+/**
+ * Breadcrumb trail (without the website itself) for a given origin, as plain
+ * `{to, label}` items: Início > Diretórios > <diretório>, Início > Entidades >
+ * <entidade>, Início > Categorias > <categoria>, or Início > Sítios web.
+ *
+ * @param {object|null|undefined} origin
+ * @param {(key: string) => string} t i18next translate function
+ * @returns {{to: string, label: string}[]}
+ */
+export const getWebsiteOriginTrail = (origin, t) => {
+  const { type, name } = normalizeWebsiteOrigin(origin);
+  const home = { to: "/dashboard/home", label: t("MENU.home") };
+  const scoped = {
+    directory: { list: "/dashboard/directories", label: t("MENU.directories") },
+    entity: { list: "/dashboard/entities", label: t("MENU.entities") },
+    category: { list: "/dashboard/categories", label: t("MENU.tags") },
+  }[type];
+
+  if (scoped) {
+    return [
+      home,
+      { to: scoped.list, label: scoped.label },
+      { to: `${scoped.list}/view/${encodeURIComponent(name)}`, label: name },
+    ];
+  }
+  return [home, { to: "/dashboard/websites", label: t("MENU.websites") }];
 };

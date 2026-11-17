@@ -1,79 +1,48 @@
-import React from 'react';
-import { Input, Button, MultiSelect } from "@a12e/accessmonitor-ds";
+import { Select } from "@a12e/accessmonitor-ds";
 import { useTranslation } from "react-i18next";
+import MultiSelectTable from "../../../components/MultiSelectTable";
 
 const Associations = ({
-  register,
-  errors,
   darkTheme,
-  entityOptions,
-  userOptions,
+  institutionOptions,
   categoryOptions,
-  entityValue,
-  userValue,
+  institutionValue,
   categoryValue,
-  onEntityChange,
-  onUserChange,
+  onInstitutionChange,
   onCategoryChange,
-  onEntitySearch,
-  entitySearch,
-  onUserSearch,
-  userSearch,
   onCategorySearch,
-  categorySearch,
-  // Validation props
-  entityValidation,
-  userValidation,
-  categoryValidation
+  isCategoryLoading,
 }) => {
   const { t } = useTranslation();
   return (
     <div className='w-50 d-flex flex-column gap-3'>
       <h2 className="mb-4">{t('WEBSITES_PAGE.ADD.associations_label')}</h2>
 
-      <MultiSelect
+      <Select
         darkTheme={darkTheme}
-        id="entities"
+        id="institution"
         label={t('WEBSITES_PAGE.ADD.entities_label') + ` ${t('HEADER.optional')}`}
-        options={entityOptions}
-        placeholder={t('WEBSITES_PAGE.ADD.entities_label')}
-        value={entityValue}
-        onChange={onEntityChange}
-        onInputChange={onEntitySearch}
-        inputValue={entitySearch}
-        isValid={true}
-        invalidFeedback={""}
-        validFeedback={""}
+        options={[{ value: "", label: "Selecione" }, ...institutionOptions]}
+        value={institutionValue ?? ""}
+        onChange={onInstitutionChange}
       />
 
-      <MultiSelect
-        darkTheme={darkTheme}
-        id="users"
-        label={t('WEBSITES_PAGE.ADD.users_label') + ` ${t('HEADER.optional')}`}
-        options={userOptions || []}
-        placeholder={t('WEBSITES_PAGE.ADD.users_label')}
-        value={userValue}
-        onChange={onUserChange}
-        onInputChange={onUserSearch}
-        inputValue={userSearch}
-        isValid={true}
-        invalidFeedback={""}
-        validFeedback={""}
-      />
-
-      <MultiSelect
+      <MultiSelectTable
         darkTheme={darkTheme}
         id="categories"
         label={t('WEBSITES_PAGE.ADD.categories_label') + ` ${t('HEADER.optional')}`}
         options={categoryOptions || []}
-        placeholder={t('WEBSITES_PAGE.ADD.categories_label')}
-        value={categoryValue}
-        onChange={onCategoryChange}
+        placeholder="Pesquise e selecione categorias..."
+        selected={categoryValue}
+        onSelectedChange={onCategoryChange}
         onInputChange={onCategorySearch}
-        inputValue={categorySearch}
+        isLoading={isCategoryLoading}
+        noOptionsMessage={() => "Nenhuma categoria encontrada"}
+        loadingMessage={() => "A pesquisar..."}
         isValid={true}
-        invalidFeedback={""}
-        validFeedback={""}
+        columnLabel="Categoria"
+        tableCaption="Categorias selecionadas"
+        emptyMessage="Nenhuma categoria selecionada."
       />
     </div>
   );

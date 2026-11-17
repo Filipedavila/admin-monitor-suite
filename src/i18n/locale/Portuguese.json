@@ -2,7 +2,24 @@
   "HEADER": {
     "name": "Consola de administração",
     "logout": "Sair",
-    "optional": "(opcional)"
+    "optional": "(opcional)",
+    "session": {
+      "label": "Sessão atual",
+      "environment": "Ambiente",
+      "profile": "Perfil",
+      "user": "Utilizador",
+      "environments": {
+        "development": "Desenvolvimento",
+        "test": "Teste",
+        "preproduction": "Pré-produção",
+        "production": "Produção"
+      },
+      "profiles": {
+        "manager": "Gestor",
+        "editor": "Editor",
+        "viewer": "Leitor"
+      }
+    }
   },
   "LOGIN": {
     "title": "Iniciar sessão",
@@ -425,6 +442,16 @@
     }
   },
   "WEBSITES_PAGE": {
+    "URL": {
+      "label": "URL Inicial",
+      "required": "O URL inicial é obrigatório.",
+      "invalid": "URL inválido. Use um endereço completo começado por http:// ou https://, sem espaços nem caracteres como < > \" { } | \\ ^ `.",
+      "update_error": "Os restantes dados do sítio web foram guardados, mas não foi possível alterar o URL. Tente novamente.",
+      "update_invalid": "Os restantes dados do sítio web foram guardados, mas o servidor rejeitou o novo URL por ser inválido.",
+      "update_conflict": "Os restantes dados do sítio web foram guardados, mas o URL não foi alterado porque já existe um sítio web com este URL.",
+      "update_forbidden": "Os restantes dados do sítio web foram guardados, mas não tem permissão para alterar o URL.",
+      "general_update_error": "Não foi possível guardar os dados do sítio web. O URL não foi alterado. Tente novamente."
+    },
 
     "LIST": {
       "title_list": "Sítios web",
@@ -560,6 +587,13 @@
         "see_tooltip": "Ver página"
       }
     },
+    "DELETE": {
+      "none_selected": "Selecione pelo menos uma página para apagar.",
+      "success_one": "Página apagada com sucesso.",
+      "success_other": "{{count}} páginas apagadas com sucesso.",
+      "error": "Não foi possível apagar as páginas. Tente novamente.",
+      "forbidden": "Não tem permissão para apagar estas páginas."
+    },
     "ADD": {
       "title": "Criar nova página",
       "description": "Criar uma nova página para as aplicações Study Monitor ou My Monitor",
@@ -618,7 +652,9 @@
     }
   },
   "BREADCRUMB": {
-    "tag_here": "você está aqui"
+    "tag_here": "você está aqui",
+    "edit_website": "Editar sítio web",
+    "create_website": "Criar sítio web"
   },
   "ELEMENT_RESULTS": {
     "result": {
@@ -632,5 +668,88 @@
 
     },
     "total_elements": "Total de elementos"
+  },
+  "EVENTS": {
+    "actor_you": "você",
+    "actor_user": "utilizador {{id}}"
+  },
+  "CRAWLER_EVENTS": {
+    "started_by": "Crawler iniciado por {{actor}}: sítio web {{website}} ({{url}}).",
+    "started": "Crawler iniciado: sítio web {{website}} ({{url}}).",
+    "completed": "Crawler concluído: sítio web {{website}} ({{url}}).",
+    "failed": "Crawler falhou: sítio web {{website}} ({{url}}). Motivo: {{reason}}",
+    "stalled": "Crawler parado sem progresso: sítio web {{website}} ({{url}})."
+  },
+  "EVALUATIONS": {
+    "event_started_by": "Avaliação iniciada por {{actor}}: sítio web {{website}}{{scope}}.",
+    "event_started": "Avaliação iniciada: sítio web {{website}}{{scope}}.",
+    "event_completed": "Avaliação concluída: sítio web {{website}}{{scope}}.",
+    "event_completed_failed": "Avaliação concluída com falhas ({{failed}} de {{total}} páginas): sítio web {{website}}{{scope}}.",
+    "scope_institution": "entidade {{id}}",
+    "scope_directories": "diretórios {{ids}}",
+    "started_one": "A avaliação de 1 sítio web foi pedida. As páginas serão avaliadas em segundo plano e os resultados ficam disponíveis assim que possível.",
+    "started_other": "A avaliação de {{count}} sítios web foi pedida. As páginas serão avaliadas em segundo plano e os resultados ficam disponíveis assim que possível.",
+    "partial": "Não foi possível pedir a avaliação de {{failed}} de {{total}} sítios web (por exemplo, sítios web sem páginas). Os restantes vão ser avaliados em segundo plano.",
+    "error": "Não foi possível iniciar a avaliação. Tente novamente.",
+    "forbidden": "Não tem permissão para avaliar estes sítios web.",
+    "no_websites": "Não há sítios web para avaliar na seleção.",
+    "none_selected_websites": "Selecione pelo menos um sítio web para reavaliar."
+  },
+  "WEBSITES_DELETE": {
+    "none_selected": "Selecione pelo menos um sítio web para eliminar.",
+    "success_one": "Sítio web eliminado com sucesso.",
+    "success_other": "{{count}} sítios web eliminados com sucesso.",
+    "error": "Não foi possível eliminar os sítios web. Tente novamente.",
+    "forbidden": "Não tem permissão para eliminar estes sítios web."
+  },
+  "CRAWL_TAGS": {
+    "button_selected": "Crawling Categoria(s)",
+    "button_one": "Procurar páginas da categoria",
+    "loading": "A pedir a procura de páginas...",
+    "description": "Pede a procura automática de páginas (crawling) de todos os sítios web desta categoria. O processo corre em segundo plano e os resultados aparecem no Crawler.",
+    "feedback_title": "Procura automática de páginas",
+    "started_one": "A procura de páginas de 1 categoria foi pedida. O processo corre em segundo plano e os resultados aparecem no Crawler.",
+    "started_other": "A procura de páginas de {{count}} categorias foi pedida. O processo corre em segundo plano e os resultados aparecem no Crawler.",
+    "partial": "Não foi possível pedir a procura de páginas de {{failed}} de {{total}} categorias. As restantes vão ser processadas em segundo plano.",
+    "error": "Não foi possível iniciar a procura de páginas. Tente novamente.",
+    "forbidden": "Não tem permissão para fazer a procura de páginas destas categorias.",
+    "none_selected": "Selecione pelo menos uma categoria para procurar páginas."
+  },
+  "CHANGE_PASSWORD": {
+    "open_button": "Alterar palavra-passe",
+    "title": "Alterar palavra-passe",
+    "description": "Para alterar a palavra-passe da sua conta, indique a palavra-passe atual e a nova palavra-passe duas vezes.",
+    "current_password_label": "Palavra-passe atual",
+    "new_password_label": "Nova palavra-passe",
+    "confirm_password_label": "Confirmar nova palavra-passe",
+    "required": "Campo obrigatório",
+    "submit": "Alterar palavra-passe",
+    "submitting": "A alterar...",
+    "cancel": "Cancelar",
+    "success": "A palavra-passe foi alterada com sucesso.",
+    "errors": {
+      "bad_request": "Os dados enviados não são válidos. Verifique a palavra-passe atual e a nova palavra-passe.",
+      "unauthorized": "A palavra-passe atual está incorreta.",
+      "forbidden": "Não tem permissão para alterar a palavra-passe.",
+      "generic": "Não foi possível alterar a palavra-passe. Tente novamente."
+    },
+    "policy": {
+      "title": "A nova palavra-passe tem de ter:",
+      "met": "cumprida",
+      "unmet": "por cumprir",
+      "error": "A nova palavra-passe não cumpre todas as regras indicadas.",
+      "rules": {
+        "minLength_one": "pelo menos {{count}} carácter",
+        "minLength_other": "pelo menos {{count}} caracteres",
+        "minLowercase_one": "pelo menos {{count}} letra minúscula",
+        "minLowercase_other": "pelo menos {{count}} letras minúsculas",
+        "minUppercase_one": "pelo menos {{count}} letra maiúscula",
+        "minUppercase_other": "pelo menos {{count}} letras maiúsculas",
+        "minNumbers_one": "pelo menos {{count}} número (0-9)",
+        "minNumbers_other": "pelo menos {{count}} números (0-9)",
+        "minSymbols_one": "pelo menos {{count}} símbolo (por exemplo ! ? @ # _)",
+        "minSymbols_other": "pelo menos {{count}} símbolos (por exemplo ! ? @ # _)"
+      }
+    }
   }
 } 
